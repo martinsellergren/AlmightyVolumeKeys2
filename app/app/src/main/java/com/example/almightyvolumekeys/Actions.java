@@ -16,18 +16,10 @@ public class Actions {
         this.audioRecorder = new AudioRecorder(context);
     }
 
-    public class DefaultVolume_Up implements Action {
-        String name = "Increase default volume";
-        String description = null;
-
+    public class DefaultVolume_Up extends Action {
         @Override
         public String getName() {
-            return name;
-        }
-
-        @Override
-        public String getDescription() {
-            return description;
+            return "Increase default volume";
         }
 
         @Override
@@ -36,60 +28,34 @@ public class Actions {
         }
     }
 
-    public class AudioRecording_Start implements Action {
-        String name = "Start recording audio";
-        String description = null;
-
+    public class AudioRecording_Start extends Action {
         @Override
         public String getName() {
-            return name;
-        }
-
-        @Override
-        public String getDescription() {
-            return description;
+            return "Start recording audio";
         }
 
         @Override
         public void run() {
-
             audioRecorder.start();
         }
     }
 
-    public class AudioRecording_StopAndSave implements Action {
-        String name = "Stop recording audio and save";
-        String description = null;
-
+    public class AudioRecording_StopAndSave extends Action {
         @Override
         public String getName() {
-            return name;
-        }
-
-        @Override
-        public String getDescription() {
-            return description;
+            return "Stop recording audio and save";
         }
 
         @Override
         public void run() {
-
             audioRecorder.stopAndSave();
         }
     }
 
-    public class MediaControl_NextTrack implements Action {
-        String name = "Stop recording audio and save";
-        String description = null;
-
+    public class MediaControl_NextTrack extends Action {
         @Override
         public String getName() {
-            return name;
-        }
-
-        @Override
-        public String getDescription() {
-            return description;
+            return "Play next media track";
         }
 
         @Override

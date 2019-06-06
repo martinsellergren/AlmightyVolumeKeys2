@@ -62,9 +62,29 @@ public class KeyListenerService extends AccessibilityService {
 
     /**
      * Performs mapped action if appropriate. Else changes volume as normal.
+     * Default volume change if more than 3 volume presses.
      * @param up True if volume up pressed, false if down.
      */
     private void handleKeyPress(boolean up) {
+        if (audioManager.getMode() != AudioManager.MODE_NORMAL) {
+            actionCommand.cancel();
+            adjustRelevantStreamVolume(up);
+        }
+        else {
+            if (actionCommand.getLength() >= 4) {
+                adjustRelevantStreamVolume(up);
+            }
+            actionCommand.addBit(up);
+        }
+    }
+
+    /**
+     * Finds relevant stream and changes its volume.
+     * @param up else down
+     *
+     * todo: investigate AudioManager.adjustVolume(), USE_DEFAULT_STREAM_TYPE -constant
+     */
+    private void adjustRelevantStreamVolume(boolean up) {
         int dir = up ? AudioManager.ADJUST_RAISE : AudioManager.ADJUST_LOWER;
         int volumeChangeFlag = AudioManager.FLAG_SHOW_UI;
 
@@ -81,22 +101,13 @@ public class KeyListenerService extends AccessibilityService {
             audioManager.adjustStreamVolume(AudioManager.STREAM_VOICE_CALL, dir, volumeChangeFlag);
         }
         else if (audioManager.getMode() == AudioManager.MODE_NORMAL) {
-            registerActionCommandBlock(up);
+            int idleStream = AudioManager.STREAM_MUSIC; //todo, get from user settings
+            Log.e("<ME>", "adjust idle stream: " + idleStream);
+            audioManager.adjustStreamVolume(idleStream, dir, volumeChangeFlag);
         }
         else {
-            Log.e("<ME>", "Lost volume-key press: " + audioManager.getMode());
+            throw new RuntimeException("Dead end");
         }
-    }
-
-    /**
-     * A volume-key press happened which wasn't consumed by the system. It's a new action-command-block.
-     * Append to current action-command.
-     *
-     * @param up True if volume up pressed, false if down.
-     */
-    private void registerActionCommandBlock(boolean up) {
-        Log.i("<ME>", "New command-block: " + (up ? "up" : "down"));
-        actionCommand.addBlock(up);
     }
 
     @Override

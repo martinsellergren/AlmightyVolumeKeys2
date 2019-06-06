@@ -8,6 +8,7 @@ import java.util.Map;
 
 /**
  * Builds a command and executes it.
+ * 4 or more volume-presses falls back to volume change, so commands may never be longer than 3 bits.
  */
 public class ActionCommand {
 
@@ -20,17 +21,17 @@ public class ActionCommand {
     private Context context;
     private Actions actions;
 
-    public ActionCommand(Context context, Actions actions) {
+    ActionCommand(Context context, Actions actions) {
         this.context = context;
         this.actions = actions;
     }
 
     /**
-     * Adds a command-block to the command. Executes command if no other block added before multi-press-time.
-     * @param up else down-command-block
+     * Adds a command-bit to the command. Executes command if no other bit added before multi-press-time.
+     * @param up else down-command-bit
      */
-    public void addBlock(boolean up) {
-        long MULTI_PRESS_MAX_TIME = 400;
+    void addBit(boolean up) {
+        long MULTI_PRESS_MAX_TIME = 1000;
         command += (up ? "1" : "0");
 
         handler.removeCallbacksAndMessages(null);
@@ -45,7 +46,7 @@ public class ActionCommand {
     private void executeCommand() {
         Map<String, Action> mappings = Utils.getMappings(context, actions);
         Action action = mappings.get(command);
-        if (actions == null) {
+        if (action == null) {
             Log.i("<ME>", "Non-mapped command: " + command);
         }
         else {
@@ -54,5 +55,17 @@ public class ActionCommand {
         }
 
         command = "";
+    }
+
+    /**
+     * Discards command and cancels any callback.
+     */
+    void cancel() {
+        command = "";
+        handler.removeCallbacksAndMessages(null);
+    }
+
+    int getLength() {
+        return command.length();
     }
 }
