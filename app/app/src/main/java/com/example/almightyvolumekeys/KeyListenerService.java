@@ -81,11 +81,10 @@ public class KeyListenerService extends AccessibilityService {
      * @param up True if volume up pressed, false if down.
      */
     private void handleKeyPress(boolean up) {
-        Log.i("<ME>", "Recorder press");
         if (actionCommand.getLength() >= 4 || DeviceState.getCurrent(myContext) != DeviceState.IDLE)
             adjustRelevantStreamVolume(up);
         else
-            actionCommand.addBit(up);
+            actionCommand.addBit(up, ActionCommand.DELTA_PRESS_TIME_FAST);
     }
 
     /**
@@ -130,8 +129,7 @@ public class KeyListenerService extends AccessibilityService {
     @SuppressLint("WrongConstant")
     private void setupMediaSessionForScreenOffCallbacks() {
         MediaSessionCompat mediaSession = myContext.mediaSession;
-        int FLAG_EXCLUSIVE_GLOBAL_PRIORITY = 1 << 16;
-        mediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS | FLAG_EXCLUSIVE_GLOBAL_PRIORITY);
+        mediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
 
         PlaybackStateCompat.Builder stateBuilder = new PlaybackStateCompat.Builder(); stateBuilder.setActions(PlaybackStateCompat.ACTION_PLAY | PlaybackStateCompat.ACTION_PLAY_PAUSE | PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID | PlaybackStateCompat.ACTION_PAUSE | PlaybackStateCompat.ACTION_SKIP_TO_NEXT | PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS);
         stateBuilder.setState(PlaybackStateCompat.STATE_PLAYING, 0, 1);

@@ -16,7 +16,7 @@ class Mappings {
         idleMappings.put("10", new Actions.MediaControl_NextTrack());
 
         Map<String, Action> musicMappings = new HashMap<>();
-        musicMappings.put("1", new Actions.MediaControl_NextTrack());
+        musicMappings.put("10", new Actions.MediaControl_NextTrack());
         //idleMappings.put("0", new Actions.MediaControl_NextTrack());
 
         switch (DeviceState.getCurrent(myContext)) {
