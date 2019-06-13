@@ -1,15 +1,14 @@
 package com.example.almightyvolumekeys;
 
 import android.accessibilityservice.AccessibilityService;
+import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
-import android.media.VolumeProvider;
 import android.os.Build;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.accessibility.AccessibilityEvent;
@@ -18,14 +17,16 @@ import android.support.v4.media.session.PlaybackStateCompat;
 
 import androidx.core.app.NotificationCompat;
 import androidx.media.VolumeProviderCompat;
-import androidx.media.session.MediaButtonReceiver;
 
 public class KeyListenerService extends AccessibilityService {
 
-    private ActionCommand actionCommand;
-    private AudioManager audioManager;
-    private MediaSessionCompat mediaSession;
+    /**
+     * Fields set on service start. */
+    private ActionCommand actionCommand = null;
+    private MyContext myContext = null;
+    private VolumeChangeObserver volumeChangeObserver = null;
 
+    // region required for AccessibilityService
 
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
@@ -37,20 +38,34 @@ public class KeyListenerService extends AccessibilityService {
         Log.i("<ME>", "listener service onInterrupt()");
     }
 
+    // endregion
+
+
+    @Override
+    protected void onServiceConnected() {
+        Log.i("<ME>", "onServiceConnected()");
+
+        if (Build.VERSION.SDK_INT >= 28) requestForeground();
+        myContext = new MyContext(getApplicationContext());
+        actionCommand = new ActionCommand(myContext);
+        volumeChangeObserver = new VolumeChangeObserver(myContext.audioManager, actionCommand);
+        getApplicationContext().getContentResolver().registerContentObserver(Settings.System.CONTENT_URI, true, volumeChangeObserver);
+        setupMediaSessionForScreenOffCallbacks();
+    }
+
     /**
-     * Fired only when screen is on. Consumes the volume key press so nothing else happens
-     * except specifies actions.
+     * Fired only when screen is on. Consumes volume key presses and pass them along for processing.
+     * Other events pass through.
      * @param event
      * @return True to consume event
      */
     @Override
     protected boolean onKeyEvent(KeyEvent event) {
-        if (event.getKeyCode() ==  KeyEvent.KEYCODE_VOLUME_UP || event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_DOWN) {
+        if (event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_UP || event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_DOWN) {
             if (event.getAction() == KeyEvent.ACTION_DOWN) {
                 boolean up = event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_UP;
                 handleKeyPress(up);
-            }
-            else {
+            } else {
                 //ignore
             }
 
@@ -61,21 +76,16 @@ public class KeyListenerService extends AccessibilityService {
     }
 
     /**
-     * Performs mapped action if appropriate. Else changes volume as normal.
+     * Adds press to action command if appropriate. Else changes volume as normal.
      * Default volume change if more than 3 volume presses.
      * @param up True if volume up pressed, false if down.
      */
     private void handleKeyPress(boolean up) {
-        if (audioManager.getMode() != AudioManager.MODE_NORMAL) {
-            actionCommand.cancel();
+        Log.i("<ME>", "Recorder press");
+        if (actionCommand.getLength() >= 4 || DeviceState.getCurrent(myContext) != DeviceState.IDLE)
             adjustRelevantStreamVolume(up);
-        }
-        else {
-            if (actionCommand.getLength() >= 4) {
-                adjustRelevantStreamVolume(up);
-            }
+        else
             actionCommand.addBit(up);
-        }
     }
 
     /**
@@ -87,39 +97,13 @@ public class KeyListenerService extends AccessibilityService {
     private void adjustRelevantStreamVolume(boolean up) {
         int dir = up ? AudioManager.ADJUST_RAISE : AudioManager.ADJUST_LOWER;
         int volumeChangeFlag = AudioManager.FLAG_SHOW_UI;
+        int activeStream = Utils.getActiveAudioStream(myContext.audioManager);
 
-        if (audioManager.isMusicActive()) {
-            Log.i("<ME>", "adjust music volume");
-            audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, dir, volumeChangeFlag);
+        if (activeStream == AudioManager.USE_DEFAULT_STREAM_TYPE) {
+            activeStream = AudioManager.STREAM_MUSIC; //todo: get from user settings
         }
-        else if (audioManager.getMode() == AudioManager.MODE_RINGTONE) {
-            Log.i("<ME>", "adjust ringer volume");
-            audioManager.adjustStreamVolume(AudioManager.STREAM_RING, dir, volumeChangeFlag);
-        }
-        else if (audioManager.getMode() == AudioManager.MODE_IN_CALL || audioManager.getMode() == AudioManager.MODE_IN_COMMUNICATION) {
-            Log.i("<ME>", "adjust voice call volume");
-            audioManager.adjustStreamVolume(AudioManager.STREAM_VOICE_CALL, dir, volumeChangeFlag);
-        }
-        else if (audioManager.getMode() == AudioManager.MODE_NORMAL) {
-            int idleStream = AudioManager.STREAM_MUSIC; //todo, get from user settings
-            Log.e("<ME>", "adjust idle stream: " + idleStream);
-            audioManager.adjustStreamVolume(idleStream, dir, volumeChangeFlag);
-        }
-        else {
-            throw new RuntimeException("Dead end");
-        }
-    }
 
-    @Override
-    protected void onServiceConnected() {
-        Log.i("<ME>", "onServiceConnected()");
-
-        if (Build.VERSION.SDK_INT >= 28) requestForeground();
-        audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
-        setupMediaSessionForScreenOffCallbacks();
-
-        Actions actions = new Actions(this);
-        actionCommand = new ActionCommand(this, actions);
+        myContext.audioManager.adjustStreamVolume(activeStream, dir, volumeChangeFlag);
     }
 
     private void requestForeground() {
@@ -143,10 +127,11 @@ public class KeyListenerService extends AccessibilityService {
         startForeground(101, notification);
     }
 
+    @SuppressLint("WrongConstant")
     private void setupMediaSessionForScreenOffCallbacks() {
-        ComponentName mediaButtonReceiver = new ComponentName(getApplicationContext(), MediaButtonReceiver.class);
-        mediaSession = new MediaSessionCompat(getApplicationContext(), "TAG", mediaButtonReceiver, null);
-        mediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
+        MediaSessionCompat mediaSession = myContext.mediaSession;
+        int FLAG_EXCLUSIVE_GLOBAL_PRIORITY = 1 << 16;
+        mediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS | FLAG_EXCLUSIVE_GLOBAL_PRIORITY);
 
         PlaybackStateCompat.Builder stateBuilder = new PlaybackStateCompat.Builder(); stateBuilder.setActions(PlaybackStateCompat.ACTION_PLAY | PlaybackStateCompat.ACTION_PLAY_PAUSE | PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID | PlaybackStateCompat.ACTION_PAUSE | PlaybackStateCompat.ACTION_SKIP_TO_NEXT | PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS);
         stateBuilder.setState(PlaybackStateCompat.STATE_PLAYING, 0, 1);
@@ -159,8 +144,8 @@ public class KeyListenerService extends AccessibilityService {
     /**
      * Fallback when onKeyEvent doesn't catch the event (i.e when screen is off).
      * Music active, in call, phone ringing etc "should" take control over the volume-keys and
-     * therefor suppress this callback. To be safe, check if to perform the remap-action OR change volume
-     * of appropriate stream.
+     * therefor suppress this callback. To be safe, check if to add press to action-command OR
+     * change volume of appropriate stream.
      */
     private VolumeProviderCompat screenOffCallback() {
         return new VolumeProviderCompat(VolumeProviderCompat.VOLUME_CONTROL_RELATIVE, 2, 1) {
@@ -177,8 +162,8 @@ public class KeyListenerService extends AccessibilityService {
     @Override
     public boolean onUnbind(Intent intent) {
         Log.i("<ME>", "onUnbind()");
-        mediaSession.setActive(false);
-        mediaSession.release();
+        myContext.destroy();
+        getApplicationContext().getContentResolver().unregisterContentObserver(volumeChangeObserver);
 
         return super.onUnbind(intent);
     }

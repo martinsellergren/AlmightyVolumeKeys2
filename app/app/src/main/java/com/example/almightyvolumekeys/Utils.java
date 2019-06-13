@@ -1,16 +1,13 @@
 package com.example.almightyvolumekeys;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
-
-import androidx.core.app.ActivityCompat;
+import android.media.AudioManager;
+import android.media.AudioPlaybackConfiguration;
+import android.os.Build;
+import android.util.Log;
 import androidx.core.content.ContextCompat;
-
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 class Utils {
 
@@ -19,17 +16,37 @@ class Utils {
     }
 
     /**
-     * Map action-command to action corresponding to user preferences.
-     * @param context
-     * @param actions Available actions.
-     * @return
+     * @param manager
+     * @return Active audio-stream for volume-change on volume key press. A stream as defined in AudioManager.
+     * Most accurate if API >= 26 (alarm-stream etc). If none active: AudioManager.USE_DEFAULT_STREAM_TYPE.
      */
-    static Map<String, Action> getMappings(Context context, Actions actions) {
-        Map<String, Action> mappings = new HashMap<>();
-        mappings.put("1", actions.new AudioRecording_Start());
-        mappings.put("0", actions.new AudioRecording_StopAndSave());
-        mappings.put("01", actions.new DefaultVolume_Up());
-        mappings.put("10", actions.new MediaControl_NextTrack());
-        return mappings;
+    static int getActiveAudioStream(AudioManager manager) {
+        if (Build.VERSION.SDK_INT >= 26) {
+            List<AudioPlaybackConfiguration> configurations = manager.getActivePlaybackConfigurations();
+            if (configurations.size() == 0) {
+                return AudioManager.USE_DEFAULT_STREAM_TYPE;
+            }
+            if (configurations.size() > 1) {
+                Log.i("<ME>", "Multiple active audio-streams");
+            }
+            return configurations.get(0).getAudioAttributes().getVolumeControlStream();
+        }
+        else {
+            if (manager.isMusicActive()) {
+                return AudioManager.STREAM_MUSIC;
+            }
+            if (manager.getMode() == AudioManager.MODE_RINGTONE) {
+                return AudioManager.STREAM_RING;
+            }
+            if (manager.getMode() == AudioManager.MODE_IN_CALL || manager.getMode() == AudioManager.MODE_IN_COMMUNICATION) {
+                return AudioManager.STREAM_VOICE_CALL;
+            }
+            if (manager.getMode() == AudioManager.MODE_NORMAL) {
+                return AudioManager.USE_DEFAULT_STREAM_TYPE;
+            }
+            else {
+                throw new RuntimeException("Dead end");
+            }
+        }
     }
 }

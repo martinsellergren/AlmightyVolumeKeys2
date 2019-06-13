@@ -5,7 +5,7 @@ abstract class Action {
     int[] DEFAULT_VIBRATION_PATTERN = new int[]{300};
 
     abstract String getName();
-    abstract void run();
+    abstract void run(MyContext myContext);
 
     String getDescription() {
         return null;

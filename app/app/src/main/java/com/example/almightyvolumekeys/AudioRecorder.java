@@ -5,29 +5,21 @@ import android.content.Context;
 import android.content.Intent;
 import android.media.MediaRecorder;
 import android.util.Log;
-
 import java.io.IOException;
 
-public class AudioRecorder {
+class AudioRecorder {
 
-    private Context context;
-    private String outputFile = "";
+    /**
+     * Null unless recording */
     private MediaRecorder recorder = null;
+
     private boolean isRecording = false;
 
-    public AudioRecorder(Context context) {
-        this.context = context;
-    }
+    /**
+     * Null unless recording. */
+    private String outputFile = null;
 
-    private void setup() {
-        outputFile = String.format("%s/rec_test.%s", context.getExternalCacheDir().getAbsolutePath(), "3gp");
-        recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-        recorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-        recorder.setOutputFile(outputFile);
-        recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-    }
-
-    public void start() {
+    void start(Context context, String outputFile) {
         String permission = Manifest.permission.RECORD_AUDIO;
         if (!Utils.hasPermission(context, permission)) {
             Intent intent = new Intent(context, MainActivity.class);
@@ -36,25 +28,39 @@ public class AudioRecorder {
             return;
         }
 
-        setup();
         try {
+            recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+            recorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+            recorder.setOutputFile(outputFile);
+            recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
             recorder.prepare();
             recorder.start();
             isRecording = true;
+            outputFile = outputFile;
             Log.i("<ME>", "rec to: " + outputFile);
         } catch (IOException e) {
             Log.e("<ME>", e.getMessage());
         }
     }
 
-    public void stopAndSave() {
+    void stopAndSave() {
         recorder.stop();
         recorder.release();
         recorder = null;
         isRecording = false;
+        outputFile = null;
     }
 
-    public void stopAndDiscard() {
+    // works with reset() ?
+    void stopAndDiscard() {
+        recorder.reset();
+        recorder.release();
+        recorder = null;
+        isRecording = false;
+        outputFile = null;
+    }
 
+    boolean isRecording() {
+        return isRecording;
     }
 }
