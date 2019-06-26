@@ -15,6 +15,7 @@ class Actions {
 
         @Override
         public void run(MyContext myContext) {
+            myContext.audioRecorder.start(myContext.context);
         }
     }
 
@@ -26,6 +27,7 @@ class Actions {
 
         @Override
         public void run(MyContext myContext) {
+            myContext.audioRecorder.stopAndSave();
         }
     }
 

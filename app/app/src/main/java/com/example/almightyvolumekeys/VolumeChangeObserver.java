@@ -29,7 +29,7 @@ public class VolumeChangeObserver extends ContentObserver {
         //Log.i("<ME>", "DELTA:" + delta);
 
         if (delta != 0) {
-            actionCommand.addBit(delta > 0, ActionCommand.DELTA_PRESS_TIME_FAST);
+            actionCommand.addBit(delta > 0, ActionCommand.DELTA_PRESS_TIME_SLOW);
         }
     }
 }

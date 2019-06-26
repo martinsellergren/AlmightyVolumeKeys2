@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.bluetooth.BluetoothClass;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.os.Build;
@@ -81,10 +82,19 @@ public class KeyListenerService extends AccessibilityService {
      * @param up True if volume up pressed, false if down.
      */
     private void handleKeyPress(boolean up) {
-        if (actionCommand.getLength() >= 4 || DeviceState.getCurrent(myContext) != DeviceState.IDLE)
+        if (actionCommand.getLength() >= 4) {
             adjustRelevantStreamVolume(up);
-        else
+            return;
+        }
+
+        DeviceState state = DeviceState.getCurrent(myContext);
+        boolean passActionBit = state.equals(DeviceState.RECORDING_AUDIO) || state.equals(DeviceState.IDLE);
+        if (!passActionBit) {
+            adjustRelevantStreamVolume(up);
+        }
+        else {
             actionCommand.addBit(up, ActionCommand.DELTA_PRESS_TIME_FAST);
+        }
     }
 
     /**
@@ -126,7 +136,6 @@ public class KeyListenerService extends AccessibilityService {
         startForeground(101, notification);
     }
 
-    @SuppressLint("WrongConstant")
     private void setupMediaSessionForScreenOffCallbacks() {
         MediaSessionCompat mediaSession = myContext.mediaSession;
         mediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);

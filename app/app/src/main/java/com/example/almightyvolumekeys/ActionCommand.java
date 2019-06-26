@@ -1,9 +1,7 @@
 package com.example.almightyvolumekeys;
 
-import android.bluetooth.BluetoothClass;
 import android.os.Handler;
 import android.util.Log;
-
 import java.util.Map;
 
 /**
@@ -58,10 +56,10 @@ class ActionCommand {
             Map<String, Action> mappings = Mappings.get(myContext);
             Action action = mappings.get(command);
             if (action == null) {
-                Log.i("<ME>", String.format("Non-mapped command: %s (state:%s)", command, DeviceState.getCurrent(myContext)));
+                Utils.logAndToast(myContext.context, String.format("Non-mapped command: %s (state:%s)", command, DeviceState.getCurrent(myContext)));
             } else {
-                Log.i("<ME>", String.format("Execute %s -> %s (state:%s)", command, action.getName(), DeviceState.getCurrent(myContext)));
-                //action.run();
+                Utils.logAndToast(myContext.context, String.format("Execute %s -> %s (state:%s)", command, action.getName(), DeviceState.getCurrent(myContext)));
+                action.run(myContext);
             }
         }
 

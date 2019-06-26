@@ -5,7 +5,10 @@ import android.content.pm.PackageManager;
 import android.media.AudioManager;
 import android.media.AudioPlaybackConfiguration;
 import android.os.Build;
+import android.os.Environment;
 import android.util.Log;
+import android.widget.Toast;
+
 import androidx.core.content.ContextCompat;
 import java.util.List;
 
@@ -48,5 +51,21 @@ class Utils {
                 throw new RuntimeException("Dead end");
             }
         }
+    }
+
+    /**
+     * Checks if external storage is available for read and write.
+     */
+    static boolean isExternalStorageWritable() {
+        return Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState());
+    }
+
+    static void log(String txt) {
+        Log.i("<ME>", txt);
+    }
+
+    static void logAndToast(Context context, String txt) {
+        log(txt);
+        Toast.makeText(context, txt, Toast.LENGTH_LONG).show();
     }
 }
