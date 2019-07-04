@@ -14,7 +14,7 @@ class Actions {
         }
 
         @Override
-        public void run(MyContext myContext) {
+        public void run(MyContext myContext) throws Action.ExecutionException {
             myContext.audioRecorder.start(myContext.context);
         }
     }
@@ -26,7 +26,7 @@ class Actions {
         }
 
         @Override
-        public void run(MyContext myContext) {
+        public void run(MyContext myContext) throws Action.ExecutionException {
             myContext.audioRecorder.stopAndSave();
         }
     }
@@ -38,7 +38,7 @@ class Actions {
         }
 
         @Override
-        public void run(MyContext myContext) {
+        public void run(MyContext myContext) throws Action.ExecutionException {
 
         }
     }

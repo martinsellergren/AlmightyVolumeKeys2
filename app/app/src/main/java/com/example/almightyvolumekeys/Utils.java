@@ -66,6 +66,21 @@ class Utils {
 
     static void logAndToast(Context context, String txt) {
         log(txt);
+        toast(context, txt);
+    }
+    static void logAndToast(MyContext myContext, String txt) {
+        logAndToast(myContext.context, txt);
+    }
+
+    /**
+     * Checks if toasts are disabled in user-prefs before showing.
+     * @param context
+     * @param txt
+     */
+    static void toast(Context context, String txt) {
         Toast.makeText(context, txt, Toast.LENGTH_LONG).show();
+    }
+    static void toast(MyContext myContext, String txt) {
+        toast(myContext.context, txt);
     }
 }

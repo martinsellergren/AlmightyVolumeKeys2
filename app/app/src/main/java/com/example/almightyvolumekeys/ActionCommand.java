@@ -1,5 +1,6 @@
 package com.example.almightyvolumekeys;
 
+import android.content.Intent;
 import android.os.Handler;
 import android.util.Log;
 import java.util.Map;
@@ -56,10 +57,21 @@ class ActionCommand {
             Map<String, Action> mappings = Mappings.get(myContext);
             Action action = mappings.get(command);
             if (action == null) {
-                Utils.logAndToast(myContext.context, String.format("Non-mapped command: %s (state:%s)", command, DeviceState.getCurrent(myContext)));
+                Utils.logAndToast(myContext, String.format("Non-mapped command: %s (state:%s)", command, DeviceState.getCurrent(myContext)));
             } else {
-                Utils.logAndToast(myContext.context, String.format("Execute %s -> %s (state:%s)", command, action.getName(), DeviceState.getCurrent(myContext)));
-                action.run(myContext);
+                Utils.logAndToast(myContext, String.format("Execute %s -> %s (state:%s)", command, action.getName(), DeviceState.getCurrent(myContext)));
+
+                try {
+                    action.run(myContext);
+                }
+                catch (Action.ExecutionException e) {
+                    Utils.logAndToast(myContext, e.getMessage());
+
+                    if (e.lacksPermission) {
+                        Intent intent = new Intent(myContext.context, MainActivity.class);
+                        myContext.context.startActivity(intent);
+                    }
+                }
             }
         }
 
