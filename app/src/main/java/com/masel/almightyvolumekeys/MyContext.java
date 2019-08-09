@@ -17,11 +17,12 @@ class MyContext {
         context = c.getApplicationContext();
         audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         mediaSession = new MediaSessionCompat(context, "TAG", new ComponentName(context, MediaButtonReceiver.class), null);
-        audioRecorder = new AudioRecorderConnection();
+        audioRecorder = new AudioRecorderConnection(context);
     }
 
     void destroy() {
         mediaSession.setActive(false);
         mediaSession.release();
+        audioRecorder.unbind();
     }
 }
