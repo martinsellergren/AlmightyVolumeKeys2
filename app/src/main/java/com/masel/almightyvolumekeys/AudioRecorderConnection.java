@@ -10,22 +10,28 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 
-import androidx.core.content.ContextCompat;
+import com.masel.rec_utils.AudioRecorder;
 
 class AudioRecorderConnection {
 
+    //region for TheSoundRecorder
+
     /**
-     * Action codes as specified in RecorderService. */
+     * Action codes as specified in TheSoundRecorder's rec-service. */
     private static final int ACTION_STOP_AND_SAVE = 0;
     private static final int ACTION_STOP_AND_DISCARD = 1;
 
     /**
-     * NULL unless rec-service running. */
+     * NULL unless TheSoundRecorder's rec-service is running. */
     private Messenger messenger = null;
+
+    //endregion
+
+    private AudioRecorder audioRecorder;
 
     private Context context;
 
-    private ServiceConnection serviceConnection = new ServiceConnection() {
+    private ServiceConnection theSoundRecorderServiceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             messenger = new Messenger(service);
@@ -35,47 +41,67 @@ class AudioRecorderConnection {
         public void onServiceDisconnected(ComponentName name) {
             messenger = null;
             context.unbindService(this);
-            bindToRecService();
+            bindToTheSoundRecorder();
         }
     };
 
     AudioRecorderConnection(Context context) {
         this.context = context;
-        bindToRecService();
+        bindToTheSoundRecorder();
     }
 
-    private void bindToRecService() {
-        boolean success = context.bindService(getRecServiceIntent(), serviceConnection, 0);
-        if (!success) throw new RuntimeException("Failed to bind");
-    }
-
+    /**
+     * @return True if I'm rec, or TheSoundRecorder.
+     */
     boolean isRecording()  {
         return messenger != null;
     }
 
+    /**
+     * Stop my rec, or TheSoundRecorder.
+     */
     void stopAndSave() {
         if (messenger != null)
-            sendMessage(Message.obtain(null, ACTION_STOP_AND_SAVE, 0, 0));
-    }
-
-    void stopAndDiscard() {
-        if (messenger != null)
-            sendMessage(Message.obtain(null, ACTION_STOP_AND_DISCARD, 0, 0));
+            sendMessageToTheSoundRecorder(Message.obtain(null, ACTION_STOP_AND_SAVE, 0, 0));
     }
 
     /**
-     * Send the start-service command. Service starts (or just continues if already running).
+     * Stop and discard my rec, or TheSoundRecorder.
+     */
+    void stopAndDiscard() {
+        if (messenger != null)
+            sendMessageToTheSoundRecorder(Message.obtain(null, ACTION_STOP_AND_DISCARD, 0, 0));
+    }
+
+    /**
+     * Start my recording (not TheSoundRecorder).
+     * If already in rec, does nothing.
      */
     void start() {
-        if (messenger == null)
-            ContextCompat.startForegroundService(context, getRecServiceIntent());
+        if (!isRecording()) {
+            // todo
+        }
     }
 
-    void unbind() {
-        context.unbindService(serviceConnection);
+    //region for TheSoundRecorder
+
+    /**
+     * If TheSoundRecorder not installed, does nothing.
+     */
+    private void bindToTheSoundRecorder() {
+        Intent intent = new Intent();
+        intent.setComponent(new ComponentName("com.masel.thesoundrecorder", "com.masel.thesoundrecorder.RecorderService"));
+        boolean success = context.bindService(intent, theSoundRecorderServiceConnection, 0);
+        if (!success) Utils.toast(context, "Failed to bind to TheSoundRecorder");
+        else Utils.toast(context, "Successful bind to TheSoundRecorder");
     }
 
-    private void sendMessage(Message msg) {
+    void unbindFromTheSoundRecorder() {
+        context.unbindService(theSoundRecorderServiceConnection);
+    }
+
+    private void sendMessageToTheSoundRecorder(Message msg) {
+        if (messenger == null) return;
         try {
             messenger.send(msg);
         }
@@ -84,9 +110,5 @@ class AudioRecorderConnection {
         }
     }
 
-    private Intent getRecServiceIntent() {
-        Intent intent = new Intent();
-        intent.setComponent(new ComponentName("com.masel.thesoundrecorder", "com.masel.thesoundrecorder.RecorderService"));
-        return intent;
-    }
+    // endregion
 }

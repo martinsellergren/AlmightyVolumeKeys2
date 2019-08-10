@@ -1,5 +1,8 @@
 package com.masel.almightyvolumekeys;
 
+import android.media.AudioManager;
+import android.media.ToneGenerator;
+
 /**
  * Defines actions.
  */
@@ -40,6 +43,19 @@ class Actions {
         @Override
         public void run(MyContext myContext) throws Action.ExecutionException {
 
+        }
+    }
+
+    static class Beep extends Action {
+        @Override
+        String getName() {
+            return "Beep";
+        }
+
+        @Override
+        void run(MyContext myContext) throws ExecutionException {
+            ToneGenerator toneGen1 = new ToneGenerator(AudioManager.STREAM_MUSIC, 100);
+            toneGen1.startTone(ToneGenerator.TONE_CDMA_PIP,150);
         }
     }
 }

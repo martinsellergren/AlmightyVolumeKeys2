@@ -11,16 +11,15 @@ class Mappings {
      */
     static Map<String, Action> get(MyContext myContext) {
         Map<String, Action> idleMappings = new HashMap<>();
-        idleMappings.put("1", new Actions.AudioRecording_Start());
-        idleMappings.put("0", new Actions.AudioRecording_StopAndSave());
-        idleMappings.put("10", new Actions.MediaControl_NextTrack());
+        idleMappings.put("1100", new Actions.AudioRecording_Start());
+        idleMappings.put("1000", new Actions.Beep());
 
         Map<String, Action> musicMappings = new HashMap<>();
-        musicMappings.put("10", new Actions.MediaControl_NextTrack());
+//        musicMappings.put("10", new Actions.MediaControl_NextTrack());
         //idleMappings.put("0", new Actions.MediaControl_NextTrack());
 
         Map<String, Action> recMappings = new HashMap<>();
-        recMappings.put("1", new Actions.AudioRecording_StopAndSave());
+        recMappings.put("0011", new Actions.AudioRecording_StopAndSave());
 
         switch (DeviceState.getCurrent(myContext)) {
             case IDLE: return idleMappings;

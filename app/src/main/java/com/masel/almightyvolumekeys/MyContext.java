@@ -23,6 +23,6 @@ class MyContext {
     void destroy() {
         mediaSession.setActive(false);
         mediaSession.release();
-        audioRecorder.unbind();
+        audioRecorder.unbindFromTheSoundRecorder();
     }
 }
