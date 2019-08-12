@@ -1,5 +1,6 @@
 package com.masel.almightyvolumekeys;
 
+import android.content.Context;
 import android.media.AudioManager;
 import android.media.ToneGenerator;
 

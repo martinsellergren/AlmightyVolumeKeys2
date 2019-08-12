@@ -74,7 +74,7 @@ class ActionCommand {
                         myContext.context.startActivity(intent);
                     }
                     else {
-                        throw new RuntimeException("Non-permission error: " + e.getMessage());
+                        throw new RuntimeException("No-permission error: " + e.getMessage());
                     }
                 }
             }
