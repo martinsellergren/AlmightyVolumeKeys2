@@ -57,6 +57,8 @@ class AudioRecorderConnection {
 
         if (messenger != null)
             sendMessageToTheSoundRecorder(Message.obtain(null, ACTION_STOP_AND_SAVE, 0, 0));
+
+        AudioRecorder.removeNotification(myContext.context);
     }
 
     /**
@@ -70,6 +72,8 @@ class AudioRecorderConnection {
 
         if (messenger != null)
             sendMessageToTheSoundRecorder(Message.obtain(null, ACTION_STOP_AND_DISCARD, 0, 0));
+
+        AudioRecorder.removeNotification(myContext.context);
     }
 
     /**
@@ -87,7 +91,12 @@ class AudioRecorderConnection {
         }
         else {
             localRecorder = AudioRecorder.coldStart(theSoundRecorderContext);
-            if (localRecorder == null) throw new Action.ExecutionException("Failed to start rec");
+            if (localRecorder != null) {
+                AudioRecorder.showNotification(myContext.context);
+            }
+            else {
+                throw new Action.ExecutionException("Failed to start rec");
+            }
         }
     }
 

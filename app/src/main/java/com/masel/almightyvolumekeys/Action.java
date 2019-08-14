@@ -2,9 +2,9 @@ package com.masel.almightyvolumekeys;
 
 abstract class Action {
 
-    static final int[] VIBRATION_PATTERN_ON = new int[]{100};
-    static final int[] VIBRATION_PATTERN_OFF = new int[]{400};
-    static final int[] VIBRATION_PATTERN_ERROR = new int[]{100,10,100,10,100};
+    static final long[] VIBRATION_PATTERN_ON = new long[]{0,200};
+    static final long[] VIBRATION_PATTERN_OFF = new long[]{0,500,100,500};
+    static final long[] VIBRATION_PATTERN_ERROR = new long[]{0,100,10,100,10,100};
 
     abstract String getName();
     abstract void run(MyContext myContext) throws ExecutionException;
@@ -24,7 +24,7 @@ abstract class Action {
      * Default implementation provides async on-vibration. Override otherwise.
      */
     MyVibrator getVibration() {
-        return new MyVibrator(VIBRATION_PATTERN_ON, false);
+        return new MyVibrator(getName(), VIBRATION_PATTERN_ON, false);
     }
 
     static class ExecutionException extends Exception {

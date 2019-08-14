@@ -130,7 +130,7 @@ public class MonitorService extends AccessibilityService {
                 .setPriority(NotificationCompat.PRIORITY_LOW)
                 .build();
 
-        startForeground(101, notification);
+        startForeground(10101, notification);
     }
 
     private void setupMediaSessionForScreenOffCallbacks() {

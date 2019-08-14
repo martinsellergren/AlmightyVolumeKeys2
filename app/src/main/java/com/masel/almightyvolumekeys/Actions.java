@@ -21,6 +21,11 @@ class Actions {
         public void run(MyContext myContext) throws Action.ExecutionException {
             myContext.audioRecorder.start();
         }
+
+        @Override
+        MyVibrator getVibration() {
+            return new MyVibrator(getName(), VIBRATION_PATTERN_ON, true);
+        }
     }
 
     static class AudioRecording_StopAndSave extends Action {
@@ -32,6 +37,11 @@ class Actions {
         @Override
         public void run(MyContext myContext) throws Action.ExecutionException {
             myContext.audioRecorder.stopAndSave();
+        }
+
+        @Override
+        MyVibrator getVibration() {
+            return new MyVibrator(getName(), VIBRATION_PATTERN_OFF, false);
         }
     }
 

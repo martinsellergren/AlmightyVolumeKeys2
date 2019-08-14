@@ -62,11 +62,11 @@ class ActionCommand {
                 Utils.logAndToast(myContext, String.format("Execute %s -> %s (state:%s)", command, action.getName(), DeviceState.getCurrent(myContext)));
 
                 try {
-                    action.getVibration().vibrate();
+                    action.getVibration().vibrate(myContext.context);
                     action.run(myContext);
                 }
                 catch (Action.ExecutionException e) {
-                    new MyVibrator(Action.VIBRATION_PATTERN_ERROR, false).vibrate();
+                    new MyVibrator(e.getMessage(), Action.VIBRATION_PATTERN_ERROR, false).vibrate(myContext.context);
                     Utils.toast(myContext, e.getMessage());
 
                     if (e.lacksPermission) {
