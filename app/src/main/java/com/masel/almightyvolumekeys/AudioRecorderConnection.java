@@ -13,6 +13,7 @@ import android.os.Messenger;
 import android.os.RemoteException;
 
 import com.masel.rec_utils.AudioRecorder;
+import com.masel.rec_utils.TheSoundRecorderSharedPrefs;
 
 /**
  * Controls audio-recording by working with TheSoundRecorder.
@@ -51,7 +52,9 @@ class AudioRecorderConnection {
      */
     void stopAndSave() {
         if (localRecorder != null) {
-            localRecorder.stopAndSave();
+            Context theSoundRecorderContext = myContext.getTheSoundRecorderContext();
+            localRecorder.coldStopAndSave(theSoundRecorderContext);
+            TheSoundRecorderSharedPrefs.setDefaultNextRecName(theSoundRecorderContext);
             localRecorder = null;
         }
 
@@ -133,7 +136,7 @@ class AudioRecorderConnection {
     }
 
     void destroy() {
-        localRecorder.stopAndSave();
+        if (localRecorder != null) localRecorder.stopAndSave();
         myContext.context.unbindService(theSoundRecorderServiceConnection);
         unregisterBindWhenTheSoundRecorderIsStartedListener();
     }
