@@ -1,6 +1,5 @@
 package com.masel.almightyvolumekeys;
 
-import android.content.Context;
 import android.media.AudioManager;
 import android.media.ToneGenerator;
 
@@ -23,8 +22,8 @@ class Actions {
         }
 
         @Override
-        MyVibrator getVibration() {
-            return new MyVibrator(getName(), VIBRATION_PATTERN_ON, true);
+        void notify(MyContext myContext) {
+            myContext.notifier.notify(getName(), VIBRATION_PATTERN_ON, true);
         }
     }
 
@@ -40,8 +39,8 @@ class Actions {
         }
 
         @Override
-        MyVibrator getVibration() {
-            return new MyVibrator(getName(), VIBRATION_PATTERN_OFF, false);
+        void notify(MyContext myContext) {
+            myContext.notifier.notify(getName(), VIBRATION_PATTERN_OFF, false);
         }
     }
 

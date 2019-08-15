@@ -23,8 +23,8 @@ abstract class Action {
     /**
      * Default implementation provides async on-vibration. Override otherwise.
      */
-    MyVibrator getVibration() {
-        return new MyVibrator(getName(), VIBRATION_PATTERN_ON, false);
+    void notify(MyContext myContext) {
+        myContext.notifier.notify(getName(), VIBRATION_PATTERN_ON, false);
     }
 
     static class ExecutionException extends Exception {

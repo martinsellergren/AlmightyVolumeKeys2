@@ -13,11 +13,13 @@ class MyContext {
     final AudioManager audioManager;
     final MediaSessionCompat mediaSession;
     final AudioRecorderConnection audioRecorder;
+    final Notifier notifier;
 
     MyContext(Context c) {
         context = c.getApplicationContext();
         audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         mediaSession = new MediaSessionCompat(context, "TAG", new ComponentName(context, MediaButtonReceiver.class), null);
+        notifier = new Notifier(context);
         audioRecorder = new AudioRecorderConnection(this);
     }
 
@@ -37,5 +39,6 @@ class MyContext {
         mediaSession.setActive(false);
         mediaSession.release();
         audioRecorder.destroy();
+        notifier.interrupt();
     }
 }
