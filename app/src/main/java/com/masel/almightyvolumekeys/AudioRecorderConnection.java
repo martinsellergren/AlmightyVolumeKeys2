@@ -14,6 +14,7 @@ import android.os.RemoteException;
 
 import com.masel.rec_utils.AudioRecorder;
 import com.masel.rec_utils.TheSoundRecorderSharedPrefs;
+import com.masel.rec_utils.Utils;
 
 /**
  * Controls audio-recording by working with TheSoundRecorder.
@@ -131,8 +132,8 @@ class AudioRecorderConnection {
         Intent intent = new Intent();
         intent.setComponent(new ComponentName("com.masel.thesoundrecorder", "com.masel.thesoundrecorder.RecorderService"));
         boolean success = myContext.context.bindService(intent, theSoundRecorderServiceConnection, 0);
-        if (!success) Utils.toast(myContext.context, "Failed to init bind to TheSoundRecorder");
-        else Utils.toast(myContext.context, "Successful bind-init to TheSoundRecorder");
+        if (!success) Utils.log("Failed to init bind to TheSoundRecorder");
+        else Utils.log("Successful bind-init to TheSoundRecorder");
     }
 
     void destroy() {

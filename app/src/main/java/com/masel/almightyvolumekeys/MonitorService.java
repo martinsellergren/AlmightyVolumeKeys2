@@ -16,6 +16,8 @@ import android.view.accessibility.AccessibilityEvent;
 import androidx.core.app.NotificationCompat;
 import androidx.media.VolumeProviderCompat;
 
+import com.masel.rec_utils.Utils;
+
 public class MonitorService extends AccessibilityService {
 
     /**
@@ -113,24 +115,29 @@ public class MonitorService extends AccessibilityService {
     }
 
     private void requestForeground() {
+        // todo: different devices
+
+        final String MONITOR_SERVICE_NOTIFICATION_CHANNEL_ID = "MONITOR_SERVICE_NOTIFICATION_CHANNEL_ID";
+        final int NOTIFICATION_ID = 6664867;
+
         if (Build.VERSION.SDK_INT >= 26) {
-            CharSequence name = "whatever";
-            String description = "whatever";
+            String name = "Monitor service (Hide me!)";
+            String description = "This notification is necessary to ensure stability of the monitor service. But you can simply hide it if you like, just switch the toggle.";
             int importance = NotificationManager.IMPORTANCE_LOW;
-            NotificationChannel channel = new NotificationChannel("default_channel_id", name, importance);
+            NotificationChannel channel = new NotificationChannel(MONITOR_SERVICE_NOTIFICATION_CHANNEL_ID, name, importance);
             channel.setDescription(description);
             NotificationManager notificationManager = getSystemService(NotificationManager.class);
             notificationManager.createNotificationChannel(channel);
         }
 
-        Notification notification = new NotificationCompat.Builder(this, "default_channel_id")
+        Notification notification = new NotificationCompat.Builder(this, MONITOR_SERVICE_NOTIFICATION_CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_launcher_foreground)
                 .setContentTitle("test...")
                 //.setContentText(textContent)
                 .setPriority(NotificationCompat.PRIORITY_LOW)
                 .build();
 
-        startForeground(10101, notification);
+        startForeground(NOTIFICATION_ID, notification);
     }
 
     private void setupMediaSessionForScreenOffCallbacks() {

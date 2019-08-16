@@ -23,7 +23,7 @@ class Actions {
 
         @Override
         void notify(MyContext myContext) {
-            myContext.notifier.notify(getName(), VIBRATION_PATTERN_ON, true);
+            myContext.notifier.notify(getName(), Notifier.VibrationPattern.ON, true);
         }
     }
 
@@ -40,7 +40,7 @@ class Actions {
 
         @Override
         void notify(MyContext myContext) {
-            myContext.notifier.notify(getName(), VIBRATION_PATTERN_OFF, false);
+            myContext.notifier.notify(getName(), Notifier.VibrationPattern.OFF, false);
         }
     }
 

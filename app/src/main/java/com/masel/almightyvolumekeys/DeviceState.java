@@ -1,6 +1,7 @@
 package com.masel.almightyvolumekeys;
 
 import android.media.AudioManager;
+import com.masel.rec_utils.Utils;
 
 /**
  * Defines device states. States are mutually exclusive. Hijack volume keys only when in IDLE.

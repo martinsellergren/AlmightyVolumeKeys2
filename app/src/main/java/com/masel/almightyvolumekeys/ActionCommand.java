@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Handler;
 
 import java.util.Map;
+import com.masel.rec_utils.Utils;
 
 /**
  * Builds a command and executes it.
@@ -57,17 +58,17 @@ class ActionCommand {
             Map<String, Action> mappings = Mappings.get(myContext);
             Action action = mappings.get(command);
             if (action == null) {
-                Utils.logAndToast(myContext, String.format("Non-mapped command: %s (state:%s)", command, DeviceState.getCurrent(myContext)));
+                Utils.logAndToast(myContext.context, String.format("Non-mapped command: %s (state:%s)", command, DeviceState.getCurrent(myContext)));
             } else {
-                Utils.logAndToast(myContext, String.format("Execute %s -> %s (state:%s)", command, action.getName(), DeviceState.getCurrent(myContext)));
+                Utils.logAndToast(myContext.context, String.format("Execute %s -> %s (state:%s)", command, action.getName(), DeviceState.getCurrent(myContext)));
 
                 try {
                     action.notify(myContext);
                     action.run(myContext);
                 }
                 catch (Action.ExecutionException e) {
-                    myContext.notifier.notify(e.getMessage(), Action.VIBRATION_PATTERN_ERROR, false);
-                    Utils.toast(myContext, e.getMessage());
+                    myContext.notifier.notify(e.getMessage(), Notifier.VibrationPattern.ERROR, false);
+                    Utils.logAndToast(myContext.context, e.getMessage());
 
                     if (e.lacksPermission) {
                         Intent intent = new Intent(myContext.context, MainActivity.class);
