@@ -37,7 +37,7 @@ class AudioRecorderConnection {
     AudioRecorderConnection(MyContext myContext) {
         this.myContext = myContext;
         bindToTheSoundRecorder();
-        registerBindWhenTheSoundRecorderIsStartedListener();
+        registerTheSoundRecorderReceivers();
     }
 
     /**
@@ -125,7 +125,7 @@ class AudioRecorderConnection {
     };
 
     /**
-     * If TheSoundRecorder not installed, does nothing.
+     * If TheSoundRecorder not installed, does nothing. If already bound, does nothing.
      */
     private void bindToTheSoundRecorder() {
         Intent intent = new Intent();
@@ -138,7 +138,7 @@ class AudioRecorderConnection {
     void destroy() {
         if (localRecorder != null) localRecorder.stopAndSave();
         myContext.context.unbindService(theSoundRecorderServiceConnection);
-        unregisterBindWhenTheSoundRecorderIsStartedListener();
+        unregisterTheSoundRecorderReceivers();
     }
 
     private void sendMessageToTheSoundRecorder(Message msg) {
@@ -151,23 +151,46 @@ class AudioRecorderConnection {
         }
     }
 
-    // region Init bind when TheSoundRecorder freshly installed
+    // region Receive messages from TheSoundRecorder
 
-    private BroadcastReceiver bindWhenTheSoundRecorderIsStartedReceiver = new BroadcastReceiver() {
+    /**
+     * If AlmightyVolumeKeys is running when TheSoundRecorder is installed, need to init the bind.
+     * (Normally bind-init on construction and immediately when connection lost with TheSoundRecorder's rec-service).
+     */
+    private BroadcastReceiver onCreateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             bindToTheSoundRecorder();
         }
     };
+
     /**
-     * If app is running when TheSoundRecorder is installed, need to init the bind.
-     * (Otherwise bind-init immediately when connection lost with TheSoundRecorder's rec-service).
+     * On stop-and-save-button in TheSoundRecorder.
      */
-    private void registerBindWhenTheSoundRecorderIsStartedListener() {
-        myContext.context.registerReceiver(bindWhenTheSoundRecorderIsStartedReceiver, new IntentFilter("com.masel.TheSoundRecorder.STARTED"));
+    private BroadcastReceiver stopAndSaveReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            stopAndSave();
+        }
+    };
+
+    /**
+     * On stop-and-discard-button in TheSoundRecorder.
+     */
+    private BroadcastReceiver stopAndDiscardReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            stopAndDiscard();
+        }
+    };
+
+    private void registerTheSoundRecorderReceivers() {
+        myContext.context.registerReceiver(onCreateReceiver, new IntentFilter("com.masel.TheSoundRecorder.ON_CREATE"));
+        myContext.context.registerReceiver(stopAndSaveReceiver, new IntentFilter("com.masel.TheSoundRecorder.STOP_AND_SAVE_REC"));
+        myContext.context.registerReceiver(stopAndDiscardReceiver, new IntentFilter("com.masel.TheSoundRecorder.STOP_AND_DISCARD_REC"));
     }
-    private void unregisterBindWhenTheSoundRecorderIsStartedListener() {
-        myContext.context.unregisterReceiver(bindWhenTheSoundRecorderIsStartedReceiver);
+    private void unregisterTheSoundRecorderReceivers() {
+        myContext.context.unregisterReceiver(onCreateReceiver);
     }
 
     // endregion
