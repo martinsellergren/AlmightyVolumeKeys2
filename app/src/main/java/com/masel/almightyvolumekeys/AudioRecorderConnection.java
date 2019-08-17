@@ -25,8 +25,7 @@ import com.masel.rec_utils.Utils;
 class AudioRecorderConnection {
 
     /**
-     * NULL unless local recording.
-     */
+     * NULL unless local recording. */
     private AudioRecorder localRecorder = null;
 
     /**
