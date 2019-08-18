@@ -1,9 +1,12 @@
 package com.masel.almightyvolumekeys;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 
 import java.util.Map;
+
+import com.masel.rec_utils.TheSoundRecorderSharedPrefs;
 import com.masel.rec_utils.Utils;
 
 /**
@@ -54,6 +57,14 @@ class ActionCommand {
     }
 
     private void executeCommand() {
+        try {
+            Context tsrcontext = TheSoundRecorderConnection.getTheSoundRecorderContext(myContext.context);
+            TheSoundRecorderSharedPrefs.listAll(tsrcontext);
+        }
+        catch (Exception e) {
+
+        }
+
         if (DeviceState.getCurrent(myContext) == deviceStateOnCommandStart) {
             Map<String, Action> mappings = Mappings.get(myContext);
             Action action = mappings.get(command);

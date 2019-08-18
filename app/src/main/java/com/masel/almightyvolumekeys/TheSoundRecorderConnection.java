@@ -57,7 +57,6 @@ class TheSoundRecorderConnection {
 
         bindToTheSoundRecorder();
         registerTheSoundRecorderReceivers();
-        //TheSoundRecorderSharedPrefs.setAlmightyVolumeKeysIsRecording(myContext.context, false);
     }
 
     /**
@@ -175,7 +174,7 @@ class TheSoundRecorderConnection {
 
     static Context getTheSoundRecorderContext(Context context) throws TheSoundRecorderNotInstalledException {
         try {
-            return context.createPackageContext("com.masel.thesoundrecorder", Context.CONTEXT_IGNORE_SECURITY);
+            return context.createPackageContext("com.masel.thesoundrecorder", Context.MODE_PRIVATE);
         }
         catch (PackageManager.NameNotFoundException e) {
             throw new TheSoundRecorderNotInstalledException();

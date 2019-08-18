@@ -8,6 +8,7 @@ import androidx.annotation.Nullable;
 
 import com.masel.rec_utils.AudioRecorder;
 import com.masel.rec_utils.TheSoundRecorderSharedPrefs;
+import com.masel.rec_utils.Utils;
 
 /**
  * This class controls the local recorder AND TheSoundRecorder's recorder (whichever is running).
@@ -34,8 +35,8 @@ class AudioRecorderDeligator {
     AudioRecorderDeligator(Context context) {
         this.context = context;
 
-        Runnable onStopAndSaveButtonClick = this::stopAndSaveLocalRec;
-        Runnable onStopAndDiscardButtonClick = this::stopAndDiscardLocalRec;
+        Runnable onStopAndSaveButtonClick = this::stopAndSave;
+        Runnable onStopAndDiscardButtonClick = this::stopAndDiscard;
         theSoundRecorder = new TheSoundRecorderConnection(context, onStopAndSaveButtonClick, onStopAndDiscardButtonClick);
     }
 
@@ -50,11 +51,6 @@ class AudioRecorderDeligator {
      * Stop local rec or(/and) TheSoundRecorder.
      */
     void stopAndSave() {
-        stopAndSaveLocalRec();
-        theSoundRecorder.stopAndSave();
-        AudioRecorder.removeNotification(context);
-    }
-    private void stopAndSaveLocalRec() {
         if (localRecorder != null) {
             try {
                 Context theSoundRecorderContext = TheSoundRecorderConnection.getTheSoundRecorderContext(context);
@@ -64,6 +60,9 @@ class AudioRecorderDeligator {
             }
             catch (TheSoundRecorderConnection.TheSoundRecorderNotInstalledException e) {}
         }
+
+        theSoundRecorder.stopAndSave();
+        AudioRecorder.removeNotification(context);
     }
 
 
@@ -71,11 +70,6 @@ class AudioRecorderDeligator {
      * Stop and discard local rec or(/and) TheSoundRecorder.
      */
     void stopAndDiscard() {
-        stopAndDiscardLocalRec();
-        theSoundRecorder.stopAndDiscard();
-        AudioRecorder.removeNotification(context);
-    }
-    private void stopAndDiscardLocalRec() {
         if (localRecorder != null) {
             localRecorder.stopAndDiscard();
             localRecorder = null;
@@ -87,6 +81,9 @@ class AudioRecorderDeligator {
             }
             catch (TheSoundRecorderConnection.TheSoundRecorderNotInstalledException e) {}
         }
+
+        theSoundRecorder.stopAndDiscard();
+        AudioRecorder.removeNotification(context);
     }
 
     /**
