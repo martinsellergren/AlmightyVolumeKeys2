@@ -3,10 +3,12 @@ package com.masel.almightyvolumekeys;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
+import android.os.SystemClock;
 
 import java.util.Map;
 
 import com.masel.rec_utils.TheSoundRecorderSharedPrefs;
+import com.masel.rec_utils.TheSoundRecorderSharedPrefs2;
 import com.masel.rec_utils.Utils;
 
 /**
@@ -59,10 +61,10 @@ class ActionCommand {
     private void executeCommand() {
         try {
             Context tsrcontext = TheSoundRecorderConnection.getTheSoundRecorderContext(myContext.context);
-            TheSoundRecorderSharedPrefs.listAll(tsrcontext);
+            TheSoundRecorderSharedPrefs2.listAll(tsrcontext);
         }
         catch (Exception e) {
-
+            throw new RuntimeException(e);
         }
 
         if (DeviceState.getCurrent(myContext) == deviceStateOnCommandStart) {
