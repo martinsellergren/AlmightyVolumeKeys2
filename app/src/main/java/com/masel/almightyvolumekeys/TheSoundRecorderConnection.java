@@ -99,7 +99,7 @@ class TheSoundRecorderConnection {
 
     // endregion
 
-    // region Send messages to TheSoundRecorder
+    // region Send messages to TheSoundRecorder's rec-service, to control rec
 
     void stopAndSave() {
         sendMessageToTheSoundRecorder(Message.obtain(null, ACTION_STOP_AND_SAVE, 0, 0));
@@ -117,6 +117,24 @@ class TheSoundRecorderConnection {
         catch (RemoteException e) {
             //throw new RuntimeException("Tried to send message when service dead");
         }
+    }
+
+    // endregion
+
+    // region Send broadcasts to TheSoundRecorder's main activity, to reflect rec-state in layout.
+
+    static void broadcastLocalRecStart(Context context) {
+        sendBroadcast(context, "com.masel.almightyvolumekeys.START_REC");
+    }
+
+    static void broadcastLocalRecStop(Context context) {
+        sendBroadcast(context, "com.masel.almightyvolumekeys.STOP_REC");
+    }
+
+    private static void sendBroadcast(Context context, String action) {
+        Intent intent = new Intent(action);
+        intent.setPackage("com.masel.thesoundrecorder");
+        context.sendBroadcast(intent);
     }
 
     // endregion
@@ -155,12 +173,14 @@ class TheSoundRecorderConnection {
     };
 
     private void registerTheSoundRecorderReceivers() {
-        context.registerReceiver(onCreateReceiver, new IntentFilter("com.masel.TheSoundRecorder.ON_CREATE"));
-        context.registerReceiver(stopAndSaveReceiver, new IntentFilter("com.masel.TheSoundRecorder.STOP_AND_SAVE_REC"));
-        context.registerReceiver(stopAndDiscardReceiver, new IntentFilter("com.masel.TheSoundRecorder.STOP_AND_DISCARD_REC"));
+        context.registerReceiver(onCreateReceiver, new IntentFilter("com.masel.thesoundrecorder.ON_CREATE"));
+        context.registerReceiver(stopAndSaveReceiver, new IntentFilter("com.masel.thesoundrecorder.STOP_AND_SAVE_REC"));
+        context.registerReceiver(stopAndDiscardReceiver, new IntentFilter("com.masel.thesoundrecorder.STOP_AND_DISCARD_REC"));
     }
     private void unregisterTheSoundRecorderReceivers() {
         context.unregisterReceiver(onCreateReceiver);
+        context.unregisterReceiver(stopAndSaveReceiver);
+        context.unregisterReceiver(stopAndDiscardReceiver);
     }
 
     // endregion

@@ -49,9 +49,14 @@ class AudioRecorderDeligator {
 
     /**
      * Stop local rec or(/and) TheSoundRecorder.
+     *
+     * If local rec stopped:
+     * Flag in TheSoundRecorder's shared-prefs: local rec stopped.
+     * Send broadcast: local rec stopped.
      */
     void stopAndSave() {
         if (localRecorder != null) {
+
             try {
                 Context theSoundRecorderContext = TheSoundRecorderConnection.getTheSoundRecorderContext(context);
                 localRecorder.coldStopAndSave(theSoundRecorderContext);
@@ -59,6 +64,7 @@ class AudioRecorderDeligator {
                 TheSoundRecorderSharedPrefs.setAlmightyVolumeKeysIsRecording(theSoundRecorderContext, false);
             }
             catch (TheSoundRecorderConnection.TheSoundRecorderNotInstalledException e) {}
+            TheSoundRecorderConnection.broadcastLocalRecStop(context);
         }
 
         theSoundRecorder.stopAndSave();
@@ -68,6 +74,10 @@ class AudioRecorderDeligator {
 
     /**
      * Stop and discard local rec or(/and) TheSoundRecorder.
+     *
+     * If local rec stopped:
+     * Flag in TheSoundRecorder's shared-prefs: local rec stopped.
+     * Send broadcast: local rec stopped.
      */
     void stopAndDiscard() {
         if (localRecorder != null) {
@@ -77,9 +87,9 @@ class AudioRecorderDeligator {
             try {
                 Context theSoundRecorderContext = TheSoundRecorderConnection.getTheSoundRecorderContext(context);
                 TheSoundRecorderSharedPrefs.setAlmightyVolumeKeysIsRecording(theSoundRecorderContext, false);
-
             }
             catch (TheSoundRecorderConnection.TheSoundRecorderNotInstalledException e) {}
+            TheSoundRecorderConnection.broadcastLocalRecStop(context);
         }
 
         theSoundRecorder.stopAndDiscard();
@@ -90,6 +100,9 @@ class AudioRecorderDeligator {
      * Start local recording (not TheSoundRecorder).
      * If TheSoundRecorder not installed, open play-store (needs rec-props).
      * If already in rec, does nothing.
+     *
+     * Flag in TheSoundRecorder's shared-prefs: local rec started.
+     * Send broadcast: local rec started.
      */
     void start() throws Action.ExecutionException {
         if (isRecording()) return;
@@ -100,6 +113,7 @@ class AudioRecorderDeligator {
             if (localRecorder != null) {
                 AudioRecorder.showNotification(context);
                 TheSoundRecorderSharedPrefs.setAlmightyVolumeKeysIsRecording(theSoundRecorderContext, true);
+                TheSoundRecorderConnection.broadcastLocalRecStart(context);
             }
             else {
                 throw new Action.ExecutionException("Failed to start rec");
