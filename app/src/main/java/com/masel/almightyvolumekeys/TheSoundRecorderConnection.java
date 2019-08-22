@@ -178,9 +178,12 @@ class TheSoundRecorderConnection {
         context.registerReceiver(stopAndDiscardReceiver, new IntentFilter("com.masel.thesoundrecorder.STOP_AND_DISCARD_REC"));
     }
     private void unregisterTheSoundRecorderReceivers() {
-        context.unregisterReceiver(onCreateReceiver);
-        context.unregisterReceiver(stopAndSaveReceiver);
-        context.unregisterReceiver(stopAndDiscardReceiver);
+        try {
+            context.unregisterReceiver(onCreateReceiver);
+            context.unregisterReceiver(stopAndSaveReceiver);
+            context.unregisterReceiver(stopAndDiscardReceiver);
+        }
+        catch (IllegalArgumentException e) {}
     }
 
     // endregion

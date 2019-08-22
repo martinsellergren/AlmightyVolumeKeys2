@@ -8,7 +8,6 @@ import android.os.SystemClock;
 import java.util.Map;
 
 import com.masel.rec_utils.TheSoundRecorderSharedPrefs;
-import com.masel.rec_utils.TheSoundRecorderSharedPrefs2;
 import com.masel.rec_utils.Utils;
 
 /**
