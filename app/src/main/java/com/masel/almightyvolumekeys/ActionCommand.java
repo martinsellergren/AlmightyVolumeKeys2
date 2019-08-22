@@ -59,14 +59,6 @@ class ActionCommand {
     }
 
     private void executeCommand() {
-        try {
-            Context tsrcontext = TheSoundRecorderConnection.getTheSoundRecorderContext(myContext.context);
-            TheSoundRecorderSharedPrefs2.listAll(tsrcontext);
-        }
-        catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-
         if (DeviceState.getCurrent(myContext) == deviceStateOnCommandStart) {
             Map<String, Action> mappings = Mappings.get(myContext);
             Action action = mappings.get(command);
