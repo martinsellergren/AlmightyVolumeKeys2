@@ -67,8 +67,7 @@ class ActionCommand {
                 Utils.logAndToast(myContext.context, String.format("Execute %s -> %s (state:%s)", command, action.getName(), DeviceState.getCurrent(myContext)));
 
                 try {
-                    action.notify(myContext);
-                    action.run(myContext);
+                    Action.execute(myContext, action);
                 }
                 catch (Action.ExecutionException e) {
                     myContext.notifier.notify(e.getMessage(), Notifier.VibrationPattern.ERROR, false);

@@ -22,8 +22,8 @@ class Actions {
         }
 
         @Override
-        void notify(MyContext myContext) {
-            myContext.notifier.notify(getName(), Notifier.VibrationPattern.ON, true);
+        Action.NotifyOrder getNotifyOrder() {
+            return NotifyOrder.BEFORE;
         }
     }
 
@@ -39,10 +39,34 @@ class Actions {
         }
 
         @Override
-        void notify(MyContext myContext) {
-            myContext.notifier.notify(getName(), Notifier.VibrationPattern.OFF, false);
+        Action.NotifyOrder getNotifyOrder() {
+            return NotifyOrder.AFTER;
+        }
+
+        @Override
+        Notifier.VibrationPattern getVibrationPattern() {
+            return Notifier.VibrationPattern.OFF;
         }
     }
+
+
+    static class AudioRecording_StopAndDiscard extends Action {
+        @Override
+        public String getName() {
+            return "Stop recording audio and discard";
+        }
+
+        @Override
+        public void run(MyContext myContext) throws Action.ExecutionException {
+            myContext.audioRecorder.stopAndDiscard();
+        }
+
+        @Override
+        Notifier.VibrationPattern getVibrationPattern() {
+            return Notifier.VibrationPattern.OFF;
+        }
+    }
+
 
     static class MediaControl_NextTrack extends Action {
         @Override
