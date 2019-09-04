@@ -25,8 +25,8 @@ class Notifier {
     private static final int NOTIFICATION_ID = 8427283;
 
     enum VibrationPattern {ON, OFF, ERROR};
-    private static final long[] VIBRATION_PATTERN_ARRAY_ON = new long[]{0,2000};
-    private static final long[] VIBRATION_PATTERN_ARRAY_OFF = new long[]{0,500,100,500};
+    private static final long[] VIBRATION_PATTERN_ARRAY_ON = new long[]{0,500};
+    private static final long[] VIBRATION_PATTERN_ARRAY_OFF = new long[]{0,100,100,100};
     private static final long[] VIBRATION_PATTERN_ARRAY_ERROR = new long[]{0,100,10,100,10,100};
 
     private static final String CHANNEL_ON_ID = "Heads up channel: ON";

@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.media.AudioManager;
 import android.os.Build;
+import android.os.Handler;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.Log;
@@ -19,6 +20,9 @@ import androidx.media.VolumeProviderCompat;
 
 import com.masel.rec_utils.Utils;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 public class MonitorService extends AccessibilityService {
 
     /**
@@ -27,7 +31,7 @@ public class MonitorService extends AccessibilityService {
     private MyContext myContext = null;
     private VolumeChangeObserver volumeChangeObserver = null;
 
-    // region required for AccessibilityService
+    // region Required for AccessibilityService
 
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
@@ -54,6 +58,13 @@ public class MonitorService extends AccessibilityService {
         setupMediaSessionForScreenOffCallbacks();
     }
 
+
+    // region Volume press when screen on
+
+    private static final long LONG_PRESS_TIME = 400;
+    private static final long LONG_PRESS_VOLUME_CHANGE_TIME = 40;
+    private Handler longPressHandler = new Handler();
+
     /**
      * Fired only when screen is on. Consumes volume key presses and pass them along for processing.
      * Other events pass through.
@@ -63,18 +74,35 @@ public class MonitorService extends AccessibilityService {
     @Override
     protected boolean onKeyEvent(KeyEvent event) {
         if (event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_UP || event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_DOWN) {
+            boolean volumeUp = event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_UP;
+
             if (event.getAction() == KeyEvent.ACTION_DOWN) {
-                boolean up = event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_UP;
-                handleVolumeKeyPress(up);
-            } else {
-                //ignore
+                longPressHandler.postDelayed(() -> longPress(volumeUp), LONG_PRESS_TIME);
+                Utils.log("DOWN");
             }
+            else if (event.getAction() == KeyEvent.ACTION_UP) {
+                longPressHandler.removeCallbacksAndMessages(null);
+                Utils.log("UP");
+                handleVolumeKeyPress(volumeUp);
+            }
+            else if (event.getAction() == KeyEvent.ACTION_MULTIPLE) {
+                Utils.log("MULTIPLE KEY PRESS");
+            }
+            else throw new RuntimeException("Dead end");
 
             return true;
         }
 
         return super.onKeyEvent(event);
     }
+
+    private void longPress(boolean volumeUp) {
+        //Utils.log("LONG PRESS");
+        adjustRelevantStreamVolume(volumeUp);
+        longPressHandler.postDelayed(() -> longPress(volumeUp), LONG_PRESS_VOLUME_CHANGE_TIME);
+    }
+
+    // endregion
 
     /**
      * Adds press to action command if appropriate. Else changes volume as normal.

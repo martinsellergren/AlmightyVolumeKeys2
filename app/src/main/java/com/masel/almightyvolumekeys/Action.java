@@ -25,10 +25,9 @@ abstract class Action {
     }
 
     /**
-     * @return Vibration pattern for action-notifier.
+     * @return Vibration pattern for notifier.
      */
     Notifier.VibrationPattern getVibrationPattern() {
-        //myContext.notifier.notify(getName(), Notifier.VibrationPattern.ON, true);
         return Notifier.VibrationPattern.ON;
     }
 
@@ -54,17 +53,14 @@ abstract class Action {
             case ANY:
                 myContext.notifier.notify(action.getName(), action.getVibrationPattern(), false);
                 action.run(myContext);
+                break;
             case BEFORE:
                 myContext.notifier.notify(action.getName(), action.getVibrationPattern(), true);
                 action.run(myContext);
+                break;
             case AFTER:
                 action.run(myContext);
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        myContext.notifier.notify(action.getName(), action.getVibrationPattern(), false);
-                    }
-                }, 10);
+                new Handler().postDelayed(() -> myContext.notifier.notify(action.getName(), action.getVibrationPattern(), false), 10);
         }
     }
 }
