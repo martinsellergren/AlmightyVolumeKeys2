@@ -6,6 +6,8 @@ import android.media.AudioManager;
 import android.os.Handler;
 import android.provider.Settings;
 
+import com.masel.rec_utils.Utils;
+
 public class VolumeChangeObserver extends ContentObserver {
 
     private AudioManager audioManager;
@@ -41,6 +43,8 @@ public class VolumeChangeObserver extends ContentObserver {
     @Override
     public void onChange(boolean selfChange) {
         super.onChange(selfChange);
+
+        if (!Utils.hijackingActiveAudioStream(audioManager)) return;
 
         int currentMusicVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
         int delta = currentMusicVolume - prevMusicVolume;

@@ -64,6 +64,7 @@ public class MonitorService extends AccessibilityService {
     private static final long LONG_PRESS_TIME = 400;
     private static final long LONG_PRESS_VOLUME_CHANGE_TIME = 40;
     private Handler longPressHandler = new Handler();
+    private boolean longPressHandlerHasCallbacks = false;
 
     /**
      * Fired only when screen is on. Consumes volume key presses and pass them along for processing.
@@ -81,9 +82,10 @@ public class MonitorService extends AccessibilityService {
                 Utils.log("DOWN");
             }
             else if (event.getAction() == KeyEvent.ACTION_UP) {
+                if (!longPressHandlerHasCallbacks) handleVolumeKeyPress(volumeUp);
                 longPressHandler.removeCallbacksAndMessages(null);
+                longPressHandlerHasCallbacks = false;
                 Utils.log("UP");
-                handleVolumeKeyPress(volumeUp);
             }
             else if (event.getAction() == KeyEvent.ACTION_MULTIPLE) {
                 Utils.log("MULTIPLE KEY PRESS");
@@ -98,6 +100,7 @@ public class MonitorService extends AccessibilityService {
 
     private void longPress(boolean volumeUp) {
         //Utils.log("LONG PRESS");
+        longPressHandlerHasCallbacks = true;
         adjustRelevantStreamVolume(volumeUp);
         longPressHandler.postDelayed(() -> longPress(volumeUp), LONG_PRESS_VOLUME_CHANGE_TIME);
     }
