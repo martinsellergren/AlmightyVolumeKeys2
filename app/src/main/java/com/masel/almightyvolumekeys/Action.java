@@ -32,15 +32,15 @@ abstract class Action {
     }
 
     static class ExecutionException extends Exception {
-        final boolean lacksPermission;
-
-        ExecutionException(String msg, boolean lacksPermission) {
-            super(msg);
-            this.lacksPermission = lacksPermission;
-        }
+        //final boolean lacksPermission;
+//
+//        ExecutionException(String msg, boolean lacksPermission) {
+//            super(msg);
+//            this.lacksPermission = lacksPermission;
+//        }
 
         ExecutionException(String msg) {
-            this(msg, false);
+            super(msg);
         }
     }
 

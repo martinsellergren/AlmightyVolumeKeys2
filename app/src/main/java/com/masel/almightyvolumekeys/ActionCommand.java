@@ -77,13 +77,14 @@ class ActionCommand {
                     myContext.notifier.notify(e.getMessage(), Notifier.VibrationPattern.ERROR, false);
                     Utils.logAndToast(myContext.context, e.getMessage());
 
-                    if (e.lacksPermission) {
+                    //if (e.lacksPermission) {
                         Intent intent = new Intent(myContext.context, MainActivity.class);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         myContext.context.startActivity(intent);
-                    }
-                    else {
-                        throw new RuntimeException("No-permission error: " + e.getMessage());
-                    }
+//                    }
+//                    else {
+//                        throw new RuntimeException("No-permission error: " + e.getMessage());
+//                    }
                 }
             }
         }
