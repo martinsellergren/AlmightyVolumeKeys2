@@ -57,6 +57,10 @@ class ActionCommand {
         }, deltaPressTime);
     }
 
+    /**
+     * Executes current command.
+     * Discards any command that started in a different device-state than the current device-state.
+     */
     private void executeCommand() {
         if (DeviceState.getCurrent(myContext) == deviceStateOnCommandStart) {
             Map<String, Action> mappings = Mappings.get(myContext);

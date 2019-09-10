@@ -5,7 +5,6 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.media.AudioManager;
 import android.os.Build;
 import android.os.Handler;
@@ -19,9 +18,6 @@ import androidx.core.app.NotificationCompat;
 import androidx.media.VolumeProviderCompat;
 
 import com.masel.rec_utils.Utils;
-
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class MonitorService extends AccessibilityService {
 
@@ -64,7 +60,7 @@ public class MonitorService extends AccessibilityService {
     private static final long LONG_PRESS_TIME = 400;
     private static final long LONG_PRESS_VOLUME_CHANGE_TIME = 40;
     private Handler longPressHandler = new Handler();
-    private boolean longPressHandlerHasCallbacks = false;
+    private boolean currentlyVolumeLongPress = false;
 
     /**
      * Fired only when screen is on. Consumes volume key presses and pass them along for processing.
@@ -82,9 +78,9 @@ public class MonitorService extends AccessibilityService {
                 Utils.log("DOWN");
             }
             else if (event.getAction() == KeyEvent.ACTION_UP) {
-                if (!longPressHandlerHasCallbacks) handleVolumeKeyPress(volumeUp);
+                if (!currentlyVolumeLongPress) handleVolumeKeyPress(volumeUp);
                 longPressHandler.removeCallbacksAndMessages(null);
-                longPressHandlerHasCallbacks = false;
+                currentlyVolumeLongPress = false;
                 Utils.log("UP");
             }
             else if (event.getAction() == KeyEvent.ACTION_MULTIPLE) {
@@ -100,7 +96,7 @@ public class MonitorService extends AccessibilityService {
 
     private void longPress(boolean volumeUp) {
         //Utils.log("LONG PRESS");
-        longPressHandlerHasCallbacks = true;
+        currentlyVolumeLongPress = true;
         adjustRelevantStreamVolume(volumeUp);
         longPressHandler.postDelayed(() -> longPress(volumeUp), LONG_PRESS_VOLUME_CHANGE_TIME);
     }
@@ -113,18 +109,19 @@ public class MonitorService extends AccessibilityService {
      * @param up True if volume up pressed, false if down.
      */
     private void handleVolumeKeyPress(boolean up) {
+        Utils.log("handle: " + actionCommand.getLength());
+
         if (actionCommand.getLength() >= 4) {
             adjustRelevantStreamVolume(up);
-            return;
         }
 
         DeviceState state = DeviceState.getCurrent(myContext);
-        boolean passActionBit = state.equals(DeviceState.RECORDING_AUDIO) || state.equals(DeviceState.IDLE);
-        if (!passActionBit) {
-            adjustRelevantStreamVolume(up);
+        boolean passActionBit = state.equals(DeviceState.IDLE) || state.equals(DeviceState.RECORDING_AUDIO);
+        if (passActionBit) {
+            actionCommand.addBit(up, ActionCommand.DELTA_PRESS_TIME_FAST);
         }
         else {
-            actionCommand.addBit(up, ActionCommand.DELTA_PRESS_TIME_FAST);
+            adjustRelevantStreamVolume(up);
         }
     }
 
