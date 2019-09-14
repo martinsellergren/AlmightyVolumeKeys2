@@ -4,7 +4,10 @@ import android.accessibilityservice.AccessibilityService;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.media.AudioManager;
 import android.os.Build;
 import android.os.Handler;
@@ -52,6 +55,7 @@ public class MonitorService extends AccessibilityService {
         volumeChangeObserver = new VolumeChangeObserver(myContext.audioManager, actionCommand);
         volumeChangeObserver.start(myContext.context);
         setupMediaSessionForScreenOffCallbacks();
+        setupWakeLockWhenScreenOff();
     }
 
 
@@ -140,6 +144,7 @@ public class MonitorService extends AccessibilityService {
             activeStream = AudioManager.STREAM_MUSIC; //todo: get from user settings
         }
 
+        if (activeStream == AudioManager.STREAM_SYSTEM) Utils.toast(this, "SYSTEM VOLUME CHANGE!!!"); //todo
         myContext.audioManager.adjustStreamVolume(activeStream, dir, volumeChangeFlag);
     }
 
@@ -179,6 +184,22 @@ public class MonitorService extends AccessibilityService {
         VolumeProviderCompat volumeProvider = screenOffCallback();
         mediaSession.setPlaybackToRemote(volumeProvider);
         mediaSession.setActive(true);
+    }
+
+    /**
+     * Keep cpu (and volume keys) on after screen off, for minimum time defined in user-settings.
+     */
+    private void setupWakeLockWhenScreenOff() {
+        myContext.context.registerReceiver(new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                int timeoutMinutes = 30; // todo: read from settings
+
+                long timeout = timeoutMinutes * 60000;
+                myContext.wakeLock.acquire(timeout);
+                Utils.log("Wake lock acquired");
+            }
+        }, new IntentFilter(Intent.ACTION_SCREEN_OFF));
     }
 
     /**

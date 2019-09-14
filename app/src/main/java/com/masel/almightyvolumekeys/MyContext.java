@@ -4,6 +4,8 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.media.AudioManager;
+import android.os.PowerManager;
+import android.os.PowerManager.WakeLock;
 import android.support.v4.media.session.MediaSessionCompat;
 
 import androidx.annotation.Nullable;
@@ -16,6 +18,7 @@ class MyContext {
     final MediaSessionCompat mediaSession;
     final AudioRecorderDeligator audioRecorder;
     final Notifier notifier;
+    final WakeLock wakeLock;
 
     MyContext(Context c) {
         context = c.getApplicationContext();
@@ -23,6 +26,9 @@ class MyContext {
         mediaSession = new MediaSessionCompat(context, "TAG", new ComponentName(context, MediaButtonReceiver.class), null);
         notifier = new Notifier(context);
         audioRecorder = new AudioRecorderDeligator(context);
+
+        PowerManager powerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+        this.wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,"com.masel.almightyvolumekeys::WakeLock");
     }
 
     void destroy() {
@@ -34,5 +40,6 @@ class MyContext {
         }
         audioRecorder.destroy();
         notifier.cancel();
+        wakeLock.release();
     }
 }
