@@ -2,9 +2,18 @@ package com.masel.almightyvolumekeys;
 
 import android.os.Handler;
 
+import java.util.ArrayList;
+import java.util.List;
+
 abstract class Action {
 
-    enum NotifyOrder { BEFORE, AFTER, ANY }
+    enum NotifyOrder { BEFORE, AFTER, ANY, NEVER }
+
+    static class ExecutionException extends Exception {
+        ExecutionException(String msg) {
+            super(msg);
+        }
+    }
 
     abstract String getName();
     abstract void run(MyContext myContext) throws ExecutionException;
@@ -31,17 +40,11 @@ abstract class Action {
         return Notifier.VibrationPattern.ON;
     }
 
-    static class ExecutionException extends Exception {
-        //final boolean lacksPermission;
-//
-//        ExecutionException(String msg, boolean lacksPermission) {
-//            super(msg);
-//            this.lacksPermission = lacksPermission;
-//        }
-
-        ExecutionException(String msg) {
-            super(msg);
-        }
+    /**
+     * @return Permissions necessary for this action. Default: none.
+     */
+    String[] getNeededPermissions() {
+        return new String[]{};
     }
 
     /**
@@ -60,7 +63,12 @@ abstract class Action {
                 break;
             case AFTER:
                 action.run(myContext);
-                new Handler().postDelayed(() -> myContext.notifier.notify(action.getName(), action.getVibrationPattern(), false), 10);
+
+                final long WAIT_BEFORE_NOTIFY = 10;
+                new Handler().postDelayed(() -> myContext.notifier.notify(action.getName(), action.getVibrationPattern(), false), WAIT_BEFORE_NOTIFY);
+                break;
+            case NEVER:
+                action.run(myContext);
         }
     }
 }

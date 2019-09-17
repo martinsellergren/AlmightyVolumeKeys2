@@ -1,13 +1,9 @@
 package com.masel.almightyvolumekeys;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
-import android.os.SystemClock;
 
 import java.util.Map;
-
-import com.masel.rec_utils.TheSoundRecorderSharedPrefs;
 import com.masel.rec_utils.Utils;
 
 /**
@@ -63,7 +59,7 @@ class ActionCommand {
      */
     private void executeCommand() {
         if (DeviceState.getCurrent(myContext) == deviceStateOnCommandStart) {
-            Map<String, Action> mappings = Mappings.get(myContext);
+            Map<String, Action> mappings = Mappings.getCurrent(myContext);
             Action action = mappings.get(command);
             if (action == null) {
                 Utils.logAndToast(myContext.context, String.format("Non-mapped command: %s (state:%s)", command, DeviceState.getCurrent(myContext)));

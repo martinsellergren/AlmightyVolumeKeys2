@@ -69,6 +69,7 @@ class Notifier {
             NotificationChannel channel = new NotificationChannel(notificationChannelId, notificationChannelName, NotificationManager.IMPORTANCE_HIGH);
             //channel.setDescription("whatever");
             channel.setVibrationPattern(vibrationPatternArray);
+            channel.setSound(null, null);
             channel.setGroup(NOTIFICATION_CHANNEL_GROUP_ID);
 
             notificationManager.createNotificationChannel(channel);
@@ -112,6 +113,7 @@ class Notifier {
                 .setContentTitle(text)
                 .setPriority(NotificationCompat.PRIORITY_MAX)
                 .setVibrate(vibrationPatternArray)
+                .setSound(null)
                 .build();
 
         notificationManager.notify(NOTIFICATION_ID, notification);
@@ -119,7 +121,8 @@ class Notifier {
 
         if (waitOnVibration) {
             long sum = 0; for (long x : vibrationPatternArray) sum += x;
-            SystemClock.sleep(sum);
+            final long MARGIN = 50;
+            SystemClock.sleep(sum + MARGIN);
         }
     }
 

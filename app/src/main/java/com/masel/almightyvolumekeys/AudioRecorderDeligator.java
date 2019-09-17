@@ -7,7 +7,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.masel.rec_utils.AudioRecorder;
-import com.masel.rec_utils.TheSoundRecorderSharedPrefs;
+import com.masel.rec_utils.KeyValueStore;
 import com.masel.rec_utils.Utils;
 
 /**
@@ -61,7 +61,7 @@ class AudioRecorderDeligator {
                 Context theSoundRecorderContext = TheSoundRecorderConnection.getTheSoundRecorderContext(context);
                 localRecorder.coldStopAndSave(theSoundRecorderContext);
                 localRecorder = null;
-                TheSoundRecorderSharedPrefs.setAlmightyVolumeKeysIsRecording(theSoundRecorderContext, false);
+                KeyValueStore.setAlmightyVolumeKeysIsRecording(theSoundRecorderContext, false);
             }
             catch (TheSoundRecorderConnection.TheSoundRecorderNotInstalledException e) {}
             TheSoundRecorderConnection.broadcastLocalRecStop(context);
@@ -86,7 +86,7 @@ class AudioRecorderDeligator {
 
             try {
                 Context theSoundRecorderContext = TheSoundRecorderConnection.getTheSoundRecorderContext(context);
-                TheSoundRecorderSharedPrefs.setAlmightyVolumeKeysIsRecording(theSoundRecorderContext, false);
+                KeyValueStore.setAlmightyVolumeKeysIsRecording(theSoundRecorderContext, false);
             }
             catch (TheSoundRecorderConnection.TheSoundRecorderNotInstalledException e) {}
             TheSoundRecorderConnection.broadcastLocalRecStop(context);
@@ -112,7 +112,7 @@ class AudioRecorderDeligator {
             localRecorder = AudioRecorder.coldStart(theSoundRecorderContext);
             if (localRecorder != null) {
                 AudioRecorder.showNotification(context);
-                TheSoundRecorderSharedPrefs.setAlmightyVolumeKeysIsRecording(theSoundRecorderContext, true);
+                KeyValueStore.setAlmightyVolumeKeysIsRecording(theSoundRecorderContext, true);
                 TheSoundRecorderConnection.broadcastLocalRecStart(context);
             }
             else {

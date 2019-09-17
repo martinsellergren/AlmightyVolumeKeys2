@@ -1,7 +1,11 @@
 package com.masel.almightyvolumekeys;
 
+import android.Manifest;
 import android.media.AudioManager;
 import android.media.ToneGenerator;
+import android.os.Build;
+
+import java.util.List;
 
 /**
  * Defines actions.
@@ -9,6 +13,8 @@ import android.media.ToneGenerator;
 class Actions {
 
     private Actions() {}
+
+    // region Audio recording
 
     static class AudioRecording_Start extends Action {
         @Override
@@ -24,6 +30,11 @@ class Actions {
         @Override
         Action.NotifyOrder getNotifyOrder() {
             return NotifyOrder.BEFORE;
+        }
+
+        @Override
+        String[] getNeededPermissions() {
+            return new String[]{Manifest.permission.RECORD_AUDIO, Manifest.permission.WRITE_EXTERNAL_STORAGE};
         }
     }
 
@@ -47,6 +58,11 @@ class Actions {
         Notifier.VibrationPattern getVibrationPattern() {
             return Notifier.VibrationPattern.OFF;
         }
+
+        @Override
+        String[] getNeededPermissions() {
+            return new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE};
+        }
     }
 
 
@@ -65,7 +81,14 @@ class Actions {
         Notifier.VibrationPattern getVibrationPattern() {
             return Notifier.VibrationPattern.OFF;
         }
+
+        @Override
+        String[] getNeededPermissions() {
+            return new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE};
+        }
     }
+
+    // endregion
 
 
     static class MediaControl_NextTrack extends Action {
@@ -79,6 +102,69 @@ class Actions {
 
         }
     }
+
+    // region SoundMode
+
+    static class SoundMode_Sound extends Action {
+        @Override
+        String getName() {
+            return "Sound mode: sound";
+        }
+
+        @Override
+        void run(MyContext myContext) throws ExecutionException {
+            myContext.audioManager.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+        }
+
+        @Override
+        NotifyOrder getNotifyOrder() {
+            return NotifyOrder.BEFORE;
+        }
+    }
+
+    static class SoundMode_Vibrate extends Action {
+        @Override
+        String getName() {
+            return "Sound mode: vibrate";
+        }
+
+        @Override
+        void run(MyContext myContext) throws ExecutionException {
+            myContext.audioManager.setRingerMode(AudioManager.RINGER_MODE_VIBRATE);
+        }
+
+        @Override
+        NotifyOrder getNotifyOrder() {
+            return NotifyOrder.BEFORE;
+        }
+    }
+
+    static class SoundMode_Silent extends Action {
+        @Override
+        String getName() {
+            return "Sound mode: silent";
+        }
+
+        @Override
+        void run(MyContext myContext) throws ExecutionException {
+            myContext.audioManager.setRingerMode(AudioManager.RINGER_MODE_SILENT);
+        }
+
+        @Override
+        NotifyOrder getNotifyOrder() {
+            return NotifyOrder.BEFORE;
+        }
+
+        @Override
+        String[] getNeededPermissions() {
+            if (Build.VERSION.SDK_INT >= 23) {
+                return new String[]{Manifest.permission.ACCESS_NOTIFICATION_POLICY};
+            }
+            else return new String[]{};
+        }
+    }
+
+    // endregion
 
     static class Beep extends Action {
         @Override

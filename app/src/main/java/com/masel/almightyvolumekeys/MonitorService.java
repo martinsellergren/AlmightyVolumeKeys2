@@ -141,10 +141,12 @@ public class MonitorService extends AccessibilityService {
         int activeStream = Utils.getActiveAudioStream(myContext.audioManager);
 
         if (activeStream == AudioManager.USE_DEFAULT_STREAM_TYPE) {
-            activeStream = AudioManager.STREAM_MUSIC; //todo: get from user settings
+            activeStream = AudioManager.STREAM_MUSIC; //todo: getCurrent from user settings
         }
 
-        if (activeStream == AudioManager.STREAM_SYSTEM) Utils.toast(this, "SYSTEM VOLUME CHANGE!!!"); //todo
+        if (activeStream == AudioManager.STREAM_SYSTEM) {
+            myContext.notifier.notify("SYSTEM VOLUME CHANGE!!!", Notifier.VibrationPattern.ERROR, false);
+        }
         myContext.audioManager.adjustStreamVolume(activeStream, dir, volumeChangeFlag);
     }
 
@@ -194,6 +196,7 @@ public class MonitorService extends AccessibilityService {
             @Override
             public void onReceive(Context context, Intent intent) {
                 int timeoutMinutes = 30; // todo: read from settings
+                timeoutMinutes = 60 * 24;
 
                 long timeout = timeoutMinutes * 60000;
                 myContext.wakeLock.acquire(timeout);
