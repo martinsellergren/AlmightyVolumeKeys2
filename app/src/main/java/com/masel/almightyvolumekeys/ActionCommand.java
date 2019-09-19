@@ -63,7 +63,8 @@ class ActionCommand {
             Action action = mappings.get(command);
             if (action == null) {
                 Utils.logAndToast(myContext.context, String.format("Non-mapped command: %s (state:%s)", command, DeviceState.getCurrent(myContext)));
-            } else {
+            }
+            else {
                 Utils.logAndToast(myContext.context, String.format("Execute %s -> %s (state:%s)", command, action.getName(), DeviceState.getCurrent(myContext)));
 
                 try {

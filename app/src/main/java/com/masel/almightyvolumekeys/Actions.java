@@ -4,6 +4,7 @@ import android.Manifest;
 import android.media.AudioManager;
 import android.media.ToneGenerator;
 import android.os.Build;
+import android.os.RemoteException;
 
 import java.util.List;
 
@@ -147,7 +148,12 @@ class Actions {
 
         @Override
         void run(MyContext myContext) throws ExecutionException {
-            myContext.audioManager.setRingerMode(AudioManager.RINGER_MODE_SILENT);
+            try {
+                myContext.audioManager.setRingerMode(AudioManager.RINGER_MODE_SILENT);
+            }
+            catch (Exception e) {
+                throw new ExecutionException("No permission");
+            }
         }
 
         @Override

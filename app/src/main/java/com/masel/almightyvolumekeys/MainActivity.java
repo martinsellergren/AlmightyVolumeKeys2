@@ -20,8 +20,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
+    protected void onStart() {
+        super.onStart();
         Utils.requestPermissions(this, Mappings.getNeededPermissions(this));
     }
 }

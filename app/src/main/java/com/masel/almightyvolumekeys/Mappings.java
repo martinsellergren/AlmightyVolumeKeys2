@@ -19,7 +19,7 @@ class Mappings {
             case MUSIC: return getMusicMappings(myContext.context);
             case RINGING: return getRingingMappings(myContext.context);
             case IN_CALL: return getInCallMappings(myContext.context);
-            case RECORDING_AUDIO: getRecMappings(myContext.context);
+            case RECORDING_AUDIO: return getRecMappings(myContext.context);
             default: return new HashMap<>();
         }
     }

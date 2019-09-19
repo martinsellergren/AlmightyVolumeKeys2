@@ -46,7 +46,7 @@ class TheSoundRecorderConnection {
     /**
      * - Init bind to TheSoundRecorder's service (when service started (or already running), or stopped: complete bind).
      * - Listen to broadcasts from TheSoundRecorder (onCreate(), or when stop-rec-button pressed).
-     * - Set AlmightyVolumeKeys-is-recording-flag of TheSoundRecorder's shared-prefs to false.
+     * - Set AlmightyVolumeKeys-is-recording-flag of TheSoundRecorder's key-value-store to false.
      *
      * @param context AlmightyVolumeKeys' context
      */

@@ -10,13 +10,15 @@ import com.masel.rec_utils.AudioRecorder;
 import com.masel.rec_utils.KeyValueStore;
 import com.masel.rec_utils.Utils;
 
+import java.io.IOException;
+
 /**
  * This class controls the local recorder AND TheSoundRecorder's recorder (whichever is running).
- * Rec-props defined in TheSoundRecorder's shared-prefs.
+ * Rec-props defined in TheSoundRecorder's key-value-store.
  * Uses the local recorder for recordings started by AlmightyVolumeKeys.
  *
- * Also maintains the AlmightyVolumeKeys-is-recording-flag of TheSoundRecorder's shared-prefs
- * (to reflect the local recorder's state). For TheSoundRecorder to read to know what's going on.
+ * Also maintains the AlmightyVolumeKeys-is-recording-flag of TheSoundRecorder's key-value-store
+ * (to reflect the local recorder's state). For TheSoundRecorder to know what's going on.
  * This flag is initialized to false on TheSoundRecorder-start if it doesn't exist, so
  * it will always be available to read by TheSoundRecorder.
  */
@@ -51,12 +53,11 @@ class AudioRecorderDeligator {
      * Stop local rec or(/and) TheSoundRecorder.
      *
      * If local rec stopped:
-     * Flag in TheSoundRecorder's shared-prefs: local rec stopped.
+     * Flag in TheSoundRecorder's key-value-store: local rec stopped.
      * Send broadcast: local rec stopped.
      */
     void stopAndSave() {
         if (localRecorder != null) {
-
             try {
                 Context theSoundRecorderContext = TheSoundRecorderConnection.getTheSoundRecorderContext(context);
                 localRecorder.coldStopAndSave(theSoundRecorderContext);
@@ -76,7 +77,7 @@ class AudioRecorderDeligator {
      * Stop and discard local rec or(/and) TheSoundRecorder.
      *
      * If local rec stopped:
-     * Flag in TheSoundRecorder's shared-prefs: local rec stopped.
+     * Flag in TheSoundRecorder's key-value-store: local rec stopped.
      * Send broadcast: local rec stopped.
      */
     void stopAndDiscard() {
@@ -101,7 +102,7 @@ class AudioRecorderDeligator {
      * If TheSoundRecorder not installed, open play-store (needs rec-props).
      * If already in rec, does nothing.
      *
-     * Flag in TheSoundRecorder's shared-prefs: local rec started.
+     * Flag in TheSoundRecorder's key-value-store: local rec started.
      * Send broadcast: local rec started.
      */
     void start() throws Action.ExecutionException {
@@ -109,19 +110,18 @@ class AudioRecorderDeligator {
 
         try {
             Context theSoundRecorderContext = TheSoundRecorderConnection.getTheSoundRecorderContext(context);
+
             localRecorder = AudioRecorder.coldStart(theSoundRecorderContext);
-            if (localRecorder != null) {
-                AudioRecorder.showNotification(context);
-                KeyValueStore.setAlmightyVolumeKeysIsRecording(theSoundRecorderContext, true);
-                TheSoundRecorderConnection.broadcastLocalRecStart(context);
-            }
-            else {
-                throw new Action.ExecutionException("Failed to start rec");
-            }
+            AudioRecorder.showNotification(context);
+            KeyValueStore.setAlmightyVolumeKeysIsRecording(theSoundRecorderContext, true);
+            TheSoundRecorderConnection.broadcastLocalRecStart(context);
         }
         catch (TheSoundRecorderConnection.TheSoundRecorderNotInstalledException e) {
             // todo: install TheSoundRecorder
             throw new Action.ExecutionException("TheSoundRecorder not installed");
+        }
+        catch (IOException e) {
+            throw new Action.ExecutionException("Failed to start rec");
         }
     }
 
