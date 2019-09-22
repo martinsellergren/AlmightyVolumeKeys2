@@ -52,7 +52,7 @@ class Actions {
 
         @Override
         Action.NotifyOrder getNotifyOrder() {
-            return NotifyOrder.AFTER;
+            return NotifyOrder.AFTER_WAIT_ON_DND;
         }
 
         @Override
@@ -66,7 +66,6 @@ class Actions {
         }
     }
 
-
     static class AudioRecording_StopAndDiscard extends Action {
         @Override
         public String getName() {
@@ -76,6 +75,11 @@ class Actions {
         @Override
         public void run(MyContext myContext) throws Action.ExecutionException {
             myContext.audioRecorder.stopAndDiscard();
+        }
+
+        @Override
+        Action.NotifyOrder getNotifyOrder() {
+            return NotifyOrder.AFTER_WAIT_ON_DND;
         }
 
         @Override

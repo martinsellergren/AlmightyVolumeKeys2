@@ -82,11 +82,10 @@ class AudioRecorderDeligator {
      */
     void stopAndDiscard() {
         if (localRecorder != null) {
-            localRecorder.stopAndDiscard();
-            localRecorder = null;
-
             try {
                 Context theSoundRecorderContext = TheSoundRecorderConnection.getTheSoundRecorderContext(context);
+                localRecorder.coldStopAndDiscard(theSoundRecorderContext);
+                localRecorder = null;
                 KeyValueStore.setAlmightyVolumeKeysIsRecording(theSoundRecorderContext, false);
             }
             catch (TheSoundRecorderConnection.TheSoundRecorderNotInstalledException e) {}
