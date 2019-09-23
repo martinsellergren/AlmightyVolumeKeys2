@@ -96,7 +96,7 @@ abstract class Action {
 
     private static void vibrateAfterWaitOnDnd(MyContext myContext, Action action) {
         if (Build.VERSION.SDK_INT >= 23) {
-            interruptionFilterMethod(myContext, action);
+            //interruptionFilterMethod(myContext, action);
         }
         else {
             ringerModeMethod(myContext, action);

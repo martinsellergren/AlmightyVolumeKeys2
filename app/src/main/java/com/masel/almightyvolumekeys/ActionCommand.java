@@ -68,20 +68,18 @@ class ActionCommand {
                 Utils.logAndToast(myContext.context, String.format("Execute %s -> %s (state:%s)", command, action.getName(), DeviceState.getCurrent(myContext)));
 
                 try {
+                    if (!Utils.hasPermissions(myContext.context, action.getNeededPermissions())) {
+                        throw new Action.ExecutionException("Missing permission(s)");
+                    }
                     Action.execute(myContext, action);
                 }
                 catch (Action.ExecutionException e) {
                     myContext.notifier.notify(e.getMessage(), Notifier.VibrationPattern.ERROR, false);
                     Utils.logAndToast(myContext.context, e.getMessage());
 
-                    //if (e.lacksPermission) {
-                        Intent intent = new Intent(myContext.context, MainActivity.class);
-                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        myContext.context.startActivity(intent);
-//                    }
-//                    else {
-//                        throw new RuntimeException("No-permission error: " + e.getMessage());
-//                    }
+                    Intent intent = new Intent(myContext.context, MainActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    myContext.context.startActivity(intent);
                 }
             }
         }
