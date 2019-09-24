@@ -87,6 +87,7 @@ abstract class Action {
                 action.run(myContext);
                 final long MIN_WAIT_BEFORE_NOTIFY = 10;
                 new Handler().postDelayed(() -> vibrateAfterWaitOnDnd(myContext, action), MIN_WAIT_BEFORE_NOTIFY);
+                break;
             case NEVER:
                 action.run(myContext);
         }
@@ -96,7 +97,7 @@ abstract class Action {
 
     private static void vibrateAfterWaitOnDnd(MyContext myContext, Action action) {
         if (Build.VERSION.SDK_INT >= 23) {
-            //interruptionFilterMethod(myContext, action);
+            interruptionFilterMethod(myContext, action);
         }
         else {
             ringerModeMethod(myContext, action);
