@@ -1,12 +1,10 @@
 package com.masel.almightyvolumekeys;
 
 import android.Manifest;
+import android.app.NotificationManager;
 import android.media.AudioManager;
 import android.media.ToneGenerator;
 import android.os.Build;
-import android.os.RemoteException;
-
-import java.util.List;
 
 /**
  * Defines actions.
@@ -95,6 +93,7 @@ class Actions {
 
     // endregion
 
+    // region Media control
 
     static class MediaControl_NextTrack extends Action {
         @Override
@@ -108,7 +107,9 @@ class Actions {
         }
     }
 
-    // region SoundMode
+    // endregion
+
+    // region Sound mode
 
     static class SoundMode_Sound extends Action {
         @Override
@@ -161,6 +162,11 @@ class Actions {
         }
 
         @Override
+        Notifier.VibrationPattern getVibrationPattern() {
+            return Notifier.VibrationPattern.SILENCE;
+        }
+
+        @Override
         NotifyOrder getNotifyOrder() {
             return NotifyOrder.BEFORE;
         }
@@ -172,6 +178,128 @@ class Actions {
             }
             else return new String[]{};
         }
+    }
+
+    static class SoundMode_ToggleVibrateSilent extends MultiAction {
+        @Override
+        Action pickAction(MyContext myContext) {
+            switch (myContext.audioManager.getRingerMode()) {
+                case AudioManager.RINGER_MODE_SILENT: return new SoundMode_Vibrate();
+                case AudioManager.RINGER_MODE_VIBRATE: return new SoundMode_Silent();
+                default: return new SoundMode_Vibrate();
+            }
+        }
+
+        @Override
+        String[] getNeededPermissions() {
+            if (Build.VERSION.SDK_INT >= 23) {
+                return new String[]{Manifest.permission.ACCESS_NOTIFICATION_POLICY};
+            }
+            else return new String[]{};
+        }
+    }
+
+    // endregion
+
+    // region DND mode (Problem: can't seem to use the user-defined dnd-settings. Better with audio-ringer-mode silent.)
+
+    static class DndMode_On extends Action {
+
+        @Override
+        String getName() {
+            return "Do not disturb: ON";
+        }
+
+        @Override
+        void run(MyContext myContext) throws ExecutionException {
+            setDnd(myContext.notificationManager, true);
+        }
+
+        @Override
+        Notifier.VibrationPattern getVibrationPattern() {
+            return Notifier.VibrationPattern.ON;
+        }
+
+        @Override
+        NotifyOrder getNotifyOrder() {
+            return NotifyOrder.BEFORE;
+        }
+
+        @Override
+        String[] getNeededPermissions() {
+            return new String[]{Manifest.permission.ACCESS_NOTIFICATION_POLICY};
+        }
+
+        @Override
+        int getMinApiLevel() {
+            return 23;
+        }
+    }
+
+    static class DndMode_Off extends Action {
+        @Override
+        String getName() {
+            return "Do not disturb: OFF";
+        }
+
+        @Override
+        void run(MyContext myContext) throws ExecutionException {
+            setDnd(myContext.notificationManager, false);
+        }
+
+        @Override
+        Notifier.VibrationPattern getVibrationPattern() {
+            return Notifier.VibrationPattern.OFF;
+        }
+
+        @Override
+        NotifyOrder getNotifyOrder() {
+            return NotifyOrder.AFTER;
+        }
+
+        @Override
+        String[] getNeededPermissions() {
+            return new String[]{Manifest.permission.ACCESS_NOTIFICATION_POLICY};
+        }
+
+        @Override
+        int getMinApiLevel() {
+            return 23;
+        }
+    }
+
+    static class DndMode_Toggle extends MultiAction {
+        @Override
+        Action pickAction(MyContext myContext) {
+            if (dndIsOn(myContext.notificationManager)) return new Actions.DndMode_Off();
+            else return new Actions.DndMode_On();
+        }
+
+        @Override
+        String[] getNeededPermissions() {
+            return new String[]{Manifest.permission.ACCESS_NOTIFICATION_POLICY};
+        }
+
+        @Override
+        int getMinApiLevel() {
+            return 23;
+        }
+    }
+
+    private static void setDnd(NotificationManager notificationManager, boolean on) {
+        if (Build.VERSION.SDK_INT < 23) return;
+
+        if (on) {
+            notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_NONE);
+        }
+        else {
+            notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_ALL);
+        }
+    }
+
+    private static boolean dndIsOn(NotificationManager notificationManager) {
+        if (Build.VERSION.SDK_INT < 23) return false;
+        return notificationManager.getCurrentInterruptionFilter() != NotificationManager.INTERRUPTION_FILTER_ALL;
     }
 
     // endregion

@@ -24,13 +24,15 @@ class Notifier {
 
     private static final int NOTIFICATION_ID = 8427283;
 
-    enum VibrationPattern {ON, OFF, ERROR};
+    enum VibrationPattern {ON, OFF, SILENCE, ERROR};
     private static final long[] VIBRATION_PATTERN_ARRAY_ON = new long[]{0,500};
     private static final long[] VIBRATION_PATTERN_ARRAY_OFF = new long[]{0,100,100,100};
+    private static final long[] VIBRATION_PATTERN_ARRAY_SILENCE = new long[]{0,300,100,100};
     private static final long[] VIBRATION_PATTERN_ARRAY_ERROR = new long[]{0,100,10,100,10,100};
 
     private static final String CHANNEL_ON_ID = "Heads up channel: ON";
     private static final String CHANNEL_OFF_ID = "Heads up channel: OFF";
+    private static final String CHANNEL_SILENCE_ID = "Heads up channel: SILENCE";
     private static final String CHANNEL_ERROR_ID = "Heads up channel: ERROR";
 
 //    /**
@@ -48,6 +50,7 @@ class Notifier {
 
         createChannel(VibrationPattern.ON);
         createChannel(VibrationPattern.OFF);
+        createChannel(VibrationPattern.SILENCE);
         createChannel(VibrationPattern.ERROR);
     }
 
@@ -84,6 +87,7 @@ class Notifier {
         switch (pattern) {
             case ON: return CHANNEL_ON_ID;
             case OFF: return CHANNEL_OFF_ID;
+            case SILENCE: return CHANNEL_SILENCE_ID;
             case ERROR: return CHANNEL_ERROR_ID;
             default: throw new RuntimeException("Dead end");
         }
@@ -93,6 +97,7 @@ class Notifier {
         switch (pattern) {
             case ON: return VIBRATION_PATTERN_ARRAY_ON;
             case OFF: return VIBRATION_PATTERN_ARRAY_OFF;
+            case SILENCE: return VIBRATION_PATTERN_ARRAY_SILENCE;
             case ERROR: return VIBRATION_PATTERN_ARRAY_ERROR;
             default: throw new RuntimeException("Dead end");
         }

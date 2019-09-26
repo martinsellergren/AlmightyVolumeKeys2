@@ -1,6 +1,7 @@
 package com.masel.almightyvolumekeys;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Handler;
 
 import java.util.Map;
@@ -61,16 +62,25 @@ class ActionCommand {
         if (DeviceState.getCurrent(myContext) == deviceStateOnCommandStart) {
             Map<String, Action> mappings = Mappings.getCurrent(myContext);
             Action action = mappings.get(command);
+
             if (action == null) {
                 Utils.logAndToast(myContext.context, String.format("Non-mapped command: %s (state:%s)", command, DeviceState.getCurrent(myContext)));
             }
             else {
+                if (action instanceof MultiAction) {
+                    ((MultiAction) action).setAction(myContext);
+                }
+
                 Utils.logAndToast(myContext.context, String.format("Execute %s -> %s (state:%s)", command, action.getName(), DeviceState.getCurrent(myContext)));
 
                 try {
                     if (!Utils.hasPermissions(myContext.context, action.getNeededPermissions())) {
                         throw new Action.ExecutionException("Missing permission(s)");
                     }
+                    if (Build.VERSION.SDK_INT < action.getMinApiLevel()) {
+                        throw new Action.ExecutionException("Too old API");
+                    }
+
                     Action.execute(myContext, action);
                 }
                 catch (Action.ExecutionException e) {

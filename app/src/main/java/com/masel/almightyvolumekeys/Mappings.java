@@ -27,10 +27,8 @@ class Mappings {
     private static Map<String, Action> getIdleMappings(Context context) {
         Map<String, Action> mappings = new HashMap<>();
         mappings.put("11", new Actions.AudioRecording_Start());
-        mappings.put("111", new Actions.SoundMode_Sound());
-        mappings.put("00", new Actions.SoundMode_Vibrate());
-        mappings.put("000", new Actions.SoundMode_Silent());
-        mappings.put("1000", new Actions.Beep());
+        mappings.put("00", new Actions.SoundMode_ToggleVibrateSilent());
+        mappings.put("1100", new Actions.Beep());
         return mappings;
     }
 

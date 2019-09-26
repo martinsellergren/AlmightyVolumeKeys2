@@ -1,5 +1,6 @@
 package com.masel.almightyvolumekeys;
 
+import android.app.NotificationManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -16,6 +17,7 @@ class MyContext {
     final Context context;
     final AudioManager audioManager;
     final MediaSessionCompat mediaSession;
+    final NotificationManager notificationManager;
     final AudioRecorderDeligator audioRecorder;
     final Notifier notifier;
     final WakeLock wakeLock;
@@ -24,6 +26,7 @@ class MyContext {
         context = c.getApplicationContext();
         audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         mediaSession = new MediaSessionCompat(context, "TAG", new ComponentName(context, MediaButtonReceiver.class), null);
+        notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         notifier = new Notifier(context);
         audioRecorder = new AudioRecorderDeligator(context);
 

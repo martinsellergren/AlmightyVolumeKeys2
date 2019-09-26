@@ -65,6 +65,13 @@ abstract class Action {
     }
 
     /**
+     * Action only available if device-api >= this.
+     */
+    int getMinApiLevel() {
+        return 0;
+    }
+
+    /**
      * Execute an action and show corresponding notifier.
      * @param action
      */
@@ -93,7 +100,7 @@ abstract class Action {
         }
     }
 
-    // region Wait on DND
+    // region Wait on silent device
 
     private static void vibrateAfterWaitOnDnd(MyContext myContext, Action action) {
         if (Build.VERSION.SDK_INT >= 23) {
@@ -107,8 +114,7 @@ abstract class Action {
     private static void interruptionFilterMethod(MyContext myContext, Action action) {
         if (Build.VERSION.SDK_INT < 23) return;
 
-        final NotificationManager notificationManager = (NotificationManager) myContext.context.getSystemService(Context.NOTIFICATION_SERVICE);
-        int currentFilter = notificationManager.getCurrentInterruptionFilter();
+        int currentFilter = myContext.notificationManager.getCurrentInterruptionFilter();
         if (currentFilter != NotificationManager.INTERRUPTION_FILTER_NONE) {
             myContext.notifier.notify(action.getName(), action.getVibrationPattern(), false);
         }
@@ -117,7 +123,7 @@ abstract class Action {
                 @Override
                 public void onReceive(Context context, Intent intent) {
                     if (Build.VERSION.SDK_INT < 23) return;
-                    if (!isInitialStickyBroadcast() && notificationManager.getCurrentInterruptionFilter() != NotificationManager.INTERRUPTION_FILTER_NONE) {
+                    if (!isInitialStickyBroadcast() && myContext.notificationManager.getCurrentInterruptionFilter() != NotificationManager.INTERRUPTION_FILTER_NONE) {
                         myContext.context.unregisterReceiver(this);
                         myContext.notifier.notify(action.getName(), action.getVibrationPattern(), false);
                     }
@@ -135,10 +141,7 @@ abstract class Action {
     }
 
     private static void ringerModeMethod(MyContext myContext, Action action) {
-        if (Build.VERSION.SDK_INT >= 23) return;
-
-        final AudioManager audioManager = (AudioManager) myContext.context.getSystemService(Context.AUDIO_SERVICE);
-        int currentRingerMode = audioManager.getRingerMode();
+        int currentRingerMode = myContext.audioManager.getRingerMode();
         if (currentRingerMode != AudioManager.RINGER_MODE_SILENT) {
             myContext.notifier.notify(action.getName(), action.getVibrationPattern(), false);
         }
@@ -146,7 +149,7 @@ abstract class Action {
             BroadcastReceiver ringerModeChangedReceiver = new BroadcastReceiver() {
                 @Override
                 public void onReceive(Context context, Intent intent) {
-                    if (!isInitialStickyBroadcast() && audioManager.getRingerMode() != AudioManager.RINGER_MODE_SILENT) {
+                    if (!isInitialStickyBroadcast() && myContext.audioManager.getRingerMode() != AudioManager.RINGER_MODE_SILENT) {
                         myContext.context.unregisterReceiver(this);
                         myContext.notifier.notify(action.getName(), action.getVibrationPattern(), false);
                     }
