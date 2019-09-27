@@ -14,7 +14,6 @@ import android.os.RemoteException;
 
 import com.masel.rec_utils.Utils;
 
-import androidx.annotation.Nullable;
 
 /**
  * - Binds to TheSoundRecorder and sends stop-messages.

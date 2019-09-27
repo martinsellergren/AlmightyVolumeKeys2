@@ -27,15 +27,15 @@ class Mappings {
     private static Map<String, Action> getIdleMappings(Context context) {
         Map<String, Action> mappings = new HashMap<>();
         mappings.put("11", new Actions.AudioRecording_Start());
-        mappings.put("00", new Actions.SoundMode_ToggleVibrateSilent());
+        mappings.put("00", new Actions.DndMode_Toggle());
         mappings.put("1100", new Actions.Beep());
         return mappings;
     }
 
     private static Map<String, Action> getMusicMappings(Context context) {
         Map<String, Action> mappings = new HashMap<>();
-//        mappings.put("10", new Actions.MediaControl_NextTrack());
-//        mappings.put("0", new Actions.MediaControl_NextTrack());
+        mappings.put("10", new Actions.MediaControl_NextTrack());
+        mappings.put("01", new Actions.MediaControl_PrevTrack());
         return mappings;
     }
 

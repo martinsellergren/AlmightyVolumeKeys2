@@ -5,6 +5,7 @@ import android.app.NotificationManager;
 import android.media.AudioManager;
 import android.media.ToneGenerator;
 import android.os.Build;
+import android.view.KeyEvent;
 
 /**
  * Defines actions.
@@ -98,12 +99,38 @@ class Actions {
     static class MediaControl_NextTrack extends Action {
         @Override
         public String getName() {
-            return "Play next media track";
+            return "Next media track";
         }
 
         @Override
         public void run(MyContext myContext) throws Action.ExecutionException {
+            if (Build.VERSION.SDK_INT < 19) return;
+            myContext.audioManager.dispatchMediaKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_MEDIA_NEXT));
+            myContext.audioManager.dispatchMediaKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_MEDIA_NEXT));
+        }
 
+        @Override
+        int getMinApiLevel() {
+            return 19;
+        }
+    }
+
+    static class MediaControl_PrevTrack extends Action {
+        @Override
+        public String getName() {
+            return "Previous media track";
+        }
+
+        @Override
+        public void run(MyContext myContext) throws Action.ExecutionException {
+            if (Build.VERSION.SDK_INT < 19) return;
+            myContext.audioManager.dispatchMediaKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_MEDIA_PREVIOUS));
+            myContext.audioManager.dispatchMediaKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_MEDIA_PREVIOUS));
+        }
+
+        @Override
+        int getMinApiLevel() {
+            return 19;
         }
     }
 
@@ -124,7 +151,7 @@ class Actions {
 
         @Override
         NotifyOrder getNotifyOrder() {
-            return NotifyOrder.BEFORE;
+            return NotifyOrder.NEVER;
         }
     }
 
@@ -141,7 +168,7 @@ class Actions {
 
         @Override
         NotifyOrder getNotifyOrder() {
-            return NotifyOrder.BEFORE;
+            return NotifyOrder.AFTER_WAIT_ON_DND;
         }
     }
 
@@ -201,7 +228,7 @@ class Actions {
 
     // endregion
 
-    // region DND mode (Problem: can't seem to use the user-defined dnd-settings. Better with audio-ringer-mode silent.)
+    // region DND mode
 
     static class DndMode_On extends Action {
 
@@ -227,7 +254,10 @@ class Actions {
 
         @Override
         String[] getNeededPermissions() {
-            return new String[]{Manifest.permission.ACCESS_NOTIFICATION_POLICY};
+            if (Build.VERSION.SDK_INT >= 23) {
+                return new String[]{Manifest.permission.ACCESS_NOTIFICATION_POLICY};
+            }
+            else return new String[]{};
         }
 
         @Override
@@ -254,12 +284,15 @@ class Actions {
 
         @Override
         NotifyOrder getNotifyOrder() {
-            return NotifyOrder.AFTER;
+            return NotifyOrder.AFTER_WAIT_ON_DND;
         }
 
         @Override
         String[] getNeededPermissions() {
-            return new String[]{Manifest.permission.ACCESS_NOTIFICATION_POLICY};
+            if (Build.VERSION.SDK_INT >= 23) {
+                return new String[]{Manifest.permission.ACCESS_NOTIFICATION_POLICY};
+            }
+            else return new String[]{};
         }
 
         @Override
@@ -277,7 +310,10 @@ class Actions {
 
         @Override
         String[] getNeededPermissions() {
-            return new String[]{Manifest.permission.ACCESS_NOTIFICATION_POLICY};
+            if (Build.VERSION.SDK_INT >= 23) {
+                return new String[]{Manifest.permission.ACCESS_NOTIFICATION_POLICY};
+            }
+            else return new String[]{};
         }
 
         @Override
@@ -290,7 +326,7 @@ class Actions {
         if (Build.VERSION.SDK_INT < 23) return;
 
         if (on) {
-            notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_NONE);
+            notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_PRIORITY);
         }
         else {
             notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_ALL);

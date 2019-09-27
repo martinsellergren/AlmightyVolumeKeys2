@@ -103,66 +103,41 @@ abstract class Action {
     // region Wait on silent device
 
     private static void vibrateAfterWaitOnDnd(MyContext myContext, Action action) {
+        if (!currentlySilent(myContext)) {
+            myContext.notifier.notify(action.getName(), action.getVibrationPattern(), false);
+        }
+        else {
+            BroadcastReceiver stateChangeListener = new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    if (!isInitialStickyBroadcast() && !currentlySilent(myContext)) {
+                        myContext.context.unregisterReceiver(this);
+                        myContext.notifier.notify(action.getName(), action.getVibrationPattern(), false);
+                    }
+                }
+            };
+
+            if (Build.VERSION.SDK_INT >= 23) {
+                myContext.context.registerReceiver(stateChangeListener, new IntentFilter(NotificationManager.ACTION_INTERRUPTION_FILTER_CHANGED));
+            }
+            myContext.context.registerReceiver(stateChangeListener, new IntentFilter(AudioManager.RINGER_MODE_CHANGED_ACTION));
+
+            new Handler().postDelayed(() -> {
+                try {
+                    myContext.context.unregisterReceiver(stateChangeListener);
+                }
+                catch (Exception e) {}
+            }, MAX_WAIT_ON_DND);
+        }
+    }
+
+    private static boolean currentlySilent(MyContext myContext) {
         if (Build.VERSION.SDK_INT >= 23) {
-            interruptionFilterMethod(myContext, action);
+            return myContext.notificationManager.getCurrentInterruptionFilter() == NotificationManager.INTERRUPTION_FILTER_NONE ||
+                    myContext.audioManager.getRingerMode() == AudioManager.RINGER_MODE_SILENT;
         }
         else {
-            ringerModeMethod(myContext, action);
-        }
-    }
-
-    private static void interruptionFilterMethod(MyContext myContext, Action action) {
-        if (Build.VERSION.SDK_INT < 23) return;
-
-        int currentFilter = myContext.notificationManager.getCurrentInterruptionFilter();
-        if (currentFilter != NotificationManager.INTERRUPTION_FILTER_NONE) {
-            myContext.notifier.notify(action.getName(), action.getVibrationPattern(), false);
-        }
-        else {
-            BroadcastReceiver interruptionFilterChangedReceiver = new BroadcastReceiver() {
-                @Override
-                public void onReceive(Context context, Intent intent) {
-                    if (Build.VERSION.SDK_INT < 23) return;
-                    if (!isInitialStickyBroadcast() && myContext.notificationManager.getCurrentInterruptionFilter() != NotificationManager.INTERRUPTION_FILTER_NONE) {
-                        myContext.context.unregisterReceiver(this);
-                        myContext.notifier.notify(action.getName(), action.getVibrationPattern(), false);
-                    }
-                }
-            };
-
-            myContext.context.registerReceiver(interruptionFilterChangedReceiver, new IntentFilter(NotificationManager.ACTION_INTERRUPTION_FILTER_CHANGED));
-            new Handler().postDelayed(() -> {
-                try {
-                    myContext.context.unregisterReceiver(interruptionFilterChangedReceiver);
-                }
-                catch (Exception e) {}
-            }, MAX_WAIT_ON_DND);
-        }
-    }
-
-    private static void ringerModeMethod(MyContext myContext, Action action) {
-        int currentRingerMode = myContext.audioManager.getRingerMode();
-        if (currentRingerMode != AudioManager.RINGER_MODE_SILENT) {
-            myContext.notifier.notify(action.getName(), action.getVibrationPattern(), false);
-        }
-        else {
-            BroadcastReceiver ringerModeChangedReceiver = new BroadcastReceiver() {
-                @Override
-                public void onReceive(Context context, Intent intent) {
-                    if (!isInitialStickyBroadcast() && myContext.audioManager.getRingerMode() != AudioManager.RINGER_MODE_SILENT) {
-                        myContext.context.unregisterReceiver(this);
-                        myContext.notifier.notify(action.getName(), action.getVibrationPattern(), false);
-                    }
-                }
-            };
-
-            myContext.context.registerReceiver(ringerModeChangedReceiver, new IntentFilter(AudioManager.RINGER_MODE_CHANGED_ACTION));
-            new Handler().postDelayed(() -> {
-                try {
-                    myContext.context.unregisterReceiver(ringerModeChangedReceiver);
-                }
-                catch (Exception e) {}
-            }, MAX_WAIT_ON_DND);
+            return myContext.audioManager.getRingerMode() == AudioManager.RINGER_MODE_SILENT;
         }
     }
 
