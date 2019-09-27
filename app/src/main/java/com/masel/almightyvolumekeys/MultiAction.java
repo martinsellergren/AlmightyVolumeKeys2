@@ -1,5 +1,7 @@
 package com.masel.almightyvolumekeys;
 
+import android.content.Context;
+
 /**
  * For creating toggles etc.
  * Note: Call pickAction() before anything else, except: neededPermissions and minApi accessible anytime.
@@ -48,9 +50,9 @@ abstract class MultiAction extends Action {
     String[] getNeededPermissions() {
         return new String[]{};
     }
-
-    @Override
-    int getMinApiLevel() {
-        return 0;
-    }
+//
+//    @Override
+//    boolean isAvailable(Context context) {
+//        return true;
+//    }
 }

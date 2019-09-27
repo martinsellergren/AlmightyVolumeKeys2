@@ -77,8 +77,8 @@ class ActionCommand {
                     if (!Utils.hasPermissions(myContext.context, action.getNeededPermissions())) {
                         throw new Action.ExecutionException("Missing permission(s)");
                     }
-                    if (Build.VERSION.SDK_INT < action.getMinApiLevel()) {
-                        throw new Action.ExecutionException("Too old API");
+                    if (!action.isAvailable(myContext)) {
+                        throw new Action.ExecutionException("Action not available on this device");
                     }
 
                     Action.execute(myContext, action);

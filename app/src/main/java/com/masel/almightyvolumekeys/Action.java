@@ -64,11 +64,18 @@ abstract class Action {
         return new String[]{};
     }
 
+//    /**
+//     * Action only available if device-api >= this.
+//     */
+//    int getMinApiLevel() {
+//        return 0;
+//    }
+
     /**
-     * Action only available if device-api >= this.
+     * Action only available on systems where this returns true.
      */
-    int getMinApiLevel() {
-        return 0;
+    boolean isAvailable(MyContext myContext) {
+        return true;
     }
 
     /**

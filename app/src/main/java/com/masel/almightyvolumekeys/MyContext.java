@@ -21,6 +21,7 @@ class MyContext {
     final NotificationManager notificationManager;
     final AudioRecorderDeligator audioRecorder;
     final Notifier notifier;
+    final Voice voice;
     final WakeLock wakeLock;
 
     MyContext(Context c) {
@@ -30,6 +31,7 @@ class MyContext {
         notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         notifier = new Notifier(context);
         audioRecorder = new AudioRecorderDeligator(context);
+        voice = new Voice(context);
 
         PowerManager powerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
         this.wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,"com.masel.almightyvolumekeys::WakeLock");
@@ -44,6 +46,7 @@ class MyContext {
         }
         audioRecorder.destroy();
         notifier.cancel();
+        voice.destroy();
         wakeLock.release();
     }
 }
