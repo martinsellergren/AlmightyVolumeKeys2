@@ -24,12 +24,6 @@ import com.masel.rec_utils.Utils;
 
 public class MonitorService extends AccessibilityService {
 
-    /**
-     * Fields set on service start. */
-    private ActionCommand actionCommand = null;
-    private MyContext myContext = null;
-    private VolumeChangeObserver volumeChangeObserver = null;
-
     // region Required for AccessibilityService
 
     @Override
@@ -44,27 +38,15 @@ public class MonitorService extends AccessibilityService {
 
     // endregion
 
+    private UserInteraction userInteraction;
 
     @Override
     protected void onServiceConnected() {
         Log.i("<ME>", "onServiceConnected()");
 
         if (Build.VERSION.SDK_INT >= 28) requestForeground();
-        myContext = new MyContext(getApplicationContext());
-        actionCommand = new ActionCommand(myContext);
-        volumeChangeObserver = new VolumeChangeObserver(myContext.audioManager, actionCommand);
-        volumeChangeObserver.start(myContext.context);
-        setupMediaSessionForScreenOffCallbacks();
-        setupWakeLockWhenScreenOff();
+        userInteraction = new UserInteraction(this);
     }
-
-
-    // region Volume press when screen on
-
-    private static final long LONG_PRESS_TIME = 400;
-    private static final long LONG_PRESS_VOLUME_CHANGE_TIME = 40;
-    private Handler longPressHandler = new Handler();
-    private boolean currentlyVolumeLongPress = false;
 
     /**
      * Fired only when screen is on. Consumes volume key presses and pass them along for processing.
@@ -75,79 +57,11 @@ public class MonitorService extends AccessibilityService {
     @Override
     protected boolean onKeyEvent(KeyEvent event) {
         if (event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_UP || event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_DOWN) {
-            boolean volumeUp = event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_UP;
-
-            if (event.getAction() == KeyEvent.ACTION_DOWN) {
-                longPressHandler.postDelayed(() -> longPress(volumeUp), LONG_PRESS_TIME);
-                Utils.log("DOWN");
-            }
-            else if (event.getAction() == KeyEvent.ACTION_UP) {
-                if (!currentlyVolumeLongPress) handleVolumeKeyPress(volumeUp);
-                longPressHandler.removeCallbacksAndMessages(null);
-                currentlyVolumeLongPress = false;
-                Utils.log("UP");
-            }
-            else if (event.getAction() == KeyEvent.ACTION_MULTIPLE) {
-                Utils.log("MULTIPLE KEY PRESS");
-            }
-            else throw new RuntimeException("Dead end");
-
+            userInteraction.onVolumeKeyEvent(event);
             return true;
         }
 
         return super.onKeyEvent(event);
-    }
-
-    private void longPress(boolean volumeUp) {
-        //Utils.log("LONG PRESS");
-        currentlyVolumeLongPress = true;
-        adjustRelevantStreamVolume(volumeUp);
-        longPressHandler.postDelayed(() -> longPress(volumeUp), LONG_PRESS_VOLUME_CHANGE_TIME);
-    }
-
-    // endregion
-
-    /**
-     * Adds press to action command if appropriate. Else changes volume as normal.
-     * Default volume change if more than 3 volume presses.
-     * @param up True if volume up pressed, false if down.
-     */
-    private void handleVolumeKeyPress(boolean up) {
-        Utils.log("handle: " + actionCommand.getLength());
-
-        if (actionCommand.getLength() >= 4) {
-            adjustRelevantStreamVolume(up);
-        }
-
-        DeviceState state = DeviceState.getCurrent(myContext);
-        boolean passActionBit = state.equals(DeviceState.IDLE) || state.equals(DeviceState.RECORDING_AUDIO);
-        if (passActionBit) {
-            actionCommand.addBit(up, ActionCommand.DELTA_PRESS_TIME_FAST);
-        }
-        else {
-            adjustRelevantStreamVolume(up);
-        }
-    }
-
-    /**
-     * Finds relevant stream and changes its volume.
-     * @param up else down
-     *
-     * todo: investigate AudioManager.adjustVolume(), USE_DEFAULT_STREAM_TYPE -constant
-     */
-    private void adjustRelevantStreamVolume(boolean up) {
-        int dir = up ? AudioManager.ADJUST_RAISE : AudioManager.ADJUST_LOWER;
-        int volumeChangeFlag = AudioManager.FLAG_SHOW_UI;
-        int activeStream = Utils.getActiveAudioStream(myContext.audioManager);
-
-        if (activeStream == AudioManager.USE_DEFAULT_STREAM_TYPE) {
-            activeStream = AudioManager.STREAM_MUSIC; //todo: getCurrent from user settings
-        }
-
-        if (activeStream == AudioManager.STREAM_SYSTEM) {
-            myContext.notifier.notify("SYSTEM VOLUME CHANGE!!!", Notifier.VibrationPattern.ERROR, false);
-        }
-        myContext.audioManager.adjustStreamVolume(activeStream, dir, volumeChangeFlag);
     }
 
     private void requestForeground() {
@@ -176,59 +90,11 @@ public class MonitorService extends AccessibilityService {
         startForeground(NOTIFICATION_ID, notification);
     }
 
-    private void setupMediaSessionForScreenOffCallbacks() {
-        MediaSessionCompat mediaSession = myContext.mediaSession;
-        mediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
-
-        PlaybackStateCompat.Builder stateBuilder = new PlaybackStateCompat.Builder(); stateBuilder.setActions(PlaybackStateCompat.ACTION_PLAY | PlaybackStateCompat.ACTION_PLAY_PAUSE | PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID | PlaybackStateCompat.ACTION_PAUSE | PlaybackStateCompat.ACTION_SKIP_TO_NEXT | PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS);
-        stateBuilder.setState(PlaybackStateCompat.STATE_PLAYING, 0, 1);
-        mediaSession.setPlaybackState(stateBuilder.build());
-        VolumeProviderCompat volumeProvider = screenOffCallback();
-        mediaSession.setPlaybackToRemote(volumeProvider);
-        mediaSession.setActive(true);
-    }
-
-    /**
-     * Keep cpu (and volume keys) on after screen off, for minimum time defined in user-settings.
-     */
-    private void setupWakeLockWhenScreenOff() {
-        myContext.context.registerReceiver(new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                int timeoutMinutes = 30; // todo: read from settings
-                timeoutMinutes = 60 * 24;
-
-                long timeout = timeoutMinutes * 60000;
-                myContext.wakeLock.acquire(timeout);
-                Utils.log("Wake lock acquired");
-            }
-        }, new IntentFilter(Intent.ACTION_SCREEN_OFF));
-    }
-
-    /**
-     * Fallback when onKeyEvent doesn't catch the event (i.e when screen is off).
-     * Music active, in call, phone ringing etc "should" take control over the volume-keys and
-     * therefor suppress this callback. To be safe, check if to add press to action-command OR
-     * change volume of appropriate stream.
-     */
-    private VolumeProviderCompat screenOffCallback() {
-        return new VolumeProviderCompat(VolumeProviderCompat.VOLUME_CONTROL_RELATIVE, 2, 1) {
-            @Override
-            public void onAdjustVolume(int direction) {
-                if (direction != 0) {
-                    boolean up = direction > 0;
-                    handleVolumeKeyPress(up);
-                }
-            }
-        };
-    }
-
     @Override
     public boolean onUnbind(Intent intent) {
         Log.i("<ME>", "onUnbind()");
-        myContext.destroy();
-        volumeChangeObserver.stop(myContext.context);
 
+        userInteraction.release();
         return super.onUnbind(intent);
     }
 }

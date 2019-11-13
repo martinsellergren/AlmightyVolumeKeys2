@@ -1,6 +1,7 @@
 package com.masel.almightyvolumekeys;
 
 import android.content.Intent;
+import android.media.AudioManager;
 import android.os.Build;
 import android.os.Handler;
 
@@ -15,19 +16,19 @@ class ActionCommand {
 
     /**
      * Max time between added bits before command executed. */
-    static final int DELTA_PRESS_TIME_FAST = 1000;
-    static final int DELTA_PRESS_TIME_SLOW = 1500;
+    private static final int DELTA_PRESS_TIME = 1000;
 
     /**
      * Current action command under construction. String of bits. 0 means down, 1 means up volume-key-press.*/
     private String command = "";
 
-    private DeviceState deviceStateOnCommandStart = null;
+    private DeviceState deviceStateOnCommandStart;
+
+    private int musicVolumeOnCommandStart;
 
     private Handler handler = new Handler();
 
     private MyContext myContext;
-
 
     ActionCommand(MyContext myContext) {
         this.myContext = myContext;
@@ -38,20 +39,17 @@ class ActionCommand {
      * Execute command: Perform action mapped to command. Mapping depends on current audio-state.
      * If no mapped action registered, does nothing.
      * @param up else down-command-bit
-     * @param deltaPressTime If no more bit before this time, execute.
      */
-    void addBit(boolean up, int deltaPressTime) {
-        command += (up ? "1" : "0");
-        if (deviceStateOnCommandStart == null)
+    void addBit(boolean up) {
+        if (command.length() == 0) {
             deviceStateOnCommandStart = DeviceState.getCurrent(myContext);
+            musicVolumeOnCommandStart = myContext.audioManager.getStreamVolume(AudioManager.STREAM_MUSIC) +
+                    (deviceStateOnCommandStart == DeviceState.MUSIC ? (up ? -1 : 1) : 0);
+        }
+        command += (up ? "1" : "0");
 
         handler.removeCallbacksAndMessages(null);
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                executeCommand();
-            }
-        }, deltaPressTime);
+        handler.postDelayed(this::executeCommand, DELTA_PRESS_TIME);
     }
 
     /**
@@ -81,6 +79,9 @@ class ActionCommand {
                         throw new Action.ExecutionException("Action not available on this device");
                     }
 
+                    if (deviceStateOnCommandStart == DeviceState.MUSIC) {
+                        myContext.audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, musicVolumeOnCommandStart, AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE);
+                    }
                     Action.execute(myContext, action);
                 }
                 catch (Action.ExecutionException e) {
@@ -94,8 +95,13 @@ class ActionCommand {
             }
         }
 
+        if (deviceStateOnCommandStart != DeviceState.MUSIC) reset();
+        else new Handler().postDelayed(this::reset, UserInteractionWhenScreenOffAndMusic.MUSIC_VOLUME_POLLING_DELTA); //music volume polling might have caught the volume-reset
+    }
+
+    void reset() {
         command = "";
-        deviceStateOnCommandStart = null;
+        handler.removeCallbacksAndMessages(null);
     }
 
     int getLength() {

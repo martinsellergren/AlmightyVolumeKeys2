@@ -13,8 +13,8 @@ import com.masel.rec_utils.Utils;
 enum DeviceState {
     IDLE,
     MUSIC,
-    RINGING,
-    IN_CALL,
+//    RINGING,
+//    IN_CALL,
     RECORDING_AUDIO,
     OTHER;
 
@@ -27,9 +27,9 @@ enum DeviceState {
 
         if (myContext.audioRecorder.isRecording()) return DeviceState.RECORDING_AUDIO;
         if (manager.isMusicActive()) return DeviceState.MUSIC;
-        if (manager.getMode() == AudioManager.MODE_RINGTONE) return DeviceState.RINGING;
-        if (manager.getMode() == AudioManager.MODE_IN_CALL) return DeviceState.IN_CALL;
-        if (manager.getMode() == AudioManager.MODE_IN_COMMUNICATION) return DeviceState.IN_CALL;
+        if (manager.getMode() == AudioManager.MODE_RINGTONE) return DeviceState.OTHER;
+        if (manager.getMode() == AudioManager.MODE_IN_CALL) return DeviceState.OTHER;
+        if (manager.getMode() == AudioManager.MODE_IN_COMMUNICATION) return DeviceState.OTHER;
         if (activeAudioStream != AudioManager.USE_DEFAULT_STREAM_TYPE) return DeviceState.OTHER;
         else return DeviceState.IDLE;
     }

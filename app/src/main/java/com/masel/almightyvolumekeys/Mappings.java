@@ -17,8 +17,8 @@ class Mappings {
         switch (DeviceState.getCurrent(myContext)) {
             case IDLE: return getIdleMappings(myContext.context);
             case MUSIC: return getMusicMappings(myContext.context);
-            case RINGING: return getRingingMappings(myContext.context);
-            case IN_CALL: return getInCallMappings(myContext.context);
+//            case RINGING: return getRingingMappings(myContext.context);
+//            case IN_CALL: return getInCallMappings(myContext.context);
             case RECORDING_AUDIO: return getRecMappings(myContext.context);
             default: return new HashMap<>();
         }
@@ -31,7 +31,7 @@ class Mappings {
         mappings.put("111", new Actions.TellTime());
         mappings.put("1111", new Actions.Flashlight_On());
         mappings.put("0000", new Actions.Flashlight_Off());
-        mappings.put("1010", new Actions.MediaControl_Play());
+        mappings.put("1110", new Actions.MediaControl_Play());
         return mappings;
     }
 
@@ -39,19 +39,19 @@ class Mappings {
         Map<String, Action> mappings = new HashMap<>();
         mappings.put("10", new Actions.MediaControl_NextTrack());
         mappings.put("01", new Actions.MediaControl_PrevTrack());
-        mappings.put("1010", new Actions.MediaControl_Pause());
+        mappings.put("1110", new Actions.MediaControl_Pause());
         return mappings;
     }
-
-    private static Map<String, Action> getRingingMappings(Context context) {
-        Map<String, Action> mappings = new HashMap<>();
-        return mappings;
-    }
-
-    private static Map<String, Action> getInCallMappings(Context context) {
-        Map<String, Action> mappings = new HashMap<>();
-        return mappings;
-    }
+//
+//    private static Map<String, Action> getRingingMappings(Context context) {
+//        Map<String, Action> mappings = new HashMap<>();
+//        return mappings;
+//    }
+//
+//    private static Map<String, Action> getInCallMappings(Context context) {
+//        Map<String, Action> mappings = new HashMap<>();
+//        return mappings;
+//    }
 
     private static Map<String, Action> getRecMappings(Context context) {
         Map<String, Action> mappings = new HashMap<>();
@@ -64,8 +64,8 @@ class Mappings {
         List<Action> actions = new ArrayList<>();
         actions.addAll(getIdleMappings(context).values());
         actions.addAll(getMusicMappings(context).values());
-        actions.addAll(getRingingMappings(context).values());
-        actions.addAll(getInCallMappings(context).values());
+//        actions.addAll(getRingingMappings(context).values());
+//        actions.addAll(getInCallMappings(context).values());
         actions.addAll(getRecMappings(context).values());
         return actions;
     }
