@@ -31,6 +31,7 @@ class UserInteraction {
         actionCommand = new ActionCommand(myContext);
         setupMediaSessionForScreenOffCallbacks();
         userInteractionWhenScreenOffAndMusic = new UserInteractionWhenScreenOffAndMusic(myContext, actionCommand);
+        actionCommand.setManualMusicVolumeChanger(userInteractionWhenScreenOffAndMusic.getManualMusicVolumeChanger());
 
         setupWakeLockWhenScreenOff();
     }
@@ -80,19 +81,16 @@ class UserInteraction {
      * @param up True if volume up pressed, false if down.
      */
     private void handleVolumeKeyPress(boolean up) {
-        if (actionCommand.getLength() >= 4) {
-            adjustRelevantStreamVolume(up);
-            actionCommand.reset();
-            return;
-        }
-
         DeviceState state = DeviceState.getCurrent(myContext);
         if (state.equals(DeviceState.IDLE) || state.equals(DeviceState.RECORDING_AUDIO)) {
+            if (actionCommand.getLength() >= 4) {
+                adjustRelevantStreamVolume(up);
+            }
             actionCommand.addBit(up);
         }
         else if (state.equals(DeviceState.MUSIC)) {
-            actionCommand.addBit(up);
             adjustRelevantStreamVolume(up);
+            actionCommand.addBit(up);
         }
         else {
             adjustRelevantStreamVolume(up);

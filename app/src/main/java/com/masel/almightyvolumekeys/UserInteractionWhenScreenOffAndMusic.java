@@ -133,4 +133,16 @@ class UserInteractionWhenScreenOffAndMusic {
                 myContext.powerManager.isInteractive() :
                 myContext.powerManager.isScreenOn();
     }
+
+
+    interface ManualMusicVolumeChanger {
+        void setVolume(int volume);
+    }
+    ManualMusicVolumeChanger getManualMusicVolumeChanger() {
+        return volume -> {
+            pollingHandler.removeCallbacksAndMessages(null);
+            myContext.audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, volume, AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE);
+            startPolling();
+        };
+    }
 }

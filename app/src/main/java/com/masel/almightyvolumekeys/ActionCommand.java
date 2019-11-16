@@ -30,6 +30,8 @@ class ActionCommand {
 
     private MyContext myContext;
 
+    private UserInteractionWhenScreenOffAndMusic.ManualMusicVolumeChanger manualMusicVolumeChanger = null;
+
     ActionCommand(MyContext myContext) {
         this.myContext = myContext;
     }
@@ -79,8 +81,8 @@ class ActionCommand {
                         throw new Action.ExecutionException("Action not available on this device");
                     }
 
-                    if (deviceStateOnCommandStart == DeviceState.MUSIC) {
-                        myContext.audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, musicVolumeOnCommandStart, AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE);
+                    if (deviceStateOnCommandStart == DeviceState.MUSIC && manualMusicVolumeChanger != null) {
+                        manualMusicVolumeChanger.setVolume(musicVolumeOnCommandStart);
                     }
                     Action.execute(myContext, action);
                 }
@@ -95,8 +97,7 @@ class ActionCommand {
             }
         }
 
-        if (deviceStateOnCommandStart != DeviceState.MUSIC) reset();
-        else new Handler().postDelayed(this::reset, UserInteractionWhenScreenOffAndMusic.MUSIC_VOLUME_POLLING_DELTA); //music volume polling might have caught the volume-reset
+        reset();
     }
 
     void reset() {
@@ -106,5 +107,9 @@ class ActionCommand {
 
     int getLength() {
         return command.length();
+    }
+
+    void setManualMusicVolumeChanger(UserInteractionWhenScreenOffAndMusic.ManualMusicVolumeChanger manualMusicVolumeChanger) {
+        this.manualMusicVolumeChanger = manualMusicVolumeChanger;
     }
 }

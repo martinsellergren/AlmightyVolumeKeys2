@@ -29,9 +29,9 @@ class Mappings {
         mappings.put("11", new Actions.AudioRecording_Start());
         mappings.put("00", new Actions.DndMode_Toggle());
         mappings.put("111", new Actions.TellTime());
+        mappings.put("110", new Actions.MediaControl_Play());
         mappings.put("1111", new Actions.Flashlight_On());
         mappings.put("0000", new Actions.Flashlight_Off());
-        mappings.put("1110", new Actions.MediaControl_Play());
         return mappings;
     }
 
@@ -39,7 +39,7 @@ class Mappings {
         Map<String, Action> mappings = new HashMap<>();
         mappings.put("10", new Actions.MediaControl_NextTrack());
         mappings.put("01", new Actions.MediaControl_PrevTrack());
-        mappings.put("1110", new Actions.MediaControl_Pause());
+        mappings.put("110", new Actions.MediaControl_Pause());
         return mappings;
     }
 //
