@@ -57,13 +57,9 @@ class AudioRecorderDeligator {
      */
     void stopAndSave() {
         if (localRecorder != null) {
-            try {
-                Context theSoundRecorderContext = TheSoundRecorderConnection.getTheSoundRecorderContext(context);
-                localRecorder.coldStopAndSave(theSoundRecorderContext);
-                localRecorder = null;
-                KeyValueStore.setAlmightyVolumeKeysIsRecording(theSoundRecorderContext, false);
-            }
-            catch (TheSoundRecorderConnection.TheSoundRecorderNotInstalledException e) {}
+            localRecorder.coldStopAndSave(context);
+            localRecorder = null;
+            KeyValueStore.setAlmightyVolumeKeysIsRecording(context, false);
             TheSoundRecorderConnection.broadcastLocalRecStop(context);
         }
 
@@ -81,13 +77,9 @@ class AudioRecorderDeligator {
      */
     void stopAndDiscard() {
         if (localRecorder != null) {
-            try {
-                Context theSoundRecorderContext = TheSoundRecorderConnection.getTheSoundRecorderContext(context);
-                localRecorder.coldStopAndDiscard(theSoundRecorderContext);
-                localRecorder = null;
-                KeyValueStore.setAlmightyVolumeKeysIsRecording(theSoundRecorderContext, false);
-            }
-            catch (TheSoundRecorderConnection.TheSoundRecorderNotInstalledException e) {}
+            localRecorder.coldStopAndDiscard(context);
+            localRecorder = null;
+            KeyValueStore.setAlmightyVolumeKeysIsRecording(context, false);
             TheSoundRecorderConnection.broadcastLocalRecStop(context);
         }
 
@@ -107,16 +99,10 @@ class AudioRecorderDeligator {
         if (isRecording()) return;
 
         try {
-            Context theSoundRecorderContext = TheSoundRecorderConnection.getTheSoundRecorderContext(context);
-
-            localRecorder = AudioRecorder.coldStart(theSoundRecorderContext);
+            localRecorder = AudioRecorder.coldStart(context);
             AudioRecorder.showNotification(context);
-            KeyValueStore.setAlmightyVolumeKeysIsRecording(theSoundRecorderContext, true);
+            KeyValueStore.setAlmightyVolumeKeysIsRecording(context, true);
             TheSoundRecorderConnection.broadcastLocalRecStart(context);
-        }
-        catch (TheSoundRecorderConnection.TheSoundRecorderNotInstalledException e) {
-            // todo: install TheSoundRecorder
-            throw new Action.ExecutionException("TheSoundRecorder not installed");
         }
         catch (IOException e) {
             throw new Action.ExecutionException("Failed to start rec");

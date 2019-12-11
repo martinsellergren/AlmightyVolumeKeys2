@@ -194,23 +194,24 @@ class TheSoundRecorderConnection {
 
     // region Statics
 
-    static Context getTheSoundRecorderContext(Context context) throws TheSoundRecorderNotInstalledException {
-        try {
-            return context.createPackageContext("com.masel.thesoundrecorder", Context.MODE_PRIVATE);
-        }
-        catch (PackageManager.NameNotFoundException e) {
-            throw new TheSoundRecorderNotInstalledException();
-        }
-    }
+//    static Context getTheSoundRecorderContext(Context context) throws TheSoundRecorderNotInstalledException {
+//        try {
+//            return context.createPackageContext("com.masel.thesoundrecorder", Context.MODE_PRIVATE);
+//        }
+//        catch (PackageManager.NameNotFoundException e) {
+//            throw new TheSoundRecorderNotInstalledException();
+//        }
+//    }
 
     static boolean isTheSoundRecorderInstalled(Context context) {
-        try {
-            getTheSoundRecorderContext(context);
-        }
-        catch (TheSoundRecorderNotInstalledException e) {
-            return false;
-        }
-        return true;
+        return true; //todo
+//        try {
+//            //getTheSoundRecorderContext(context);
+//        }
+//        catch (TheSoundRecorderNotInstalledException e) {
+//            return false;
+//        }
+//        return true;
     }
 
     // endregion

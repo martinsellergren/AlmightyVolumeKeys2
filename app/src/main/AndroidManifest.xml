@@ -12,6 +12,7 @@
 
     <uses-permission android:name="android.permission.CAMERA"/>
     <uses-permission android:name="android.permission.FLASHLIGHT"/>
+    <uses-permission android:name="com.masel.thesoundrecorder.permission.ACCESS_AUDIO_RECORDING_SETTINGS"/>
 
 
     <application
