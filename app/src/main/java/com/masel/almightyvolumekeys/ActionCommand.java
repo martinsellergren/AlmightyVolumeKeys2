@@ -90,9 +90,7 @@ class ActionCommand {
                     myContext.notifier.notify(e.getMessage(), Notifier.VibrationPattern.ERROR, false);
                     Utils.logAndToast(myContext.context, e.getMessage());
 
-                    Intent intent = new Intent(myContext.context, MainActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    myContext.context.startActivity(intent);
+                    Utils.gotoMainActivity(myContext.context);
                 }
             }
         }

@@ -16,7 +16,6 @@ import java.util.List;
 /**
  * When screen off when music is playing: start polling music-volume, and look for changes.
  * Stops polling when screen turns on, or if music stops.
- * todo: Music started callback? (for when music started when screen off, through e.g headset/ bixby-button)
  */
 class UserInteractionWhenScreenOffAndMusic {
 
@@ -54,7 +53,7 @@ class UserInteractionWhenScreenOffAndMusic {
     }
 
     private void setupStartPollingWhenMusicStarted() {
-        if (false && Build.VERSION.SDK_INT >= 26) {
+        if (Build.VERSION.SDK_INT >= 26) {
             setupStartPollingWhenMusicStarted_method1();
         }
         else {

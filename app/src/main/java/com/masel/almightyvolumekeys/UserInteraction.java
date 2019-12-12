@@ -102,6 +102,7 @@ class UserInteraction {
      * @param up else down
      *
      * todo: investigate AudioManager.adjustVolume(), USE_DEFAULT_STREAM_TYPE -constant
+     * todo: when alarm..
      */
     private void adjustRelevantStreamVolume(boolean up) {
         int dir = up ? AudioManager.ADJUST_RAISE : AudioManager.ADJUST_LOWER;
