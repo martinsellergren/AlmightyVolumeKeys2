@@ -15,7 +15,7 @@ enum DeviceState {
     MUSIC,
 //    RINGING,
 //    IN_CALL,
-    RECORDING_AUDIO,
+    SOUNDREC,
     OTHER;
 
     /**
@@ -25,7 +25,7 @@ enum DeviceState {
         AudioManager manager = myContext.audioManager;
         int activeAudioStream = Utils.getActiveAudioStream(manager);
 
-        if (myContext.audioRecorder.isRecording()) return DeviceState.RECORDING_AUDIO;
+        if (myContext.audioRecorder.isRecording()) return DeviceState.SOUNDREC;
         if (manager.isMusicActive()) return DeviceState.MUSIC;
         if (manager.getMode() == AudioManager.MODE_RINGTONE) return DeviceState.OTHER;
         if (manager.getMode() == AudioManager.MODE_IN_CALL) return DeviceState.OTHER;

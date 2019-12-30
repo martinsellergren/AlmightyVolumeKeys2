@@ -1,11 +1,11 @@
 package com.masel.almightyvolumekeys;
 
-import android.content.Intent;
+import android.content.SharedPreferences;
 import android.media.AudioManager;
-import android.os.Build;
 import android.os.Handler;
 
-import java.util.Map;
+import androidx.preference.PreferenceManager;
+
 import com.masel.rec_utils.Utils;
 
 /**
@@ -60,8 +60,10 @@ class ActionCommand {
      */
     private void executeCommand() {
         if (DeviceState.getCurrent(myContext) == deviceStateOnCommandStart) {
-            Map<String, Action> mappings = Mappings.getCurrent(myContext);
-            Action action = mappings.get(command);
+//            Map<String, Action> mappings = Mappings.getCurrent(myContext);
+//            Action action = mappings.get(command);
+
+            Action action = getMappedAction(command);
 
             if (action == null) {
                 Utils.logAndToast(myContext.context, String.format("Non-mapped command: %s (state:%s)", command, DeviceState.getCurrent(myContext)));
@@ -113,5 +115,15 @@ class ActionCommand {
 
     void setManualMusicVolumeChanger(UserInteractionWhenScreenOffAndMusic.ManualMusicVolumeChanger manualMusicVolumeChanger) {
         this.manualMusicVolumeChanger = manualMusicVolumeChanger;
+    }
+
+    private Action getMappedAction(String command) {
+        String state = DeviceState.getCurrent(myContext).toString().toLowerCase();
+        String key = String.format("listPreference_%s_command_%s", state, command);
+
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(myContext.context);
+        String actionName = sharedPreferences.getString(key, null);
+        if (actionName == null) return null;
+        return Actions.getActionFromName(actionName);
     }
 }

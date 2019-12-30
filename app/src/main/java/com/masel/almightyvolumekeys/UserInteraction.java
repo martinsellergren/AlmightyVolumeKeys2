@@ -82,7 +82,7 @@ class UserInteraction {
      */
     private void handleVolumeKeyPress(boolean up) {
         DeviceState state = DeviceState.getCurrent(myContext);
-        if (state.equals(DeviceState.IDLE) || state.equals(DeviceState.RECORDING_AUDIO)) {
+        if (state.equals(DeviceState.IDLE) || state.equals(DeviceState.SOUNDREC)) {
             if (actionCommand.getLength() >= 4) {
                 adjustRelevantStreamVolume(up);
             }

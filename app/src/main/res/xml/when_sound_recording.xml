@@ -4,7 +4,23 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <Preference
-        app:title="When sound rec"
-        app:summary="..." />
+        app:key="preference_soundrec_info"
+        app:summary="Volume key bindings when you are currently recording sound using The Sound Recorder." />
+
+    <Preference
+        app:key="preference_soundrec_reset"
+        app:title="Reset to defaults" />
+
+    <Preference
+        app:key="preference_soundrec_clear"
+        app:title="Clear all" />
+
+    <ListPreference
+        app:key="listPreference_soundrec_command_1"
+        app:title="Up"
+        app:entries="@array/soundrec_actions"
+        app:entryValues="@array/soundrec_actions"
+        app:defaultValue="No action"
+        app:useSimpleSummaryProvider="true" />
 
 </androidx.preference.PreferenceScreen>

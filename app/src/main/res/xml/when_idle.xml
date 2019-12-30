@@ -4,7 +4,39 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <Preference
-        app:title="When idle"
-        app:summary="..." />
+        app:summary="Volume key bindings when your device is idle, i.e nothing really is going on (no music, not ringing, not in call, no alarm..). Note: 5 or more clicks changes volume as usual, as well as long click." />
+
+    <Preference
+        app:key="preference_idle_reset"
+        app:title="Reset to defaults" />
+
+    <Preference
+        app:key="preference_idle_clear"
+        app:title="Clear all" />
+
+    <ListPreference
+        app:key="listPreference_idle_command_1"
+        app:title="Up"
+        app:entries="@array/idle_actions"
+        app:entryValues="@array/idle_actions"
+        app:defaultValue="No action"
+        app:useSimpleSummaryProvider="true" />
+
+    <ListPreference
+        app:key="listPreference_idle_command_0"
+        app:title="Down"
+        app:entries="@array/idle_actions"
+        app:entryValues="@array/idle_actions"
+        app:defaultValue="No action"
+        app:useSimpleSummaryProvider="true" />
+
+    <ListPreference
+        app:key="listPreference_idle_command_11"
+        app:title="Up-Up"
+        app:entries="@array/idle_actions"
+        app:entryValues="@array/idle_actions"
+        app:defaultValue="Tell time"
+        app:useSimpleSummaryProvider="true" />
+
 
 </androidx.preference.PreferenceScreen>

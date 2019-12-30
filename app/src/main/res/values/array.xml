@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="idle_actions">
+        <item>No action</item>
+        <item>Tell time</item>
+    </string-array>
+
+    <string-array name="music_actions">
+        <item>No action</item>
+        <item>Media: next</item>
+        <item>Media: previous</item>
+        <item>Media: pause</item>
+    </string-array>
+
+    <string-array name="soundrec_actions">
+        <item>No action</item>
+        <item>Sound recorder: start</item>
+        <item>Sound recorder: stop</item>
+    </string-array>
+
+</resources>

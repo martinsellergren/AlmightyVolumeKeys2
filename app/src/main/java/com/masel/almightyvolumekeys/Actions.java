@@ -26,7 +26,7 @@ class Actions {
 
     // region Audio recording
 
-    static class AudioRecording_Start extends Action {
+    static class Sound_recorder__start extends Action {
         @Override
         String getName() {
             return "Start recording audio";
@@ -48,7 +48,7 @@ class Actions {
         }
     }
 
-    static class AudioRecording_StopAndSave extends Action {
+    static class Sound_recorder__stop_and_save extends Action {
         @Override
         String getName() {
             return "Stop and save recording";
@@ -75,7 +75,7 @@ class Actions {
         }
     }
 
-    static class AudioRecording_StopAndTrash extends Action {
+    static class Sound_recorder__stop_and_trash extends Action {
         @Override
         String getName() {
             return "Stop and trash recording";
@@ -106,7 +106,7 @@ class Actions {
 
     // region Media control
 
-    static class MediaControl_NextTrack extends Action {
+    static class Media__next extends Action {
         @Override
         String getName() {
             return "Media: next";
@@ -124,7 +124,7 @@ class Actions {
         }
     }
 
-    static class MediaControl_PrevTrack extends Action {
+    static class Media__previous extends Action {
         @Override
         String getName() {
             return "Media: previous";
@@ -143,7 +143,7 @@ class Actions {
         }
     }
 
-    static class MediaControl_Play extends Action {
+    static class Media__play extends Action {
         @Override
         String getName() {
             return "Media: play";
@@ -161,7 +161,7 @@ class Actions {
         }
     }
 
-    static class MediaControl_Pause extends Action {
+    static class Media__pause extends Action {
         @Override
         String getName() {
             return "Media: pause";
@@ -189,7 +189,7 @@ class Actions {
 
     // region Sound mode
 
-    static class SoundMode_Sound extends Action {
+    static class Sound_mode__sound extends Action {
         @Override
         String getName() {
             return "Sound mode: sound";
@@ -206,7 +206,7 @@ class Actions {
         }
     }
 
-    static class SoundMode_Vibrate extends Action {
+    static class Sound_mode__vibrate extends Action {
         @Override
         String getName() {
             return "Sound mode: vibrate";
@@ -223,7 +223,7 @@ class Actions {
         }
     }
 
-    static class SoundMode_Silent extends Action {
+    static class Sound_mode__silent extends Action {
         @Override
         String getName() {
             return "Sound mode: silent";
@@ -258,13 +258,13 @@ class Actions {
         }
     }
 
-    static class SoundMode_ToggleVibrateSilent extends MultiAction {
+    static class Sound_mode__toggle_vibrate_silent extends MultiAction {
         @Override
         Action pickAction(MyContext myContext) {
             switch (myContext.audioManager.getRingerMode()) {
-                case AudioManager.RINGER_MODE_SILENT: return new SoundMode_Vibrate();
-                case AudioManager.RINGER_MODE_VIBRATE: return new SoundMode_Silent();
-                default: return new SoundMode_Vibrate();
+                case AudioManager.RINGER_MODE_SILENT: return new Sound_mode__vibrate();
+                case AudioManager.RINGER_MODE_VIBRATE: return new Sound_mode__silent();
+                default: return new Sound_mode__vibrate();
             }
         }
 
@@ -281,7 +281,7 @@ class Actions {
 
     // region DND mode
 
-    static class DndMode_On extends Action {
+    static class Do_not_disturb__on extends Action {
 
         @Override
         String getName() {
@@ -317,7 +317,7 @@ class Actions {
         }
     }
 
-    static class DndMode_Off extends Action {
+    static class Do_not_disturb__off extends Action {
         @Override
         String getName() {
             return "Do not disturb: OFF";
@@ -352,11 +352,11 @@ class Actions {
         }
     }
 
-    static class DndMode_Toggle extends MultiAction {
+    static class Do_not_disturb__toggle extends MultiAction {
         @Override
         Action pickAction(MyContext myContext) {
-            if (dndIsOn(myContext.notificationManager)) return new Actions.DndMode_Off();
-            else return new Actions.DndMode_On();
+            if (dndIsOn(myContext.notificationManager)) return new Do_not_disturb__off();
+            else return new Do_not_disturb__on();
         }
 
         @Override
@@ -393,7 +393,7 @@ class Actions {
 
     // region Flashlight
 
-    static class Flashlight_On extends Action {
+    static class Flashlight__on extends Action {
 
         private static final int minApi = 23;
 
@@ -423,7 +423,7 @@ class Actions {
         }
     }
 
-    static class Flashlight_Off extends Action {
+    static class Flashlight__off extends Action {
 
         private static final int minApi = 23;
 
@@ -457,7 +457,7 @@ class Actions {
 
     // region Tell time
 
-    static class TellTime extends Action {
+    static class Tell_time extends Action {
 
         @Override
         String getName() {
@@ -490,6 +490,25 @@ class Actions {
         void run(MyContext myContext) throws ExecutionException {
             ToneGenerator toneGen1 = new ToneGenerator(AudioManager.STREAM_MUSIC, 100);
             toneGen1.startTone(ToneGenerator.TONE_CDMA_PIP,150);
+        }
+    }
+
+    /**
+     *
+     * @param name As defined in res/values/array.xml
+     * @return Action with specified ~class-name
+     */
+    static Action getActionFromName(String name) {
+        if (name.equals("No action")) return null;
+
+        name = name.replace(": ", "__");
+        name = name.replace(" ", "_");
+        name = "com.masel.almightyvolumekeys.Actions$" + name;
+        try {
+            return (Action)Class.forName(name).newInstance();
+        }
+        catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 }

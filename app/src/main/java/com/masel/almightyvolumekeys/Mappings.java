@@ -19,27 +19,27 @@ class Mappings {
             case MUSIC: return getMusicMappings(myContext.context);
 //            case RINGING: return getRingingMappings(myContext.context);
 //            case IN_CALL: return getInCallMappings(myContext.context);
-            case RECORDING_AUDIO: return getRecMappings(myContext.context);
+            case SOUNDREC: return getRecMappings(myContext.context);
             default: return new HashMap<>();
         }
     }
 
     private static Map<String, Action> getIdleMappings(Context context) {
         Map<String, Action> mappings = new HashMap<>();
-        mappings.put("11", new Actions.AudioRecording_Start());
-        mappings.put("00", new Actions.DndMode_Toggle());
-        mappings.put("111", new Actions.TellTime());
-        mappings.put("110", new Actions.MediaControl_Play());
-        mappings.put("1111", new Actions.Flashlight_On());
-        mappings.put("0000", new Actions.Flashlight_Off());
+        mappings.put("11", new Actions.Sound_recorder__start());
+        mappings.put("00", new Actions.Do_not_disturb__toggle());
+        mappings.put("111", new Actions.Tell_time());
+        mappings.put("110", new Actions.Media__play());
+        mappings.put("1111", new Actions.Flashlight__on());
+        mappings.put("0000", new Actions.Flashlight__off());
         return mappings;
     }
 
     private static Map<String, Action> getMusicMappings(Context context) {
         Map<String, Action> mappings = new HashMap<>();
-        mappings.put("10", new Actions.MediaControl_NextTrack());
-        mappings.put("01", new Actions.MediaControl_PrevTrack());
-        mappings.put("110", new Actions.MediaControl_Pause());
+        mappings.put("10", new Actions.Media__next());
+        mappings.put("01", new Actions.Media__previous());
+        mappings.put("110", new Actions.Media__pause());
         return mappings;
     }
 //
@@ -55,8 +55,8 @@ class Mappings {
 
     private static Map<String, Action> getRecMappings(Context context) {
         Map<String, Action> mappings = new HashMap<>();
-        mappings.put("1", new Actions.AudioRecording_StopAndSave());
-        mappings.put("0", new Actions.AudioRecording_StopAndTrash());
+        mappings.put("1", new Actions.Sound_recorder__stop_and_save());
+        mappings.put("0", new Actions.Sound_recorder__stop_and_trash());
         return mappings;
     }
 

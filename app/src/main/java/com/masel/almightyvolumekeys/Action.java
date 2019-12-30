@@ -33,7 +33,6 @@ abstract class Action {
             super(msg);
         }
     }
-
     abstract String getName();
     abstract void run(MyContext myContext) throws ExecutionException;
 
