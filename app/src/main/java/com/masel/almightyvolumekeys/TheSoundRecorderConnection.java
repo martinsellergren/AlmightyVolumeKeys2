@@ -24,7 +24,7 @@ class TheSoundRecorderConnection {
     /**
      * Action codes as specified in TheSoundRecorder's rec-service. */
     private static final int ACTION_STOP_AND_SAVE = 0;
-    private static final int ACTION_STOP_AND_DISCARD = 1;
+    private static final int ACTION_STOP_AND_TRASH = 1;
 
     static class TheSoundRecorderNotInstalledException extends Exception {}
 
@@ -40,7 +40,7 @@ class TheSoundRecorderConnection {
      * Actions when TheSoundRecorder's stop-rec button is pressed. These buttons should stop TheSoundRecorder's
      * rec-service OR AlmightyVolumeKeys' local rec. */
     private Runnable onStopAndSaveButtonClick;
-    private Runnable onStopAndDiscardButtonClick;
+    private Runnable onStopAndTrashButtonClick;
 
     /**
      * - Init bind to TheSoundRecorder's service (when service started (or already running), or stopped: complete bind).
@@ -49,10 +49,10 @@ class TheSoundRecorderConnection {
      *
      * @param context AlmightyVolumeKeys' context
      */
-    TheSoundRecorderConnection(Context context, Runnable onStopAndSaveButtonClick, Runnable onStopAndDiscardButtonClick) {
+    TheSoundRecorderConnection(Context context, Runnable onStopAndSaveButtonClick, Runnable onStopAndTrashButtonClick) {
         this.context = context;
         this.onStopAndSaveButtonClick = onStopAndSaveButtonClick;
-        this.onStopAndDiscardButtonClick = onStopAndDiscardButtonClick;
+        this.onStopAndTrashButtonClick = onStopAndTrashButtonClick;
 
         bindToTheSoundRecorder();
         registerTheSoundRecorderReceivers();
@@ -104,8 +104,8 @@ class TheSoundRecorderConnection {
         sendMessageToTheSoundRecorder(Message.obtain(null, ACTION_STOP_AND_SAVE, 0, 0));
     }
 
-    void stopAndDiscard() {
-        sendMessageToTheSoundRecorder(Message.obtain(null, ACTION_STOP_AND_DISCARD, 0, 0));
+    void stopAndTrash() {
+        sendMessageToTheSoundRecorder(Message.obtain(null, ACTION_STOP_AND_TRASH, 0, 0));
     }
 
     private void sendMessageToTheSoundRecorder(Message msg) {
@@ -162,25 +162,25 @@ class TheSoundRecorderConnection {
     };
 
     /**
-     * On stop-and-discard-button in TheSoundRecorder.
+     * On stop-and-trash-button in TheSoundRecorder.
      */
-    private BroadcastReceiver stopAndDiscardReceiver = new BroadcastReceiver() {
+    private BroadcastReceiver stopAndTrashReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            onStopAndDiscardButtonClick.run();
+            onStopAndTrashButtonClick.run();
         }
     };
 
     private void registerTheSoundRecorderReceivers() {
         context.registerReceiver(onCreateReceiver, new IntentFilter("com.masel.thesoundrecorder.ON_CREATE"));
         context.registerReceiver(stopAndSaveReceiver, new IntentFilter("com.masel.thesoundrecorder.STOP_AND_SAVE_REC"));
-        context.registerReceiver(stopAndDiscardReceiver, new IntentFilter("com.masel.thesoundrecorder.STOP_AND_DISCARD_REC"));
+        context.registerReceiver(stopAndTrashReceiver, new IntentFilter("com.masel.thesoundrecorder.STOP_AND_TRASH_REC"));
     }
     private void unregisterTheSoundRecorderReceivers() {
         try {
             context.unregisterReceiver(onCreateReceiver);
             context.unregisterReceiver(stopAndSaveReceiver);
-            context.unregisterReceiver(stopAndDiscardReceiver);
+            context.unregisterReceiver(stopAndTrashReceiver);
         }
         catch (IllegalArgumentException e) {}
     }

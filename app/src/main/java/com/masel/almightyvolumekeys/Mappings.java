@@ -56,7 +56,7 @@ class Mappings {
     private static Map<String, Action> getRecMappings(Context context) {
         Map<String, Action> mappings = new HashMap<>();
         mappings.put("1", new Actions.AudioRecording_StopAndSave());
-        mappings.put("0", new Actions.AudioRecording_StopAndDiscard());
+        mappings.put("0", new Actions.AudioRecording_StopAndTrash());
         return mappings;
     }
 

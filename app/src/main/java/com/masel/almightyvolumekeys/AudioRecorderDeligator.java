@@ -37,8 +37,8 @@ class AudioRecorderDeligator {
         this.context = context;
 
         Runnable onStopAndSaveButtonClick = this::stopAndSave;
-        Runnable onStopAndDiscardButtonClick = this::stopAndDiscard;
-        theSoundRecorder = new TheSoundRecorderConnection(context, onStopAndSaveButtonClick, onStopAndDiscardButtonClick);
+        Runnable onStopAndTrashButtonClick = this::stopAndTrash;
+        theSoundRecorder = new TheSoundRecorderConnection(context, onStopAndSaveButtonClick, onStopAndTrashButtonClick);
     }
 
     /**
@@ -69,27 +69,27 @@ class AudioRecorderDeligator {
 
 
     /**
-     * Stop and discard local rec or(/and) TheSoundRecorder.
+     * Stop and trash local rec or(/and) TheSoundRecorder.
      *
      * If local rec stopped:
      * Flag in TheSoundRecorder's key-value-store: local rec stopped.
      * Send broadcast: local rec stopped.
      */
-    void stopAndDiscard() {
+    void stopAndTrash() {
         if (localRecorder != null) {
-            localRecorder.coldStopAndDiscard(context);
+            localRecorder.coldStopAndTrash(context);
             localRecorder = null;
             KeyValueStore.setAlmightyVolumeKeysIsRecording(context, false);
             TheSoundRecorderConnection.broadcastLocalRecStop(context);
         }
 
-        theSoundRecorder.stopAndDiscard();
+        theSoundRecorder.stopAndTrash();
         AudioRecorder.removeNotification(context);
     }
 
     /**
      * Start local recording (not TheSoundRecorder).
-     * If TheSoundRecorder not installed, open play-store (needs rec-props).
+     * If TheSoundRecorder not installed, open play-store.
      * If already in rec, does nothing.
      *
      * Flag in TheSoundRecorder's key-value-store: local rec started.

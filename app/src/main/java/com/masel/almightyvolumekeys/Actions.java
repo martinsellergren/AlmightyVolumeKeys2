@@ -14,7 +14,6 @@ import android.view.KeyEvent;
 import com.masel.rec_utils.Utils;
 
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
@@ -52,7 +51,7 @@ class Actions {
     static class AudioRecording_StopAndSave extends Action {
         @Override
         String getName() {
-            return "Stop recording audio and save";
+            return "Stop and save recording";
         }
 
         @Override
@@ -76,15 +75,15 @@ class Actions {
         }
     }
 
-    static class AudioRecording_StopAndDiscard extends Action {
+    static class AudioRecording_StopAndTrash extends Action {
         @Override
         String getName() {
-            return "Stop recording audio and discard";
+            return "Stop and trash recording";
         }
 
         @Override
         void run(MyContext myContext) throws Action.ExecutionException {
-            myContext.audioRecorder.stopAndDiscard();
+            myContext.audioRecorder.stopAndTrash();
         }
 
         @Override
