@@ -9,6 +9,8 @@ import android.media.AudioManager;
 import android.os.Build;
 import android.os.Handler;
 
+import androidx.annotation.NonNull;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -149,4 +151,11 @@ abstract class Action {
     }
 
     // endregion
+
+
+    @NonNull
+    @Override
+    public String toString() {
+        return getName();
+    }
 }

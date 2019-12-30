@@ -84,13 +84,17 @@ class ActionCommand {
                     if (deviceStateOnCommandStart == DeviceState.MUSIC && manualMusicVolumeChanger != null) {
                         manualMusicVolumeChanger.setVolume(musicVolumeOnCommandStart);
                     }
+
                     Action.execute(myContext, action);
                 }
                 catch (Action.ExecutionException e) {
                     myContext.notifier.notify(e.getMessage(), Notifier.VibrationPattern.ERROR, false);
                     Utils.logAndToast(myContext.context, e.getMessage());
-
                     Utils.gotoMainActivity(myContext.context);
+                }
+                catch (Exception e) {
+                    myContext.notifier.notify(e.getMessage(), Notifier.VibrationPattern.ERROR, false);
+                    Utils.log("Unknown error during action execution: " + action.toString() + "\n" + e.getMessage());
                 }
             }
         }

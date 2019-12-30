@@ -195,7 +195,7 @@ class TheSoundRecorderConnection {
     // region Statics
 
 
-    static boolean isTheSoundRecorderInstalled(Context context) {
+    static boolean appIsInstalled(Context context) {
         try {
             context.getPackageManager().getPackageInfo("com.masel.thesoundrecorder", 0);
             return true;

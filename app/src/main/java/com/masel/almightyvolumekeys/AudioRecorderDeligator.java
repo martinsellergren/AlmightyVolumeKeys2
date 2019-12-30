@@ -8,6 +8,7 @@ import androidx.annotation.Nullable;
 
 import com.masel.rec_utils.AudioRecorder;
 import com.masel.rec_utils.KeyValueStore;
+import com.masel.rec_utils.Utils;
 
 import java.io.IOException;
 
@@ -96,6 +97,10 @@ class AudioRecorderDeligator {
      * Send broadcast: local rec started.
      */
     void start() throws Action.ExecutionException {
+        if (!TheSoundRecorderConnection.appIsInstalled(context)) {
+            Utils.openAppOnPlayStore(context, "com.masel.thesoundrecorder");
+        }
+
         if (isRecording()) return;
 
         try {
