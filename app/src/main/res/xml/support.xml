@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<androidx.preference.PreferenceScreen
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <Preference
+        app:title="Where are the recordings?"
+        app:summary="In the save directory. To play and manage your recordings you need a file manager. May I suggest FX file manager - with it you can add a 'launcher shortcut' to a folder on your home screen and so access the save directory quickly." />
+
+    <Preference
+        app:title="Where are the trashed recordings?"
+        app:summary="Trashed recording end up in hidden folder (name starts with a dot) called .Trash inside the save directory. Access it with a file manager that can display hidden folders." />
+
+    <Preference
+        app:title="Why use this seemingly trivial sound recorder and not a more advanced one?"
+        app:summary="Because you can control recording using the volume keys. You can for instance start recording when the phone is in your pocket. For this you also need another app, Almighty Volume Keys." />
+
+    <Preference
+        app:title="How to cut and crop recordings?"
+        app:summary="Record using this app, then when you want to cut or crop recordings, use e.g Easy Voice Recorder and point it to the save directory of this app." />
+
+    <Preference
+        app:title="How to back up recordings?"
+        app:summary="Use e.g DriveSync." />
+
+    <Preference
+        app:title="How to ask another question?"
+        app:summary="masel7569@gmail.com" />
+
+</androidx.preference.PreferenceScreen>

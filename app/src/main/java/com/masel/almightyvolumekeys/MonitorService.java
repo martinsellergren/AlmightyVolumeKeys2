@@ -11,8 +11,10 @@ import android.content.IntentFilter;
 import android.media.AudioManager;
 import android.os.Build;
 import android.os.Handler;
+import android.provider.Settings;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.accessibility.AccessibilityEvent;
@@ -96,5 +98,36 @@ public class MonitorService extends AccessibilityService {
 
         userInteraction.release();
         return super.onUnbind(intent);
+    }
+
+    /**
+     * @return True if this accessibility service is enabled in settings.
+     */
+    static boolean isEnabled(Context context) {
+        int accessibilityEnabled = 0;
+        try {
+            accessibilityEnabled = Settings.Secure.getInt(context.getApplicationContext().getContentResolver(), android.provider.Settings.Secure.ACCESSIBILITY_ENABLED);
+        }
+        catch (Settings.SettingNotFoundException e) {
+            return false;
+        }
+
+        String service = context.getPackageName() + "/" + MonitorService.class.getCanonicalName();
+        TextUtils.SimpleStringSplitter splitter = new TextUtils.SimpleStringSplitter(':');
+
+        if (accessibilityEnabled == 1) {
+            String settingValue = Settings.Secure.getString(context.getApplicationContext().getContentResolver(), Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES);
+            if (settingValue == null) return false;
+
+            splitter.setString(settingValue);
+            while (splitter.hasNext()) {
+                String accessibilityService = splitter.next();
+                if (accessibilityService.equalsIgnoreCase(service)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 }

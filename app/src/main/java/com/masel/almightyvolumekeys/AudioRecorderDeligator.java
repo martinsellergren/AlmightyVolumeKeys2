@@ -99,6 +99,7 @@ class AudioRecorderDeligator {
     void start() throws Action.ExecutionException {
         if (!TheSoundRecorderConnection.appIsInstalled(context)) {
             Utils.openAppOnPlayStore(context, "com.masel.thesoundrecorder");
+            return;
         }
 
         if (isRecording()) return;

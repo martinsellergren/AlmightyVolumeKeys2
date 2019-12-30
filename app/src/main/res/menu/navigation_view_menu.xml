@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/item_enableDisable"
+        android:icon="@android:drawable/ic_menu_preferences"
+        android:title="Enable/disable" />
+    <item
+        android:id="@+id/item_support"
+        android:icon="@android:drawable/ic_menu_help"
+        android:title="Support" />
+    <item
+        android:id="@+id/item_unlock_pro"
+        android:icon="@android:drawable/ic_lock_lock"
+        android:title="Unlock pro" />
+    <item
+        android:id="@+id/item_rate_app"
+        android:icon="@android:drawable/btn_star_big_on"
+        android:title="Rate app" />
+</menu>

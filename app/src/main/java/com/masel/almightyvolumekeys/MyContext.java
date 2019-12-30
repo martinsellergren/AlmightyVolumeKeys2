@@ -49,6 +49,6 @@ class MyContext {
         audioRecorder.destroy();
         notifier.cancel();
         voice.destroy();
-        wakeLock.release();
+        if (wakeLock.isHeld()) wakeLock.release();
     }
 }
