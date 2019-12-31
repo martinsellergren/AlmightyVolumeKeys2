@@ -8,6 +8,8 @@ import androidx.preference.PreferenceManager;
 
 import com.masel.rec_utils.Utils;
 
+import java.util.Map;
+
 /**
  * Builds a command and executes it.
  * 4 or more volume-presses falls back to volume change, so commands should never be longer than 3 bits.
@@ -60,9 +62,6 @@ class ActionCommand {
      */
     private void executeCommand() {
         if (DeviceState.getCurrent(myContext) == deviceStateOnCommandStart) {
-//            Map<String, Action> mappings = Mappings.getCurrent(myContext);
-//            Action action = mappings.get(command);
-
             Action action = getMappedAction(command);
 
             if (action == null) {
@@ -77,7 +76,7 @@ class ActionCommand {
 
                 try {
                     if (!Utils.hasPermissions(myContext.context, action.getNeededPermissions())) {
-                        throw new Action.ExecutionException("Missing permission(s)");
+                        throw new Action.ExecutionException("Missing permission");
                     }
                     if (!action.isAvailable(myContext)) {
                         throw new Action.ExecutionException("Action not available on this device");
@@ -91,8 +90,10 @@ class ActionCommand {
                 }
                 catch (Action.ExecutionException e) {
                     myContext.notifier.notify(e.getMessage(), Notifier.VibrationPattern.ERROR, false);
-                    Utils.logAndToast(myContext.context, e.getMessage());
-                    Utils.gotoMainActivity(myContext.context);
+                    if (e.getMessage().equals("Missing permission")) {
+                        unmapAction(action);
+                    }
+                    if (Utils.currentlyInForeground()) Utils.gotoMainActivity(myContext.context);
                 }
                 catch (Exception e) {
                     myContext.notifier.notify(e.getMessage(), Notifier.VibrationPattern.ERROR, false);
@@ -121,9 +122,19 @@ class ActionCommand {
         String state = DeviceState.getCurrent(myContext).toString().toLowerCase();
         String key = String.format("listPreference_%s_command_%s", state, command);
 
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(myContext.context);
-        String actionName = sharedPreferences.getString(key, null);
+        String actionName = myContext.sharedPreferences.getString(key, null);
         if (actionName == null) return null;
         return Actions.getActionFromName(actionName);
+    }
+
+    /**
+     * Remove all mappings of action
+     */
+    private void unmapAction(Action action) {
+        for (Map.Entry<String, ?> entry : myContext.sharedPreferences.getAll().entrySet()) {
+            if (entry.getValue().toString().equals(action.getName())) {
+                myContext.sharedPreferences.edit().putString(entry.getKey(), "No action").apply();
+            }
+        }
     }
 }

@@ -29,7 +29,7 @@ class Actions {
     static class Sound_recorder__start extends Action {
         @Override
         String getName() {
-            return "Start recording audio";
+            return "Sound recorder: start";
         }
 
         @Override
@@ -51,7 +51,7 @@ class Actions {
     static class Sound_recorder__stop_and_save extends Action {
         @Override
         String getName() {
-            return "Stop and save recording";
+            return "Sound recorder: stop and save";
         }
 
         @Override
@@ -78,7 +78,7 @@ class Actions {
     static class Sound_recorder__stop_and_trash extends Action {
         @Override
         String getName() {
-            return "Stop and trash recording";
+            return "Sound recorder: stop and trash";
         }
 
         @Override
@@ -231,12 +231,7 @@ class Actions {
 
         @Override
         void run(MyContext myContext) throws ExecutionException {
-            try {
-                myContext.audioManager.setRingerMode(AudioManager.RINGER_MODE_SILENT);
-            }
-            catch (Exception e) {
-                throw new ExecutionException("No permission");
-            }
+            myContext.audioManager.setRingerMode(AudioManager.RINGER_MODE_SILENT);
         }
 
         @Override
@@ -285,7 +280,7 @@ class Actions {
 
         @Override
         String getName() {
-            return "Do not disturb: ON";
+            return "Do not disturb: on";
         }
 
         @Override
@@ -320,7 +315,7 @@ class Actions {
     static class Do_not_disturb__off extends Action {
         @Override
         String getName() {
-            return "Do not disturb: OFF";
+            return "Do not disturb: off";
         }
 
         @Override

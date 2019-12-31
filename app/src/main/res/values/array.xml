@@ -3,6 +3,8 @@
     <string-array name="idle_actions">
         <item>No action</item>
         <item>Tell time</item>
+        <item>Do not disturb: toggle</item>
+        <item>Sound recorder: start</item>
     </string-array>
 
     <string-array name="music_actions">

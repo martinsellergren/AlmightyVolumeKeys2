@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public int getCount() {
-            return 3; //todo: Should be 2
+            return 3;
         }
 
         @Nullable
@@ -158,8 +158,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-
         updateEnableServiceText();
-        Utils.requestPermissions(this, Mappings.getNeededPermissions(this));
     }
 }
