@@ -23,8 +23,8 @@
 
     </PreferenceCategory>
 
-    <Preference
-        app:key="preference_soundrec_clear"
-        app:title="Clear all" />
+    <PreferenceCategory>
+        <com.masel.almightyvolumekeys.ClearMappingsPreference app:key="preference_soundrec_clear"/>
+    </PreferenceCategory>
 
 </androidx.preference.PreferenceScreen>
