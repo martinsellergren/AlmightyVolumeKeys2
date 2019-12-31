@@ -26,6 +26,7 @@ class MyContext {
     final Notifier notifier;
     final Voice voice;
     final SharedPreferences sharedPreferences;
+    final Flashlight flashlight;
     final WakeLock wakeLock;
 
     MyContext(Context c) {
@@ -38,6 +39,7 @@ class MyContext {
         audioRecorder = new AudioRecorderDeligator(context);
         voice = new Voice(context);
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        flashlight = new Flashlight(context);
 
         PowerManager powerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
         this.wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,"com.masel.almightyvolumekeys::WakeLock");
@@ -53,6 +55,7 @@ class MyContext {
         audioRecorder.destroy();
         notifier.cancel();
         voice.destroy();
+        flashlight.destroy();
         if (wakeLock.isHeld()) wakeLock.release();
     }
 }

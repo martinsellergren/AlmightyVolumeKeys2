@@ -4,13 +4,38 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <Preference
-        app:summary="Volume key bindings when your device is playing music." />
+        app:summary="Volume key bindings when you are currently playing music or other media." />
+
+    <PreferenceCategory>
+
+        <com.masel.almightyvolumekeys.MappingListPreference
+            app:key="listPreference_music_command_1"/>
+
+        <com.masel.almightyvolumekeys.MappingListPreference
+            app:key="listPreference_music_command_0"/>
+
+        <com.masel.almightyvolumekeys.MappingListPreference
+            app:key="listPreference_music_command_10"/>
+
+        <com.masel.almightyvolumekeys.MappingListPreference
+            app:key="listPreference_music_command_01"/>
+
+        <com.masel.almightyvolumekeys.MappingListPreference
+            app:key="listPreference_music_command_110"/>
+
+        <com.masel.almightyvolumekeys.MappingListPreference
+            app:key="listPreference_music_command_001"/>
+
+        <com.masel.almightyvolumekeys.MappingListPreference
+            app:key="listPreference_music_command_100"/>
+
+        <com.masel.almightyvolumekeys.MappingListPreference
+            app:key="listPreference_music_command_011"/>
+
+    </PreferenceCategory>
 
     <Preference
         app:key="preference_music_clear"
         app:title="Clear all" />
-
-    <com.masel.almightyvolumekeys.MappingListPreference
-        app:key="listPreference_music_command_1"/>
 
 </androidx.preference.PreferenceScreen>

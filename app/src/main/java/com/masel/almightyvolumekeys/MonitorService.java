@@ -22,6 +22,8 @@ import android.view.accessibility.AccessibilityEvent;
 import androidx.core.app.NotificationCompat;
 import androidx.media.VolumeProviderCompat;
 
+import com.masel.rec_utils.AudioRecorder;
+import com.masel.rec_utils.KeyValueStore;
 import com.masel.rec_utils.Utils;
 
 public class MonitorService extends AccessibilityService {
@@ -48,6 +50,12 @@ public class MonitorService extends AccessibilityService {
 
         if (Build.VERSION.SDK_INT >= 28) requestForeground();
         userInteraction = new UserInteraction(this);
+        cleanUpAfterCrashDuringRecording();
+    }
+
+    private void cleanUpAfterCrashDuringRecording() {
+        KeyValueStore.setAlmightyVolumeKeysIsRecording(this, false);
+        AudioRecorder.removeNotification(this);
     }
 
     /**

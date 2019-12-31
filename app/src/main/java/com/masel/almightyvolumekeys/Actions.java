@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.hardware.Camera;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraManager;
 import android.media.AudioManager;
@@ -389,9 +390,6 @@ class Actions {
     // region Flashlight
 
     static class Flashlight__on extends Action {
-
-        private static final int minApi = 23;
-
         @Override
         String getName() {
             return "Flashlight: on";
@@ -399,29 +397,17 @@ class Actions {
 
         @Override
         void run(MyContext myContext) throws ExecutionException {
-            if (Build.VERSION.SDK_INT < minApi) return;
-
-            try {
-                CameraManager camManager = (CameraManager) myContext.context.getSystemService(Context.CAMERA_SERVICE);
-                String cameraId = camManager.getCameraIdList()[0];
-                camManager.setTorchMode(cameraId, true);
-            }
-            catch (CameraAccessException e) {
-                Utils.log(e.getMessage());
-            }
+            boolean success = myContext.flashlight.turnOn();
+            if (!success) throw new ExecutionException("Flashlight error");
         }
 
         @Override
         boolean isAvailable(MyContext myContext) {
-            return Build.VERSION.SDK_INT >= minApi &&
-                    myContext.context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH);
+            return myContext.flashlight.isAvailable();
         }
     }
 
     static class Flashlight__off extends Action {
-
-        private static final int minApi = 23;
-
         @Override
         String getName() {
             return "Flashlight: off";
@@ -429,22 +415,31 @@ class Actions {
 
         @Override
         void run(MyContext myContext) throws ExecutionException {
-            if (Build.VERSION.SDK_INT < minApi) return;
+            boolean success = myContext.flashlight.turnOff();
+            if (!success) throw new ExecutionException("Flashlight error");
+        }
 
-            try {
-                CameraManager camManager = (CameraManager) myContext.context.getSystemService(Context.CAMERA_SERVICE);
-                String cameraId = camManager.getCameraIdList()[0];
-                camManager.setTorchMode(cameraId, false);
-            }
-            catch (CameraAccessException e) {
-                Utils.log(e.getMessage());
-            }
+        @Override
+        Notifier.VibrationPattern getVibrationPattern() {
+            return Notifier.VibrationPattern.OFF;
         }
 
         @Override
         boolean isAvailable(MyContext myContext) {
-            return Build.VERSION.SDK_INT >= minApi &&
-                    myContext.context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH);
+            return myContext.flashlight.isAvailable();
+        }
+    }
+
+    static class Flashlight__toggle extends MultiAction {
+
+        @Override
+        Action pickAction(MyContext myContext) {
+            return myContext.flashlight.isOn() ? new Flashlight__off() : new Flashlight__on();
+        }
+
+        @Override
+        boolean isAvailable(MyContext myContext) {
+            return myContext.flashlight.isAvailable();
         }
     }
 
