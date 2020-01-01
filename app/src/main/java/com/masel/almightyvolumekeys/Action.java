@@ -76,7 +76,7 @@ abstract class Action {
     /**
      * Action only available on systems where this returns true.
      */
-    boolean isAvailable(MyContext myContext) {
+    boolean isAvailable(Context context) {
         return true;
     }
 

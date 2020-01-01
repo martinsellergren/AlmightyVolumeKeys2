@@ -2,6 +2,7 @@
 
 <accessibility-service
     xmlns:android="http://schemas.android.com/apk/res/android"
+    android:description="@string/accessibility_service_description"
     android:accessibilityEventTypes="typeContextClicked|typeViewClicked"
     android:packageNames="com.example.andres.eventcapture"
     android:accessibilityFlags="flagRequestFilterKeyEvents"
@@ -9,5 +10,4 @@
     android:notificationTimeout="50"
     android:canRetrieveWindowContent="true"
     android:settingsActivity=""
-    android:canRequestFilterKeyEvents="true"
-    />
+    android:canRequestFilterKeyEvents="true" />

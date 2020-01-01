@@ -120,7 +120,7 @@ class Actions {
         }
 
         @Override
-        boolean isAvailable(MyContext myContext) {
+        boolean isAvailable(Context context) {
             return Build.VERSION.SDK_INT >= 19;
         }
     }
@@ -139,7 +139,7 @@ class Actions {
         }
 
         @Override
-        boolean isAvailable(MyContext myContext) {
+        boolean isAvailable(Context context) {
             return Build.VERSION.SDK_INT >= 19;
         }
     }
@@ -157,7 +157,7 @@ class Actions {
         }
 
         @Override
-        boolean isAvailable(MyContext myContext) {
+        boolean isAvailable(Context context) {
             return Build.VERSION.SDK_INT >= 19;
         }
     }
@@ -175,7 +175,7 @@ class Actions {
         }
 
         @Override
-        boolean isAvailable(MyContext myContext) {
+        boolean isAvailable(Context context) {
             return Build.VERSION.SDK_INT >= 19;
         }
     }
@@ -203,7 +203,7 @@ class Actions {
 
         @Override
         NotifyOrder getNotifyOrder() {
-            return NotifyOrder.NEVER;
+            return NotifyOrder.AFTER_WAIT_ON_DND;
         }
     }
 
@@ -243,6 +243,25 @@ class Actions {
         @Override
         NotifyOrder getNotifyOrder() {
             return NotifyOrder.BEFORE;
+        }
+
+        @Override
+        String[] getNeededPermissions() {
+            if (Build.VERSION.SDK_INT >= 23) {
+                return new String[]{Manifest.permission.ACCESS_NOTIFICATION_POLICY};
+            }
+            else return new String[]{};
+        }
+    }
+
+    static class Sound_mode__toggle_sound_silent extends MultiAction {
+        @Override
+        Action pickAction(MyContext myContext) {
+            switch (myContext.audioManager.getRingerMode()) {
+                case AudioManager.RINGER_MODE_SILENT: return new Sound_mode__sound();
+                case AudioManager.RINGER_MODE_NORMAL: return new Sound_mode__silent();
+                default: return new Sound_mode__sound();
+            }
         }
 
         @Override
@@ -308,7 +327,7 @@ class Actions {
         }
 
         @Override
-        boolean isAvailable(MyContext myContext) {
+        boolean isAvailable(Context context) {
             return Build.VERSION.SDK_INT >= 23;
         }
     }
@@ -343,7 +362,7 @@ class Actions {
         }
 
         @Override
-        boolean isAvailable(MyContext myContext) {
+        boolean isAvailable(Context context) {
             return Build.VERSION.SDK_INT >= 23;
         }
     }
@@ -364,7 +383,7 @@ class Actions {
         }
 
         @Override
-        boolean isAvailable(MyContext myContext) {
+        boolean isAvailable(Context context) {
             return Build.VERSION.SDK_INT >= 23;
         }
     }
@@ -402,8 +421,8 @@ class Actions {
         }
 
         @Override
-        boolean isAvailable(MyContext myContext) {
-            return myContext.flashlight.isAvailable();
+        boolean isAvailable(Context context) {
+            return new Flashlight(context).isAvailable();
         }
     }
 
@@ -425,8 +444,8 @@ class Actions {
         }
 
         @Override
-        boolean isAvailable(MyContext myContext) {
-            return myContext.flashlight.isAvailable();
+        boolean isAvailable(Context context) {
+            return new Flashlight(context).isAvailable();
         }
     }
 
@@ -438,8 +457,8 @@ class Actions {
         }
 
         @Override
-        boolean isAvailable(MyContext myContext) {
-            return myContext.flashlight.isAvailable();
+        boolean isAvailable(Context context) {
+            return new Flashlight(context).isAvailable();
         }
     }
 

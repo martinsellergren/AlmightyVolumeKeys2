@@ -12,6 +12,10 @@
         app:summary="Normally a device falls asleep if you leave it alone for a while, and when the display is turned on it wakes up again. A sleeping device won't care about volume clicks, therefore this app prevents sleep. This means some additional battery drain, mainly when you leave it for a long time, like over night. Therefore, if you find this troublesome you might wanna disable it over night. In a future release I might improve this, perhaps prevent sleep according to time of day." />
 
     <Preference
+        app:title="Can I remove the &quot;Monitoring volume key presses&quot; notification?"
+        app:summary="" />
+
+    <Preference
         app:title="I need an action that isn't available, what to do?"
         app:summary="Try using the tasker-action (bottom of the list), Tasker can do lot's of stuff. Or, send me an email, perhaps I can implement it." />
 

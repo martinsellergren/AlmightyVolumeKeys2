@@ -70,6 +70,9 @@ public class MappingListPreference extends ListPreference {
         return key.split("_")[1];
     }
 
+    /**
+     * Returns array with actions from xml, depending on state. Only returns actions available on this device.
+     */
     private CharSequence[] entriesFromKey(String key) {
         String state = extractState(key);
         int res;
@@ -79,15 +82,15 @@ public class MappingListPreference extends ListPreference {
         else throw new RuntimeException("Dead end");
 
         String[] actions = getContext().getResources().getStringArray(res);
-        return actions;
-//        List<String> filteredActions = new ArrayList<>();
-//        for (String actionName : actions) {
-//            Action action = Actions.getActionFromName(actionName);
-//            if (action.isAvailable()) {
-//                filteredActions.add(actionName);
-//            }
-//        }
-//        return filteredActions.toArray(new String[filteredActions.size()]);
+        List<String> filteredActions = new ArrayList<>();
+        filteredActions.add("No action");
+        for (String actionName : actions) {
+            Action action = Actions.getActionFromName(actionName);
+            if (action != null && action.isAvailable(getContext())) {
+                filteredActions.add(actionName);
+            }
+        }
+        return filteredActions.toArray(new String[filteredActions.size()]);
     }
 
     private String titleFromKey(String key) {

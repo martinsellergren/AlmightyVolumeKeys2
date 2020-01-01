@@ -78,7 +78,7 @@ class ActionCommand {
                     if (!Utils.hasPermissions(myContext.context, action.getNeededPermissions())) {
                         throw new Action.ExecutionException("Missing permission");
                     }
-                    if (!action.isAvailable(myContext)) {
+                    if (!action.isAvailable(myContext.context)) {
                         throw new Action.ExecutionException("Action not available on this device");
                     }
 
