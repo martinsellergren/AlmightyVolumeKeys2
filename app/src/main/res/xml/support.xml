@@ -4,24 +4,16 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <Preference
-        app:title="Where are the recordings?"
-        app:summary="In the save directory. To play and manage your recordings you need a file manager. May I suggest FX file manager - with it you can add a 'launcher shortcut' to a folder on your home screen and so access the save directory quickly." />
+        app:title="How to change volume now when volume keys are doing something else?"
+        app:summary="When media is playing, volume keys changes volume as usual. Otherwise, 5 volume quick volume clicks changes volume, as well as a long-press." />
 
     <Preference
-        app:title="Where are the trashed recordings?"
-        app:summary="Trashed recording end up in hidden folder (name starts with a dot) called .Trash inside the save directory. Access it with a file manager that can display hidden folders." />
+        app:title="Will this app drain my battery?"
+        app:summary="Normally a device falls asleep if you leave it alone for a while, and when the display is turned on it wakes up again. A sleeping device won't care about volume clicks, therefore this app prevents sleep. This means some additional battery drain, mainly when you leave it for a long time, like over night. Therefore, if you find this troublesome you might wanna disable it over night. In a future release I might improve this, perhaps prevent sleep according to time of day." />
 
     <Preference
-        app:title="Why use this seemingly trivial sound recorder and not a more advanced one?"
-        app:summary="Because you can control recording using the volume keys. You can for instance start recording when the phone is in your pocket. For this you also need another app, Almighty Volume Keys." />
-
-    <Preference
-        app:title="How to cut and crop recordings?"
-        app:summary="Record using this app, then when you want to cut or crop recordings, use e.g Easy Voice Recorder and point it to the save directory of this app." />
-
-    <Preference
-        app:title="How to back up recordings?"
-        app:summary="Use e.g DriveSync." />
+        app:title="I need an action that isn't available, what to do?"
+        app:summary="Try using the tasker-action (bottom of the list), Tasker can do lot's of stuff. Or, send me an email, perhaps I can implement it." />
 
     <Preference
         app:title="How to ask another question?"

@@ -3,7 +3,7 @@
     <item
         android:id="@+id/item_enableDisable"
         android:icon="@android:drawable/ic_menu_preferences"
-        android:title="Enable/ disable" />
+        android:title="Enable / disable" />
     <item
         android:id="@+id/item_support"
         android:icon="@android:drawable/ic_menu_help"

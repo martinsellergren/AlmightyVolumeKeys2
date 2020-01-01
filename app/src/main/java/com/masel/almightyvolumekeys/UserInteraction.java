@@ -36,7 +36,7 @@ class UserInteraction {
         setupWakeLockWhenScreenOff();
     }
 
-    void release() {
+    void destroy() {
         userInteractionWhenScreenOffAndMusic.release(myContext);
         myContext.destroy();
     }

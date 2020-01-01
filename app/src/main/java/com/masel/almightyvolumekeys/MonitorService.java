@@ -4,27 +4,19 @@ import android.accessibilityservice.AccessibilityService;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.media.AudioManager;
 import android.os.Build;
-import android.os.Handler;
 import android.provider.Settings;
-import android.support.v4.media.session.MediaSessionCompat;
-import android.support.v4.media.session.PlaybackStateCompat;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.accessibility.AccessibilityEvent;
 
 import androidx.core.app.NotificationCompat;
-import androidx.media.VolumeProviderCompat;
 
 import com.masel.rec_utils.AudioRecorder;
 import com.masel.rec_utils.KeyValueStore;
-import com.masel.rec_utils.Utils;
 
 public class MonitorService extends AccessibilityService {
 
@@ -104,7 +96,7 @@ public class MonitorService extends AccessibilityService {
     public boolean onUnbind(Intent intent) {
         Log.i("<ME>", "onUnbind()");
 
-        userInteraction.release();
+        userInteraction.destroy();
         return super.onUnbind(intent);
     }
 

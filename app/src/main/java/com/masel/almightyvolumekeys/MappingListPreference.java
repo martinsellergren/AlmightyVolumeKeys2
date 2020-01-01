@@ -3,7 +3,6 @@ package com.masel.almightyvolumekeys;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.AttributeSet;
 
@@ -17,10 +16,12 @@ import androidx.preference.Preference;
 
 import com.masel.rec_utils.Utils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
- * A ListPreference for mapping command to action.
+ * A ListPreference for mapping command to action, for a certain device-state.
  * When action picked, execute custom action if set, and request any needed permissions.
  *
  * Format of key (set in xml), eg: listPreference_idle_command_111
@@ -40,7 +41,7 @@ public class MappingListPreference extends ListPreference {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 if (extractState(getKey()).equals("music") && !newValue.toString().equals("No action")) {
-                    showMusicMappingHeadsUpDialog(extractActionCommand(getKey()));
+                    showMusicMappingHeadsUpDialog(extractCommand(getKey()));
                 }
 
                 Action pickedAction = Actions.getActionFromName(newValue.toString());
@@ -61,7 +62,7 @@ public class MappingListPreference extends ListPreference {
         Utils.requestPermissions(activity, Arrays.asList(action.getNeededPermissions()));
     }
 
-    private String extractActionCommand(String key) {
+    private String extractCommand(String key) {
         return key.split("_")[3];
     }
 
@@ -69,16 +70,28 @@ public class MappingListPreference extends ListPreference {
         return key.split("_")[1];
     }
 
-    private int entriesFromKey(String key) {
+    private CharSequence[] entriesFromKey(String key) {
         String state = extractState(key);
-        if (state.equals("idle")) return R.array.idle_actions;
-        if (state.equals("music")) return R.array.music_actions;
-        if (state.equals("soundrec")) return R.array.soundrec_actions;
-        throw new RuntimeException("Dead end");
+        int res;
+        if (state.equals("idle")) res = R.array.idle_actions;
+        else if (state.equals("music")) res = R.array.music_actions;
+        else if (state.equals("soundrec")) res = R.array.soundrec_actions;
+        else throw new RuntimeException("Dead end");
+
+        String[] actions = getContext().getResources().getStringArray(res);
+        return actions;
+//        List<String> filteredActions = new ArrayList<>();
+//        for (String actionName : actions) {
+//            Action action = Actions.getActionFromName(actionName);
+//            if (action.isAvailable()) {
+//                filteredActions.add(actionName);
+//            }
+//        }
+//        return filteredActions.toArray(new String[filteredActions.size()]);
     }
 
     private String titleFromKey(String key) {
-        String actionCode = extractActionCommand(key);
+        String actionCode = extractCommand(key);
         String title = "";
 
         for (char c : actionCode.toCharArray()) {

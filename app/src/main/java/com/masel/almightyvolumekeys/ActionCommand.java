@@ -65,7 +65,7 @@ class ActionCommand {
             Action action = getMappedAction(command);
 
             if (action == null) {
-                Utils.logAndToast(myContext.context, String.format("Non-mapped command: %s (state:%s)", command, DeviceState.getCurrent(myContext)));
+                Utils.log(String.format("Non-mapped command: %s (state:%s)", command, DeviceState.getCurrent(myContext)));
             }
             else {
                 if (action instanceof MultiAction) {
@@ -90,10 +90,11 @@ class ActionCommand {
                 }
                 catch (Action.ExecutionException e) {
                     myContext.notifier.notify(e.getMessage(), Notifier.VibrationPattern.ERROR, false);
+
                     if (e.getMessage().equals("Missing permission")) {
                         unmapAction(action);
+                        if (Utils.currentlyInForeground()) Utils.gotoMainActivity(myContext.context);
                     }
-                    if (Utils.currentlyInForeground()) Utils.gotoMainActivity(myContext.context);
                 }
                 catch (Exception e) {
                     myContext.notifier.notify(e.getMessage(), Notifier.VibrationPattern.ERROR, false);
