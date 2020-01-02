@@ -5,15 +5,15 @@
 
     <Preference
         app:title="How to change volume now when volume keys are doing something else?"
-        app:summary="When media is playing, volume keys changes volume as usual. Otherwise, 5 volume quick volume clicks changes volume, as well as a long-press." />
-
-    <Preference
-        app:title="Will this app drain my battery?"
-        app:summary="Normally a device falls asleep if you leave it alone for a while, and when the display is turned on it wakes up again. A sleeping device won't care about volume clicks, therefore this app prevents sleep. This means some additional battery drain, mainly when you leave it for a long time, like over night. Therefore, if you find this troublesome you might wanna disable it over night. In a future release I might improve this, perhaps prevent sleep according to time of day." />
+        app:summary="When media is playing, volume keys changes volume as usual. Otherwise, 5 quick volume clicks changes volume, as well as a long-press." />
 
     <Preference
         app:title="Can I remove the &quot;Monitoring volume key presses&quot; notification?"
-        app:summary="" />
+        app:summary="Sure, just long click the notification and hide/ disable. This notification is only there on some devices." />
+
+    <Preference
+        app:title="Will this app drain my battery?"
+        app:summary="Normally a device falls asleep if you leave it with the screen off for a while, and when you turn on the screen it wakes up again. A sleeping device won't care about volume clicks, therefore this app prevents sleep. This means some additional battery drain, mainly when you leave it for a long time, like over night. Therefore, if you find this troublesome you might wanna disable the app over night." />
 
     <Preference
         app:title="I need an action that isn't available, what to do?"

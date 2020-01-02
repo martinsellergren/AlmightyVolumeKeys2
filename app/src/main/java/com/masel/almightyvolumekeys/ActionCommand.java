@@ -1,5 +1,6 @@
 package com.masel.almightyvolumekeys;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.AudioManager;
 import android.os.Handler;
@@ -75,7 +76,7 @@ class ActionCommand {
                 Utils.logAndToast(myContext.context, String.format("Execute %s -> %s (state:%s)", command, action.getName(), DeviceState.getCurrent(myContext)));
 
                 try {
-                    if (!Utils.hasPermissions(myContext.context, action.getNeededPermissions())) {
+                    if (!Utils.hasPermissions(myContext.context, action.getNeededPermissions(myContext.context))) {
                         throw new Action.ExecutionException("Missing permission");
                     }
                     if (!action.isAvailable(myContext.context)) {
@@ -92,8 +93,7 @@ class ActionCommand {
                     myContext.notifier.notify(e.getMessage(), Notifier.VibrationPattern.ERROR, false);
 
                     if (e.getMessage().equals("Missing permission")) {
-                        unmapAction(action);
-                        if (Utils.currentlyInForeground()) Utils.gotoMainActivity(myContext.context);
+                        fixPermissions(action.getNeededPermissions(myContext.context));
                     }
                 }
                 catch (Exception e) {
@@ -134,8 +134,15 @@ class ActionCommand {
     private void unmapAction(Action action) {
         for (Map.Entry<String, ?> entry : myContext.sharedPreferences.getAll().entrySet()) {
             if (entry.getValue().toString().equals(action.getName())) {
-                myContext.sharedPreferences.edit().putString(entry.getKey(), "No action").apply();
+                myContext.sharedPreferences.edit().putString(entry.getKey(), new Actions.No_action().getName()).apply();
             }
         }
+    }
+
+    private void fixPermissions(String[] permissions) {
+        Intent intent = new Intent(myContext.context, MainActivity.class);
+        intent.putExtra(MainActivity.EXTRA_PERMISSION_REQUEST, permissions);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        myContext.context.startActivity(intent);
     }
 }

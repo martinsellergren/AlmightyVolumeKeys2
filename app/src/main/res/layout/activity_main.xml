@@ -16,9 +16,10 @@
             android:id="@+id/textView_enableAVK"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Almighty Volume Keys is disabled"
+            android:text="Almighty Volume Keys is disabled!\nOpen side menu and enable."
             android:textColor="@color/colorAccent"
             android:visibility="gone"
+            android:gravity="center"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />

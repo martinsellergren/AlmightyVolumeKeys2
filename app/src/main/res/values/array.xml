@@ -2,23 +2,13 @@
 <resources>
     <string-array name="idle_actions">
         <item>No action</item>
-        <item>Sound recorder: start</item>
+        <item>Do not disturb</item>
+        <item>Flashlight</item>
         <item>Media: play</item>
+        <item>Sound mode: sound / silent</item>
+        <item>Sound mode: vibrate / silent</item>
+        <item>Sound recorder: start</item>
         <item>Tell time</item>
-
-        <item>Sound mode: sound</item>
-        <item>Sound mode: vibrate</item>
-        <item>Sound mode: silent</item>
-        <item>Sound mode: toggle sound silent</item>
-        <item>Sound mode: toggle vibrate silent</item>
-
-        <item>Do not disturb: on</item>
-        <item>Do not disturb: off</item>
-        <item>Do not disturb: toggle</item>
-
-        <item>Flashlight: on</item>
-        <item>Flashlight: off</item>
-        <item>Flashlight: toggle</item>
     </string-array>
 
     <string-array name="music_actions">
@@ -30,7 +20,6 @@
 
     <string-array name="soundrec_actions">
         <item>No action</item>
-        <item>Sound recorder: start</item>
         <item>Sound recorder: stop and save</item>
         <item>Sound recorder: stop and trash</item>
     </string-array>

@@ -4,13 +4,11 @@ import android.app.NotificationManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.media.AudioManager;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.support.v4.media.session.MediaSessionCompat;
 
-import androidx.annotation.Nullable;
 import androidx.media.session.MediaButtonReceiver;
 import androidx.preference.PreferenceManager;
 
@@ -26,7 +24,7 @@ class MyContext {
     final Notifier notifier;
     final Voice voice;
     final SharedPreferences sharedPreferences;
-    final Flashlight flashlight;
+    final MyFlashlight flashlight;
     final WakeLock wakeLock;
 
     MyContext(Context c) {
@@ -39,7 +37,7 @@ class MyContext {
         audioRecorder = new AudioRecorderDeligator(context);
         voice = new Voice(context);
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-        flashlight = new Flashlight(context);
+        flashlight = new MyFlashlight(context);
 
         PowerManager powerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
         this.wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,"com.masel.almightyvolumekeys::WakeLock");

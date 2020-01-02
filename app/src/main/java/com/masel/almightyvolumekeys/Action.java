@@ -62,7 +62,7 @@ abstract class Action {
     /**
      * @return Permissions necessary for this action. Default: none.
      */
-    String[] getNeededPermissions() {
+    String[] getNeededPermissions(Context context) {
         return new String[]{};
     }
 

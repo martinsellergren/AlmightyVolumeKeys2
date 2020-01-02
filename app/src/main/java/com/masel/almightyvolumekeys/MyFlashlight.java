@@ -9,7 +9,7 @@ import android.os.Build;
 
 import androidx.annotation.NonNull;
 
-class Flashlight {
+class MyFlashlight {
     private boolean isOn = false;
     private boolean isAvailable;
 
@@ -25,7 +25,7 @@ class Flashlight {
         }
     };
 
-    Flashlight(Context context) {
+    MyFlashlight(Context context) {
         if (Build.VERSION.SDK_INT < 23 || !context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH)) {
             isAvailable = false;
             return;

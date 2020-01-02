@@ -9,12 +9,6 @@
     <PreferenceCategory>
 
         <com.masel.almightyvolumekeys.MappingListPreference
-            app:key="listPreference_music_command_1"/>
-
-        <com.masel.almightyvolumekeys.MappingListPreference
-            app:key="listPreference_music_command_0"/>
-
-        <com.masel.almightyvolumekeys.MappingListPreference
             app:key="listPreference_music_command_10"/>
 
         <com.masel.almightyvolumekeys.MappingListPreference

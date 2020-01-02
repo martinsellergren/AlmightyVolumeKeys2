@@ -22,6 +22,8 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
 import com.masel.rec_utils.Utils;
 
+import java.util.Arrays;
+
 public class MainActivity extends AppCompatActivity {
 
     private DrawerLayout drawerLayout;
@@ -99,8 +101,7 @@ public class MainActivity extends AppCompatActivity {
 
                 switch(item.getItemId()) {
                     case R.id.item_enableDisable:
-                        Utils.toast(MainActivity.this, "Find the Almighty Volume Keys-service");
-                        openAccessibilitySettings();
+                        onEnableDisableClick();
                         break;
                     case R.id.item_support:
                         startActivity(new Intent(MainActivity.this, SupportActivity.class));
@@ -117,6 +118,25 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
         });
+    }
+
+    private void onEnableDisableClick() {
+        String toastText = "Find the Almighty Volume Keys-service";
+        if (MonitorService.isEnabled(MainActivity.this)) {
+            Utils.toast(this, toastText);
+            openAccessibilitySettings();
+        }
+        else {
+            Utils.showHeadsUpDialog(MainActivity.this,
+                    "In the following screen, find the Almighty Volume Keys' accessibility service and activate it.",
+                    new Runnable() {
+                        @Override
+                        public void run() {
+                            Utils.toast(MainActivity.this, toastText);
+                            openAccessibilitySettings();
+                        }
+                    });
+        }
     }
 
     @Override
@@ -159,5 +179,23 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         updateEnableServiceText();
+
+        requestPermissions();
     }
+
+    // region Permission request
+
+    /**
+     * Only does something if main activity called with specific extra.
+     */
+    public static final String EXTRA_PERMISSION_REQUEST = "com.masel.almightyvolumekeys.EXTRA_PERMISSION_REQUEST";
+    private void requestPermissions() {
+        String[] permissions = getIntent().getStringArrayExtra(EXTRA_PERMISSION_REQUEST);
+        if (permissions == null) return;
+        getIntent().removeExtra(EXTRA_PERMISSION_REQUEST);
+
+        Utils.requestPermissions(this, Arrays.asList(permissions));
+    }
+
+    // endregion
 }

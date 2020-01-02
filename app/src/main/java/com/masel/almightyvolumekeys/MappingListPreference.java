@@ -1,16 +1,9 @@
 package com.masel.almightyvolumekeys;
 
-import android.app.Activity;
-import android.app.Dialog;
 import android.content.Context;
-import android.os.Bundle;
 import android.util.AttributeSet;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.DialogFragment;
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
 
@@ -40,26 +33,25 @@ public class MappingListPreference extends ListPreference {
         setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
-                if (extractState(getKey()).equals("music") && !newValue.toString().equals("No action")) {
+                String state = extractState(getKey());
+                String actionName = newValue.toString();
+
+                if (state.equals("music") && !actionName.equals(new Actions.No_action().getName())) {
                     showMusicMappingHeadsUpDialog(extractCommand(getKey()));
                 }
-
-                Action pickedAction = Actions.getActionFromName(newValue.toString());
-                if (pickedAction != null) {
-                    requestNeededPermissions(pickedAction);
+                else if (actionName.equals(new Actions.Sound_recorder_start().getName()) && !TheSoundRecorderConnection.appIsInstalled(context)) {
+                    Utils.showHeadsUpDialog(getActivity(),
+                            "For sound recording, you need to install another app: The Sound Recorder",
+                            () -> Utils.openAppOnPlayStore(getContext(), "com.masel.thesoundrecorder"));
+                }
+                else {
+                    Action action = Actions.getActionFromName(actionName);
+                    Utils.requestPermissions(getActivity(), Arrays.asList(action.getNeededPermissions(getContext())));
                 }
 
                 return true;
             }
         });
-    }
-
-    private void requestNeededPermissions(Action action) {
-        Activity activity = Utils.getActivityOfPreference(this);
-        if (activity == null) {
-            throw new RuntimeException("Error to get activity of preference");
-        }
-        Utils.requestPermissions(activity, Arrays.asList(action.getNeededPermissions()));
     }
 
     private String extractCommand(String key) {
@@ -83,14 +75,13 @@ public class MappingListPreference extends ListPreference {
 
         String[] actions = getContext().getResources().getStringArray(res);
         List<String> filteredActions = new ArrayList<>();
-        filteredActions.add("No action");
         for (String actionName : actions) {
             Action action = Actions.getActionFromName(actionName);
-            if (action != null && action.isAvailable(getContext())) {
+            if (action.isAvailable(getContext())) {
                 filteredActions.add(actionName);
             }
         }
-        return filteredActions.toArray(new String[filteredActions.size()]);
+        return filteredActions.toArray(new String[0]);
     }
 
     private String titleFromKey(String key) {
@@ -115,25 +106,7 @@ public class MappingListPreference extends ListPreference {
         if (activity == null) return;
 
         String text = getMusicMappingHeadsUpText(command);
-        new MusicMappingHeadsUpDialog(activity, text).show(activity.getSupportFragmentManager(), "music mapping heads up dialog");
-    }
-
-    public static class MusicMappingHeadsUpDialog extends DialogFragment {
-        private AppCompatActivity activity;
-        private String text;
-
-        MusicMappingHeadsUpDialog(AppCompatActivity activity, String text) {
-            this.activity = activity;
-            this.text = text;
-        }
-
-        @NonNull
-        @Override
-        public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-            builder.setMessage(text).setPositiveButton("Ok", null);
-            return builder.create();
-        }
+        Utils.showHeadsUpDialog(activity, text, null);
     }
 
     private String getMusicMappingHeadsUpText(String command) {
@@ -142,8 +115,8 @@ public class MappingListPreference extends ListPreference {
         String fromMaxTxt = fromMax == 1 ? "ONE" : (fromMax == 2 ? "TWO" : "THREE");
         String fromMinTxt = fromMin == 1 ? "ONE" : (fromMin == 2 ? "TWO" : "THREE");
 
-        String alt1 = "Heads up: This command only works if your device is at least %s %s from %s volume.";
-        String alt2 = "Heads up: This command only works if your device is at least %s %s from MAX volume and %s %s from MIN volume.";
+        String alt1 = "This command only works if your device is at least %s %s from %s volume.";
+        String alt2 = "This command only works if your device is at least %s %s from MAX volume and %s %s from MIN volume.";
 
         if (fromMax > 0 && fromMin > 0) {
             return String.format(alt2, fromMaxTxt, fromMax == 1 ? "STEP" : "STEPS", fromMinTxt, fromMin == 1 ? "STEP" : "STEPS");
@@ -173,4 +146,12 @@ public class MappingListPreference extends ListPreference {
     }
 
     // endregion
+
+    private AppCompatActivity getActivity() {
+        AppCompatActivity activity = (AppCompatActivity) Utils.getActivityOfPreference(this);
+        if (activity == null) {
+            throw new RuntimeException("Error to get activity of preference");
+        }
+        return activity;
+    }
 }

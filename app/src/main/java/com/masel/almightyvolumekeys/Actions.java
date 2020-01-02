@@ -3,14 +3,12 @@ package com.masel.almightyvolumekeys;
 import android.Manifest;
 import android.app.NotificationManager;
 import android.content.Context;
-import android.content.pm.PackageManager;
-import android.hardware.Camera;
-import android.hardware.camera2.CameraAccessException;
-import android.hardware.camera2.CameraManager;
 import android.media.AudioManager;
 import android.media.ToneGenerator;
 import android.os.Build;
 import android.view.KeyEvent;
+
+import androidx.annotation.NonNull;
 
 import com.masel.rec_utils.Utils;
 
@@ -25,9 +23,24 @@ class Actions {
 
     private Actions() {}
 
+    static class No_action extends Action {
+        @Override
+        String getName() {
+            return "No action";
+        }
+
+        @Override
+        void run(MyContext myContext) throws ExecutionException {}
+
+        @Override
+        NotifyOrder getNotifyOrder() {
+            return NotifyOrder.NEVER;
+        }
+    }
+
     // region Audio recording
 
-    static class Sound_recorder__start extends Action {
+    static class Sound_recorder_start extends Action {
         @Override
         String getName() {
             return "Sound recorder: start";
@@ -35,7 +48,12 @@ class Actions {
 
         @Override
         void run(MyContext myContext) throws Action.ExecutionException {
-            myContext.audioRecorder.start();
+            if (TheSoundRecorderConnection.appIsInstalled(myContext.context)) {
+                myContext.audioRecorder.start();
+            }
+            else {
+                Utils.openAppOnPlayStore(myContext.context, "com.masel.thesoundrecorder");
+            }
         }
 
         @Override
@@ -44,12 +62,17 @@ class Actions {
         }
 
         @Override
-        String[] getNeededPermissions() {
-            return new String[]{Manifest.permission.RECORD_AUDIO, Manifest.permission.WRITE_EXTERNAL_STORAGE};
+        String[] getNeededPermissions(Context context) {
+            if (TheSoundRecorderConnection.appIsInstalled(context)) {
+                return new String[]{Manifest.permission.RECORD_AUDIO, Manifest.permission.WRITE_EXTERNAL_STORAGE};
+            }
+            else {
+                return new String[]{};
+            }
         }
     }
 
-    static class Sound_recorder__stop_and_save extends Action {
+    static class Sound_recorder_stop_and_save extends Action {
         @Override
         String getName() {
             return "Sound recorder: stop and save";
@@ -71,12 +94,12 @@ class Actions {
         }
 
         @Override
-        String[] getNeededPermissions() {
+        String[] getNeededPermissions(Context context) {
             return new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE};
         }
     }
 
-    static class Sound_recorder__stop_and_trash extends Action {
+    static class Sound_recorder_stop_and_trash extends Action {
         @Override
         String getName() {
             return "Sound recorder: stop and trash";
@@ -98,7 +121,7 @@ class Actions {
         }
 
         @Override
-        String[] getNeededPermissions() {
+        String[] getNeededPermissions(Context context) {
             return new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE};
         }
     }
@@ -107,7 +130,7 @@ class Actions {
 
     // region Media control
 
-    static class Media__next extends Action {
+    static class Media_next extends Action {
         @Override
         String getName() {
             return "Media: next";
@@ -125,7 +148,7 @@ class Actions {
         }
     }
 
-    static class Media__previous extends Action {
+    static class Media_previous extends Action {
         @Override
         String getName() {
             return "Media: previous";
@@ -144,7 +167,7 @@ class Actions {
         }
     }
 
-    static class Media__play extends Action {
+    static class Media_play extends Action {
         @Override
         String getName() {
             return "Media: play";
@@ -162,7 +185,7 @@ class Actions {
         }
     }
 
-    static class Media__pause extends Action {
+    static class Media_pause extends Action {
         @Override
         String getName() {
             return "Media: pause";
@@ -190,7 +213,7 @@ class Actions {
 
     // region Sound mode
 
-    static class Sound_mode__sound extends Action {
+    static class Sound_mode_sound extends Action {
         @Override
         String getName() {
             return "Sound mode: sound";
@@ -205,9 +228,14 @@ class Actions {
         NotifyOrder getNotifyOrder() {
             return NotifyOrder.AFTER_WAIT_ON_DND;
         }
+
+        @Override
+        Notifier.VibrationPattern getVibrationPattern() {
+            return Notifier.VibrationPattern.OFF;
+        }
     }
 
-    static class Sound_mode__vibrate extends Action {
+    static class Sound_mode_vibrate extends Action {
         @Override
         String getName() {
             return "Sound mode: vibrate";
@@ -222,9 +250,14 @@ class Actions {
         NotifyOrder getNotifyOrder() {
             return NotifyOrder.AFTER_WAIT_ON_DND;
         }
+
+        @Override
+        Notifier.VibrationPattern getVibrationPattern() {
+            return Notifier.VibrationPattern.OFF;
+        }
     }
 
-    static class Sound_mode__silent extends Action {
+    static class Sound_mode_silent extends Action {
         @Override
         String getName() {
             return "Sound mode: silent";
@@ -237,7 +270,7 @@ class Actions {
 
         @Override
         Notifier.VibrationPattern getVibrationPattern() {
-            return Notifier.VibrationPattern.SILENCE;
+            return Notifier.VibrationPattern.ON;
         }
 
         @Override
@@ -246,7 +279,7 @@ class Actions {
         }
 
         @Override
-        String[] getNeededPermissions() {
+        String[] getNeededPermissions(Context context) {
             if (Build.VERSION.SDK_INT >= 23) {
                 return new String[]{Manifest.permission.ACCESS_NOTIFICATION_POLICY};
             }
@@ -254,18 +287,18 @@ class Actions {
         }
     }
 
-    static class Sound_mode__toggle_sound_silent extends MultiAction {
+    static class Sound_mode_sound_silent extends MultiAction {
         @Override
         Action pickAction(MyContext myContext) {
             switch (myContext.audioManager.getRingerMode()) {
-                case AudioManager.RINGER_MODE_SILENT: return new Sound_mode__sound();
-                case AudioManager.RINGER_MODE_NORMAL: return new Sound_mode__silent();
-                default: return new Sound_mode__sound();
+                case AudioManager.RINGER_MODE_SILENT: return new Sound_mode_sound();
+                case AudioManager.RINGER_MODE_NORMAL: return new Sound_mode_silent();
+                default: return new Sound_mode_sound();
             }
         }
 
         @Override
-        String[] getNeededPermissions() {
+        String[] getNeededPermissions(Context context) {
             if (Build.VERSION.SDK_INT >= 23) {
                 return new String[]{Manifest.permission.ACCESS_NOTIFICATION_POLICY};
             }
@@ -273,18 +306,18 @@ class Actions {
         }
     }
 
-    static class Sound_mode__toggle_vibrate_silent extends MultiAction {
+    static class Sound_mode_vibrate_silent extends MultiAction {
         @Override
         Action pickAction(MyContext myContext) {
             switch (myContext.audioManager.getRingerMode()) {
-                case AudioManager.RINGER_MODE_SILENT: return new Sound_mode__vibrate();
-                case AudioManager.RINGER_MODE_VIBRATE: return new Sound_mode__silent();
-                default: return new Sound_mode__vibrate();
+                case AudioManager.RINGER_MODE_SILENT: return new Sound_mode_vibrate();
+                case AudioManager.RINGER_MODE_VIBRATE: return new Sound_mode_silent();
+                default: return new Sound_mode_vibrate();
             }
         }
 
         @Override
-        String[] getNeededPermissions() {
+        String[] getNeededPermissions(Context context) {
             if (Build.VERSION.SDK_INT >= 23) {
                 return new String[]{Manifest.permission.ACCESS_NOTIFICATION_POLICY};
             }
@@ -296,7 +329,7 @@ class Actions {
 
     // region DND mode
 
-    static class Do_not_disturb__on extends Action {
+    static class Do_not_disturb_on extends Action {
 
         @Override
         String getName() {
@@ -319,7 +352,7 @@ class Actions {
         }
 
         @Override
-        String[] getNeededPermissions() {
+        String[] getNeededPermissions(Context context) {
             if (Build.VERSION.SDK_INT >= 23) {
                 return new String[]{Manifest.permission.ACCESS_NOTIFICATION_POLICY};
             }
@@ -332,7 +365,7 @@ class Actions {
         }
     }
 
-    static class Do_not_disturb__off extends Action {
+    static class Do_not_disturb_off extends Action {
         @Override
         String getName() {
             return "Do not disturb: off";
@@ -354,7 +387,7 @@ class Actions {
         }
 
         @Override
-        String[] getNeededPermissions() {
+        String[] getNeededPermissions(Context context) {
             if (Build.VERSION.SDK_INT >= 23) {
                 return new String[]{Manifest.permission.ACCESS_NOTIFICATION_POLICY};
             }
@@ -367,15 +400,15 @@ class Actions {
         }
     }
 
-    static class Do_not_disturb__toggle extends MultiAction {
+    static class Do_not_disturb extends MultiAction {
         @Override
         Action pickAction(MyContext myContext) {
-            if (dndIsOn(myContext.notificationManager)) return new Do_not_disturb__off();
-            else return new Do_not_disturb__on();
+            if (dndIsOn(myContext.notificationManager)) return new Do_not_disturb_off();
+            else return new Do_not_disturb_on();
         }
 
         @Override
-        String[] getNeededPermissions() {
+        String[] getNeededPermissions(Context context) {
             if (Build.VERSION.SDK_INT >= 23) {
                 return new String[]{Manifest.permission.ACCESS_NOTIFICATION_POLICY};
             }
@@ -406,36 +439,36 @@ class Actions {
 
     // endregion
 
-    // region Flashlight
+    // region MyFlashlight
 
-    static class Flashlight__on extends Action {
+    static class Flashlight_on extends Action {
         @Override
         String getName() {
-            return "Flashlight: on";
+            return "MyFlashlight: on";
         }
 
         @Override
         void run(MyContext myContext) throws ExecutionException {
             boolean success = myContext.flashlight.turnOn();
-            if (!success) throw new ExecutionException("Flashlight error");
+            if (!success) throw new ExecutionException("MyFlashlight error");
         }
 
         @Override
         boolean isAvailable(Context context) {
-            return new Flashlight(context).isAvailable();
+            return new MyFlashlight(context).isAvailable();
         }
     }
 
-    static class Flashlight__off extends Action {
+    static class Flashlight_off extends Action {
         @Override
         String getName() {
-            return "Flashlight: off";
+            return "MyFlashlight: off";
         }
 
         @Override
         void run(MyContext myContext) throws ExecutionException {
             boolean success = myContext.flashlight.turnOff();
-            if (!success) throw new ExecutionException("Flashlight error");
+            if (!success) throw new ExecutionException("MyFlashlight error");
         }
 
         @Override
@@ -445,20 +478,20 @@ class Actions {
 
         @Override
         boolean isAvailable(Context context) {
-            return new Flashlight(context).isAvailable();
+            return new MyFlashlight(context).isAvailable();
         }
     }
 
-    static class Flashlight__toggle extends MultiAction {
+    static class Flashlight extends MultiAction {
 
         @Override
         Action pickAction(MyContext myContext) {
-            return myContext.flashlight.isOn() ? new Flashlight__off() : new Flashlight__on();
+            return myContext.flashlight.isOn() ? new Flashlight_off() : new Flashlight_on();
         }
 
         @Override
         boolean isAvailable(Context context) {
-            return new Flashlight(context).isAvailable();
+            return new MyFlashlight(context).isAvailable();
         }
     }
 
@@ -485,6 +518,11 @@ class Actions {
         NotifyOrder getNotifyOrder() {
             return NotifyOrder.NEVER;
         }
+
+        @Override
+        boolean isAvailable(Context context) {
+            return true; // todo
+        }
     }
 
     // endregion
@@ -504,14 +542,12 @@ class Actions {
 
     /**
      *
-     * @param name As defined in res/values/array.xml
+     * @param name As defined in res/values/array.xml, as returned by action.getName().
      * @return Action with specified ~class-name
      */
+    @NonNull
     static Action getActionFromName(String name) {
-        if (name.equals("No action")) return null;
-
-        name = name.replace(": ", "__");
-        name = name.replace(" ", "_");
+        name = name.replaceAll("[^a-zA-Z]+", "_");
         name = "com.masel.almightyvolumekeys.Actions$" + name;
         try {
             return (Action)Class.forName(name).newInstance();

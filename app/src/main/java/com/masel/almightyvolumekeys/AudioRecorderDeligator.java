@@ -90,19 +90,14 @@ class AudioRecorderDeligator {
 
     /**
      * Start local recording (not TheSoundRecorder).
-     * If TheSoundRecorder not installed, open play-store.
+     * If TheSoundRecorder not installed, does nothing.
      * If already in rec, does nothing.
      *
      * Flag in TheSoundRecorder's key-value-store: local rec started.
      * Send broadcast: local rec started.
      */
     void start() throws Action.ExecutionException {
-        if (!TheSoundRecorderConnection.appIsInstalled(context)) {
-            Utils.openAppOnPlayStore(context, "com.masel.thesoundrecorder");
-            return;
-        }
-
-        if (isRecording()) return;
+        if (!TheSoundRecorderConnection.appIsInstalled(context) || isRecording()) return;
 
         try {
             localRecorder = AudioRecorder.coldStart(context);

@@ -47,7 +47,7 @@ abstract class MultiAction extends Action {
     }
 
     @Override
-    String[] getNeededPermissions() {
+    String[] getNeededPermissions(Context context) {
         return new String[]{};
     }
 //
