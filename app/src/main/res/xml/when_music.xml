@@ -9,22 +9,22 @@
     <PreferenceCategory>
 
         <com.masel.almightyvolumekeys.MappingListPreference
-            app:key="listPreference_music_command_10"/>
+            app:key="mappingListPreference_music_command_10"/>
 
         <com.masel.almightyvolumekeys.MappingListPreference
-            app:key="listPreference_music_command_01"/>
+            app:key="mappingListPreference_music_command_01"/>
 
         <com.masel.almightyvolumekeys.MappingListPreference
-            app:key="listPreference_music_command_110"/>
+            app:key="mappingListPreference_music_command_110"/>
 
         <com.masel.almightyvolumekeys.MappingListPreference
-            app:key="listPreference_music_command_001"/>
+            app:key="mappingListPreference_music_command_001"/>
 
         <com.masel.almightyvolumekeys.MappingListPreference
-            app:key="listPreference_music_command_100"/>
+            app:key="mappingListPreference_music_command_100"/>
 
         <com.masel.almightyvolumekeys.MappingListPreference
-            app:key="listPreference_music_command_011"/>
+            app:key="mappingListPreference_music_command_011"/>
 
     </PreferenceCategory>
 

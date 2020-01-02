@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
         public CharSequence getPageTitle(int position) {
             switch (position) {
                 case 0: return "Idle";
-                case 1: return "Music";
+                case 1: return "Media";
                 case 2: return "Sound rec";
                 default: throw new RuntimeException("Dead end");
             }

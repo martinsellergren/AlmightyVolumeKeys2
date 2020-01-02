@@ -17,7 +17,7 @@ import java.util.List;
  * A ListPreference for mapping command to action, for a certain device-state.
  * When action picked, execute custom action if set, and request any needed permissions.
  *
- * Format of key (set in xml), eg: listPreference_idle_command_111
+ * Format of key (set in xml), eg: mappingListPreference_idle_command_111
  */
 public class MappingListPreference extends ListPreference {
 
@@ -25,9 +25,10 @@ public class MappingListPreference extends ListPreference {
         super(context, attrs);
 
         setTitle(titleFromKey(getKey()));
-        setEntries(entriesFromKey(getKey()));
-        setEntryValues(entriesFromKey(getKey()));
-        setDefaultValue("No action");
+        CharSequence[] availableActions = entriesFromKey(getKey());
+        setEntries(availableActions);
+        setEntryValues(availableActions);
+        setDefaultValue(new Actions.No_action().getName());
         setSummary("%s");
 
         setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
@@ -39,19 +40,33 @@ public class MappingListPreference extends ListPreference {
                 if (state.equals("music") && !actionName.equals(new Actions.No_action().getName())) {
                     showMusicMappingHeadsUpDialog(extractCommand(getKey()));
                 }
+                else if (actionName.equals(new Actions.Media_play().getName())) {
+                    Utils.showHeadsUpDialog(getActivity(),
+                            "This action will start playing the media you recently paused.\n\nTo control currently playing media, see the MEDIA-tab.",
+                            () -> requestNeededPermissions(actionName));
+                }
                 else if (actionName.equals(new Actions.Sound_recorder_start().getName()) && !TheSoundRecorderConnection.appIsInstalled(context)) {
                     Utils.showHeadsUpDialog(getActivity(),
                             "For sound recording, you need to install another app: The Sound Recorder",
                             () -> Utils.openAppOnPlayStore(getContext(), "com.masel.thesoundrecorder"));
                 }
+                else if (actionName.equals(new Actions.Sound_recorder_start().getName()) && TheSoundRecorderConnection.appIsInstalled(context)) {
+                    Utils.showHeadsUpDialog(getActivity(),
+                            "To stop recording, see the SOUND REC-tab (or click the Recording... notification).",
+                            () -> requestNeededPermissions(actionName));
+                }
                 else {
-                    Action action = Actions.getActionFromName(actionName);
-                    Utils.requestPermissions(getActivity(), Arrays.asList(action.getNeededPermissions(getContext())));
+                    requestNeededPermissions(actionName);
                 }
 
                 return true;
             }
         });
+    }
+
+    private void requestNeededPermissions(String actionName) {
+        Action action = Actions.getActionFromName(actionName);
+        Utils.requestPermissions(getActivity(), Arrays.asList(action.getNeededPermissions(getContext())));
     }
 
     private String extractCommand(String key) {

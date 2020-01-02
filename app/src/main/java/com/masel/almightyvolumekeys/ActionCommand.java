@@ -73,7 +73,7 @@ class ActionCommand {
                     ((MultiAction) action).setAction(myContext);
                 }
 
-                Utils.logAndToast(myContext.context, String.format("Execute %s -> %s (state:%s)", command, action.getName(), DeviceState.getCurrent(myContext)));
+                Utils.log(String.format("Execute %s -> %s (state:%s)", command, action.getName(), DeviceState.getCurrent(myContext)));
 
                 try {
                     if (!Utils.hasPermissions(myContext.context, action.getNeededPermissions(myContext.context))) {
@@ -121,7 +121,7 @@ class ActionCommand {
 
     private Action getMappedAction(String command) {
         String state = DeviceState.getCurrent(myContext).toString().toLowerCase();
-        String key = String.format("listPreference_%s_command_%s", state, command);
+        String key = String.format("mappingListPreference_%s_command_%s", state, command);
 
         String actionName = myContext.sharedPreferences.getString(key, null);
         if (actionName == null) return null;

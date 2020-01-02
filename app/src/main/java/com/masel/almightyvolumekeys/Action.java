@@ -116,12 +116,13 @@ abstract class Action {
             myContext.notifier.notify(action.getName(), action.getVibrationPattern(), false);
         }
         else {
+            Handler onTimeOut = new Handler();
             BroadcastReceiver stateChangeListener = new BroadcastReceiver() {
                 @Override
                 public void onReceive(Context context, Intent intent) {
                     if (!isInitialStickyBroadcast() && !currentlySilent(myContext)) {
-                        myContext.context.unregisterReceiver(this);
-                        myContext.notifier.notify(action.getName(), action.getVibrationPattern(), false);
+                        onTimeOut.removeCallbacksAndMessages(null);
+                        unregisterReceiverAndNotify(myContext, this, action);
                     }
                 }
             };
@@ -129,15 +130,20 @@ abstract class Action {
             if (Build.VERSION.SDK_INT >= 23) {
                 myContext.context.registerReceiver(stateChangeListener, new IntentFilter(NotificationManager.ACTION_INTERRUPTION_FILTER_CHANGED));
             }
-            myContext.context.registerReceiver(stateChangeListener, new IntentFilter(AudioManager.RINGER_MODE_CHANGED_ACTION));
+            else {
+                myContext.context.registerReceiver(stateChangeListener, new IntentFilter(AudioManager.RINGER_MODE_CHANGED_ACTION));
+            }
 
-            new Handler().postDelayed(() -> {
-                try {
-                    myContext.context.unregisterReceiver(stateChangeListener);
-                }
-                catch (Exception e) {}
-            }, MAX_WAIT_ON_DND);
+            onTimeOut.postDelayed(() -> unregisterReceiverAndNotify(myContext, stateChangeListener, action), MAX_WAIT_ON_DND);
         }
+    }
+
+    private static void unregisterReceiverAndNotify(MyContext myContext, BroadcastReceiver receiver, Action action) {
+        try {
+            myContext.context.unregisterReceiver(receiver);
+        }
+        catch (Exception e) {}
+        myContext.notifier.notify(action.getName(), action.getVibrationPattern(), false);
     }
 
     private static boolean currentlySilent(MyContext myContext) {

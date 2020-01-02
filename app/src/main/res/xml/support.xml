@@ -5,19 +5,23 @@
 
     <Preference
         app:title="How to change volume now when volume keys are doing something else?"
-        app:summary="When media is playing, volume keys changes volume as usual. Otherwise, 5 quick volume clicks changes volume, as well as a long-press." />
+        app:summary="When media is playing, volume keys change volume as usual. Otherwise, 5 quick volume clicks change volume, as well as a long-press." />
 
     <Preference
         app:title="Can I remove the &quot;Monitoring volume key presses&quot; notification?"
-        app:summary="Sure, just long click the notification and hide/ disable. This notification is only there on some devices." />
+        app:summary="Sure, just long click the notification and hide/ disable. (This notification is only there on some devices)." />
+
+    <Preference
+        app:title="What's the deal with all permissions?"
+        app:summary="Every requested permission is necessary for the app to do what you want. Nothing else, it's a promise." />
 
     <Preference
         app:title="Will this app drain my battery?"
-        app:summary="Normally a device falls asleep if you leave it with the screen off for a while, and when you turn on the screen it wakes up again. A sleeping device won't care about volume clicks, therefore this app prevents sleep. This means some additional battery drain, mainly when you leave it for a long time, like over night. Therefore, if you find this troublesome you might wanna disable the app over night." />
+        app:summary="Normally a device falls asleep if you leave it with the screen off for a while, and when you turn the screen back on it wakes up. A sleeping device won't care about volume clicks, therefore this app prevents sleep. This means some additional battery drain, mainly when you leave it for a long time, like over night. Therefore, if you find this troublesome you might wanna disable the app over night." />
 
     <Preference
         app:title="I need an action that isn't available, what to do?"
-        app:summary="Try using the tasker-action (bottom of the list), Tasker can do lot's of stuff. Or, send me an email, perhaps I can implement it." />
+        app:summary="Try using the tasker-action (bottom of the list), Tasker can do lot's of stuff. Or, send me an email, perhaps I can add it." />
 
     <Preference
         app:title="How to ask another question?"

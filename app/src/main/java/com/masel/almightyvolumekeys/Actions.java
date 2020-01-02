@@ -233,6 +233,11 @@ class Actions {
         Notifier.VibrationPattern getVibrationPattern() {
             return Notifier.VibrationPattern.OFF;
         }
+
+        @Override
+        String[] getNeededPermissions(Context context) {
+            return soundModePermission();
+        }
     }
 
     static class Sound_mode_vibrate extends Action {
@@ -254,6 +259,11 @@ class Actions {
         @Override
         Notifier.VibrationPattern getVibrationPattern() {
             return Notifier.VibrationPattern.OFF;
+        }
+
+        @Override
+        String[] getNeededPermissions(Context context) {
+            return soundModePermission();
         }
     }
 
@@ -280,10 +290,7 @@ class Actions {
 
         @Override
         String[] getNeededPermissions(Context context) {
-            if (Build.VERSION.SDK_INT >= 23) {
-                return new String[]{Manifest.permission.ACCESS_NOTIFICATION_POLICY};
-            }
-            else return new String[]{};
+            return soundModePermission();
         }
     }
 
@@ -299,10 +306,7 @@ class Actions {
 
         @Override
         String[] getNeededPermissions(Context context) {
-            if (Build.VERSION.SDK_INT >= 23) {
-                return new String[]{Manifest.permission.ACCESS_NOTIFICATION_POLICY};
-            }
-            else return new String[]{};
+            return soundModePermission();
         }
     }
 
@@ -318,11 +322,15 @@ class Actions {
 
         @Override
         String[] getNeededPermissions(Context context) {
-            if (Build.VERSION.SDK_INT >= 23) {
-                return new String[]{Manifest.permission.ACCESS_NOTIFICATION_POLICY};
-            }
-            else return new String[]{};
+            return soundModePermission();
         }
+    }
+
+    private static String[] soundModePermission() {
+        if (Build.VERSION.SDK_INT >= 23) {
+            return new String[]{Manifest.permission.ACCESS_NOTIFICATION_POLICY};
+        }
+        else return new String[]{};
     }
 
     // endregion
@@ -511,7 +519,7 @@ class Actions {
             String currentTime = new SimpleDateFormat("HH:mm", Locale.getDefault()).format(new Date());
             boolean res = myContext.voice.speak(currentTime);
 
-            if (!res) throw new ExecutionException("Unknown tts-error");
+            if (!res) throw new ExecutionException("Text-to-speech error");
         }
 
         @Override
@@ -521,7 +529,10 @@ class Actions {
 
         @Override
         boolean isAvailable(Context context) {
-            return true; // todo
+            Voice voice = new Voice(context);
+            boolean isAvailable = voice.isAvailable();
+            voice.destroy();
+            return isAvailable;
         }
     }
 

@@ -10,16 +10,16 @@
     <PreferenceCategory>
 
     <com.masel.almightyvolumekeys.MappingListPreference
-        app:key="listPreference_soundrec_command_1"/>
+        app:key="mappingListPreference_soundrec_command_1"/>
 
     <com.masel.almightyvolumekeys.MappingListPreference
-        app:key="listPreference_soundrec_command_0"/>
+        app:key="mappingListPreference_soundrec_command_0"/>
 
     <com.masel.almightyvolumekeys.MappingListPreference
-        app:key="listPreference_soundrec_command_11"/>
+        app:key="mappingListPreference_soundrec_command_11"/>
 
     <com.masel.almightyvolumekeys.MappingListPreference
-        app:key="listPreference_soundrec_command_00"/>
+        app:key="mappingListPreference_soundrec_command_00"/>
 
     </PreferenceCategory>
 

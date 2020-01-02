@@ -9,28 +9,27 @@ import java.util.Locale;
 class Voice {
 
     private TextToSpeech tts;
-    private boolean isAvailable = false;
 
     Voice(Context context) {
         tts = new TextToSpeech(context.getApplicationContext(), new TextToSpeech.OnInitListener() {
             @Override
             public void onInit(int status) {
-                if (status == TextToSpeech.SUCCESS) {
-                    isAvailable = true;
+                if (status != TextToSpeech.SUCCESS) {
+                    tts = null;
                 }
             }
         });
     }
 
-    boolean isAvailable() {
-        return isAvailable;
-    }
-
     boolean speak(String speech) {
-        if (!isAvailable) return false;
+        if (tts == null) return false;
 
         int res = tts.speak(speech, TextToSpeech.QUEUE_FLUSH, null);
         return res == TextToSpeech.SUCCESS;
+    }
+
+    boolean isAvailable() {
+        return tts != null;
     }
 
     void destroy() {

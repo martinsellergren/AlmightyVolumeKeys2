@@ -4,39 +4,39 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <Preference
-        app:summary="Volume key bindings when your device is idle, i.e nothing really is going on (no music, not ringing, not in call, no alarm..)" />
+        app:summary="Volume key bindings when your device is idle, i.e nothing really is going on (no media playing, not sound recording, not ringing or in call)." />
 
     <PreferenceCategory>
 
         <com.masel.almightyvolumekeys.MappingListPreference
-            app:key="listPreference_idle_command_1" />
+            app:key="mappingListPreference_idle_command_1" />
 
         <com.masel.almightyvolumekeys.MappingListPreference
-            app:key="listPreference_idle_command_0" />
+            app:key="mappingListPreference_idle_command_0" />
 
         <com.masel.almightyvolumekeys.MappingListPreference
-            app:key="listPreference_idle_command_11" />
+            app:key="mappingListPreference_idle_command_11" />
 
         <com.masel.almightyvolumekeys.MappingListPreference
-            app:key="listPreference_idle_command_00" />
+            app:key="mappingListPreference_idle_command_00" />
 
         <com.masel.almightyvolumekeys.MappingListPreference
-            app:key="listPreference_idle_command_10" />
+            app:key="mappingListPreference_idle_command_10" />
 
         <com.masel.almightyvolumekeys.MappingListPreference
-            app:key="listPreference_idle_command_01" />
+            app:key="mappingListPreference_idle_command_01" />
 
         <com.masel.almightyvolumekeys.MappingListPreference
-            app:key="listPreference_idle_command_111" />
+            app:key="mappingListPreference_idle_command_111" />
 
         <com.masel.almightyvolumekeys.MappingListPreference
-            app:key="listPreference_idle_command_000" />
+            app:key="mappingListPreference_idle_command_000" />
 
         <com.masel.almightyvolumekeys.MappingListPreference
-            app:key="listPreference_idle_command_1111" />
+            app:key="mappingListPreference_idle_command_1111" />
 
         <com.masel.almightyvolumekeys.MappingListPreference
-            app:key="listPreference_idle_command_0000" />
+            app:key="mappingListPreference_idle_command_0000" />
 
     </PreferenceCategory>
 
