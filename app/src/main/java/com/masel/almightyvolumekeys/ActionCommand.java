@@ -91,6 +91,7 @@ class ActionCommand {
                 }
                 catch (Action.ExecutionException e) {
                     myContext.notifier.notify(e.getMessage(), Notifier.VibrationPattern.ERROR, false);
+                    Utils.log(e.getMessage());
 
                     if (e.getMessage().equals("Missing permission")) {
                         fixPermissions(action.getNeededPermissions(myContext.context));

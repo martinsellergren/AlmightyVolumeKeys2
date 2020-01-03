@@ -17,31 +17,33 @@ class MyFlashlight {
     private String cameraId;
 
     @TargetApi(23)
-    private CameraManager.TorchCallback torchCallback = new CameraManager.TorchCallback() {
-        @Override
-        public void onTorchModeChanged(@NonNull String cameraId, boolean enabled) {
-            super.onTorchModeChanged(cameraId, enabled);
-            isOn = enabled;
-        }
-    };
+    private CameraManager.TorchCallback torchCallback = null;
 
     MyFlashlight(Context context) {
         if (Build.VERSION.SDK_INT < 23 || !context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH)) {
             isAvailable = false;
-            return;
         }
+        else {
+            try {
+                cameraManager = (CameraManager) context.getSystemService(Context.CAMERA_SERVICE);
 
-        try {
-            cameraManager = (CameraManager) context.getSystemService(Context.CAMERA_SERVICE);
-            cameraManager.registerTorchCallback(torchCallback, null);
-            cameraId = cameraManager.getCameraIdList()[0];
-        }
-        catch (CameraAccessException e) {
-            isAvailable = false;
-            return;
-        }
+                torchCallback = new CameraManager.TorchCallback() {
+                    @Override
+                    public void onTorchModeChanged(@NonNull String cameraId, boolean enabled) {
+                        super.onTorchModeChanged(cameraId, enabled);
+                        isOn = enabled;
+                    }
+                };
 
-        isAvailable = true;
+                cameraManager.registerTorchCallback(torchCallback, null);
+                cameraId = cameraManager.getCameraIdList()[0];
+            } catch (Exception e) {
+                isAvailable = false;
+                return;
+            }
+
+            isAvailable = true;
+        }
     }
 
     private boolean set(boolean on) {
@@ -49,9 +51,6 @@ class MyFlashlight {
 
         try {
             cameraManager.setTorchMode(cameraId, on);
-        }
-        catch (CameraAccessException e) {
-            return false;
         }
         catch (Exception e) {
             return false;
@@ -81,9 +80,8 @@ class MyFlashlight {
         return isAvailable;
     }
 
-    @TargetApi(23)
     void destroy() {
-        if (isAvailable) {
+        if (isAvailable && Build.VERSION.SDK_INT >= 23) {
             cameraManager.unregisterTorchCallback(torchCallback);
         }
     }

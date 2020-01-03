@@ -157,10 +157,4 @@ abstract class Action {
     }
 
     // endregion
-
-    @NonNull
-    @Override
-    public String toString() {
-        return getName();
-    }
 }

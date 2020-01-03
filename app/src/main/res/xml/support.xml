@@ -8,7 +8,7 @@
         app:summary="When media is playing, volume keys change volume as usual. Otherwise, 5 quick volume clicks change volume, as well as a long-press." />
 
     <Preference
-        app:title="Can I remove the &quot;Monitoring volume key presses&quot; notification?"
+        app:title="Can I remove the &quot;Capturing volume key presses&quot; notification?"
         app:summary="Sure, just long click the notification and hide/ disable. (This notification is only there on some devices)." />
 
     <Preference

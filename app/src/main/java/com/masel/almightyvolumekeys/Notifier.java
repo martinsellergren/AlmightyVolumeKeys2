@@ -12,6 +12,8 @@ import android.os.SystemClock;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
+import com.masel.rec_utils.Utils;
+
 
 //todo older devices
 
@@ -24,13 +26,15 @@ class Notifier {
 
     private static final int NOTIFICATION_ID = 8427283;
 
-    enum VibrationPattern {ON, OFF, ERROR};
+    enum VibrationPattern {ON, OFF, SILENT, ERROR};
     private static final long[] VIBRATION_PATTERN_ARRAY_ON = new long[]{0,500};
     private static final long[] VIBRATION_PATTERN_ARRAY_OFF = new long[]{0,100,100,100};
+    private static final long[] VIBRATION_PATTERN_ARRAY_SILENT = new long[]{0};
     private static final long[] VIBRATION_PATTERN_ARRAY_ERROR = new long[]{0,100,10,100,10,100};
 
     private static final String CHANNEL_ON_ID = "Heads up channel: ON";
     private static final String CHANNEL_OFF_ID = "Heads up channel: OFF";
+    private static final String CHANNEL_SILENT_ID = "Heads up channel: SILENT";
     private static final String CHANNEL_ERROR_ID = "Heads up channel: ERROR";
 
 //    /**
@@ -48,6 +52,7 @@ class Notifier {
 
         createChannel(VibrationPattern.ON);
         createChannel(VibrationPattern.OFF);
+        createChannel(VibrationPattern.SILENT);
         createChannel(VibrationPattern.ERROR);
     }
 
@@ -84,6 +89,7 @@ class Notifier {
         switch (pattern) {
             case ON: return CHANNEL_ON_ID;
             case OFF: return CHANNEL_OFF_ID;
+            case SILENT: return CHANNEL_SILENT_ID;
             case ERROR: return CHANNEL_ERROR_ID;
             default: throw new RuntimeException("Dead end");
         }
@@ -93,6 +99,7 @@ class Notifier {
         switch (pattern) {
             case ON: return VIBRATION_PATTERN_ARRAY_ON;
             case OFF: return VIBRATION_PATTERN_ARRAY_OFF;
+            case SILENT: return VIBRATION_PATTERN_ARRAY_SILENT;
             case ERROR: return VIBRATION_PATTERN_ARRAY_ERROR;
             default: throw new RuntimeException("Dead end");
         }
@@ -109,14 +116,19 @@ class Notifier {
         long[] vibrationPatternArray = getVibrationPatternArray(vibrationPattern);
 
         Notification notification = new NotificationCompat.Builder(context, channelId)
-                .setSmallIcon(R.drawable.baseline_build_black_18dp)
+                .setSmallIcon(R.mipmap.avk_launcher)
                 .setContentTitle(text)
                 .setPriority(NotificationCompat.PRIORITY_MAX)
                 .setVibrate(vibrationPatternArray)
                 .setSound(null)
                 .build();
 
-        notificationManager.notify(NOTIFICATION_ID, notification);
+        try {
+            notificationManager.notify(NOTIFICATION_ID, notification);
+        }
+        catch (Exception e) {
+            Utils.log("Failed to notify: " + e.toString());
+        }
         new Handler().postDelayed(this::cancel, DISPLAY_TIME);
 
         if (waitOnVibration) {

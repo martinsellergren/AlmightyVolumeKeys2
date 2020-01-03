@@ -5,7 +5,7 @@
 
     <Preference
         app:key="preference_soundrec_info"
-        app:summary="Volume key bindings when you are currently recording sound using The Sound Recorder." />
+        app:summary="@string/soundrec_info"/>
 
     <PreferenceCategory>
 

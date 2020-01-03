@@ -64,6 +64,8 @@ public class MappingListPreference extends ListPreference {
         });
     }
 
+
+
     private void requestNeededPermissions(String actionName) {
         Action action = Actions.getActionFromName(actionName);
         Utils.requestPermissions(getActivity(), Arrays.asList(action.getNeededPermissions(getContext())));
@@ -92,6 +94,7 @@ public class MappingListPreference extends ListPreference {
         List<String> filteredActions = new ArrayList<>();
         for (String actionName : actions) {
             Action action = Actions.getActionFromName(actionName);
+
             if (action.isAvailable(getContext())) {
                 filteredActions.add(actionName);
             }

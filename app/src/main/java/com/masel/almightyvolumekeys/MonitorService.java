@@ -19,6 +19,7 @@ import androidx.core.app.NotificationCompat;
 
 import com.masel.rec_utils.AudioRecorder;
 import com.masel.rec_utils.KeyValueStore;
+import com.masel.rec_utils.Utils;
 
 public class MonitorService extends AccessibilityService {
 
@@ -42,7 +43,7 @@ public class MonitorService extends AccessibilityService {
     protected void onServiceConnected() {
         Log.i("<ME>", "onServiceConnected()");
 
-        if (Build.VERSION.SDK_INT >= 28) requestForeground();
+        if (Build.VERSION.SDK_INT >= 26) requestForeground();
         userInteraction = new UserInteraction(this);
         cleanUpAfterCrashDuringRecording();
     }
@@ -60,6 +61,7 @@ public class MonitorService extends AccessibilityService {
      */
     @Override
     protected boolean onKeyEvent(KeyEvent event) {
+        Utils.log("onKeyEvent()");
         if (event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_UP || event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_DOWN) {
             userInteraction.onVolumeKeyEvent(event);
             return true;
@@ -68,9 +70,10 @@ public class MonitorService extends AccessibilityService {
         return super.onKeyEvent(event);
     }
 
+    /**
+     * Good for stability. Skip for older devices (API <26) (no notification-channels, can't hide notification).
+     */
     private void requestForeground() {
-        // todo: different devices
-
         final String MONITOR_SERVICE_NOTIFICATION_CHANNEL_ID = "MONITOR_SERVICE_NOTIFICATION_CHANNEL_ID";
         final int NOTIFICATION_ID = 6664867;
 
@@ -90,8 +93,8 @@ public class MonitorService extends AccessibilityService {
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
 
         Notification notification = new NotificationCompat.Builder(this, MONITOR_SERVICE_NOTIFICATION_CHANNEL_ID)
-                .setSmallIcon(R.drawable.ic_launcher_foreground)
-                .setContentTitle("Monitoring volume key presses")
+                .setSmallIcon(R.mipmap.avk_launcher)
+                .setContentTitle("Capturing volume key presses")
                 .setContentIntent(pendingIntent)
                 .setPriority(NotificationCompat.PRIORITY_LOW)
                 .build();

@@ -3,15 +3,18 @@
     <string-array name="idle_actions">
         <item>No action</item>
         <item>Media: play</item>
-        <item>Flashlight</item>
-        <item>Tell time</item>
         <item>Sound recorder: start</item>
-        <item>Do not disturb</item>
+        <item>Flashlight: on/off</item>
+        <item>Do not disturb: on/off</item>
+        <item>Bluetooth: on/off</item>
         <item>Sound mode: sound</item>
         <item>Sound mode: vibrate</item>
         <item>Sound mode: silent</item>
-        <item>Sound mode: sound / silent</item>
-        <item>Sound mode: vibrate / silent</item>
+        <item>Sound mode: sound/silent</item>
+        <item>Sound mode: vibrate/silent</item>
+        <item>Tell time (volume 100%)</item>
+        <item>Tell time (volume 75%)</item>
+        <item>Tell time (volume 50%)</item>
     </string-array>
 
     <string-array name="music_actions">

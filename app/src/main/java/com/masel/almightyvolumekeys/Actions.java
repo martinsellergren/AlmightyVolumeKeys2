@@ -2,6 +2,7 @@ package com.masel.almightyvolumekeys;
 
 import android.Manifest;
 import android.app.NotificationManager;
+import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.media.AudioManager;
 import android.media.ToneGenerator;
@@ -408,7 +409,7 @@ class Actions {
         }
     }
 
-    static class Do_not_disturb extends MultiAction {
+    static class Do_not_disturb_on_off extends MultiAction {
         @Override
         Action pickAction(MyContext myContext) {
             if (dndIsOn(myContext.notificationManager)) return new Do_not_disturb_off();
@@ -490,7 +491,7 @@ class Actions {
         }
     }
 
-    static class Flashlight extends MultiAction {
+    static class Flashlight_on_off extends MultiAction {
 
         @Override
         Action pickAction(MyContext myContext) {
@@ -507,32 +508,139 @@ class Actions {
 
     // region Tell time
 
-    static class Tell_time extends Action {
-
+    static class Tell_time_volume_100 extends Action {
         @Override
         String getName() {
-            return "Tell time";
+            return "Tell time (volume 100%)";
         }
 
         @Override
         void run(MyContext myContext) throws ExecutionException {
-            String currentTime = new SimpleDateFormat("HH:mm", Locale.getDefault()).format(new Date());
-            boolean res = myContext.voice.speak(currentTime);
-
-            if (!res) throw new ExecutionException("Text-to-speech error");
+            tellTime(myContext, 100);
         }
 
         @Override
-        NotifyOrder getNotifyOrder() {
-            return NotifyOrder.NEVER;
+        Notifier.VibrationPattern getVibrationPattern() {
+            return Notifier.VibrationPattern.SILENT;
         }
 
         @Override
         boolean isAvailable(Context context) {
-            Voice voice = new Voice(context);
-            boolean isAvailable = voice.isAvailable();
-            voice.destroy();
-            return isAvailable;
+            return Voice.isAvailable(context);
+        }
+    }
+
+    static class Tell_time_volume_75 extends Action {
+        @Override
+        String getName() {
+            return "Tell time (volume 75%)";
+        }
+
+        @Override
+        void run(MyContext myContext) throws ExecutionException {
+            tellTime(myContext, 75);
+        }
+
+        @Override
+        Notifier.VibrationPattern getVibrationPattern() {
+            return Notifier.VibrationPattern.SILENT;
+        }
+
+        @Override
+        boolean isAvailable(Context context) {
+            return Voice.isAvailable(context);
+        }
+    }
+
+    static class Tell_time_volume_50 extends Action {
+        @Override
+        String getName() {
+            return "Tell time (volume 50%)";
+        }
+
+        @Override
+        void run(MyContext myContext) throws ExecutionException {
+            tellTime(myContext, 50);
+        }
+
+        @Override
+        Notifier.VibrationPattern getVibrationPattern() {
+            return Notifier.VibrationPattern.SILENT;
+        }
+
+        @Override
+        boolean isAvailable(Context context) {
+            return Voice.isAvailable(context);
+        }
+    }
+
+    private static void tellTime(MyContext myContext, int volumePercentage) throws Action.ExecutionException {
+        String currentTime = new SimpleDateFormat("HH:mm", Locale.getDefault()).format(new Date());
+        boolean ok = myContext.voice.speak(currentTime, volumePercentage);
+        if (!ok) throw new Action.ExecutionException("Text-to-speech error");
+    }
+
+
+    // endregion
+
+    // region Bluetooth
+
+    static class Bluetooth_on extends Action {
+        @Override
+        String getName() {
+            return "Bluetooth: on";
+        }
+
+        @Override
+        void run(MyContext myContext) throws ExecutionException {
+            boolean ok = MyBluetooth.enable();
+            if (!ok) throw new ExecutionException("Bluetooth error");
+        }
+
+        @Override
+        boolean isAvailable(Context context) {
+            return MyBluetooth.isAvailable();
+        }
+
+        @Override
+        Notifier.VibrationPattern getVibrationPattern() {
+            return Notifier.VibrationPattern.ON;
+        }
+    }
+
+    static class Bluetooth_off extends Action {
+        @Override
+        String getName() {
+            return "Bluetooth: off";
+        }
+
+        @Override
+        void run(MyContext myContext) throws ExecutionException {
+            boolean ok = MyBluetooth.disable();
+            if (!ok) throw new ExecutionException("Bluetooth error");
+        }
+
+        @Override
+        boolean isAvailable(Context context) {
+            return MyBluetooth.isAvailable();
+        }
+
+        @Override
+        Notifier.VibrationPattern getVibrationPattern() {
+            return Notifier.VibrationPattern.OFF;
+        }
+    }
+
+    static class Bluetooth_on_off extends MultiAction {
+        @Override
+        Action pickAction(MyContext myContext) {
+            if (MyBluetooth.isEnabled()) return new Bluetooth_off();
+            else return new Bluetooth_on();
+        }
+
+        @Override
+        boolean isAvailable(Context context) {
+            return MyBluetooth.isAvailable();
         }
     }
 
@@ -558,13 +666,14 @@ class Actions {
      */
     @NonNull
     static Action getActionFromName(String name) {
-        name = name.replaceAll("[^a-zA-Z]+", "_");
+        name = name.replaceAll("[^a-zA-Z0-9]+", "_");
+        name = name.replaceAll("_+$", "");
         name = "com.masel.almightyvolumekeys.Actions$" + name;
         try {
             return (Action)Class.forName(name).newInstance();
         }
         catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Error creating class: " + name);
         }
     }
 }

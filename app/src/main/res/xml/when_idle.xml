@@ -8,8 +8,7 @@
 
     <PreferenceCategory>
 
-        <com.masel.almightyvolumekeys.MappingListPreference
-            app:key="mappingListPreference_idle_command_1" />
+        <com.masel.almightyvolumekeys.MappingListPreference app:key="mappingListPreference_idle_command_1" />
 
         <com.masel.almightyvolumekeys.MappingListPreference
             app:key="mappingListPreference_idle_command_0" />

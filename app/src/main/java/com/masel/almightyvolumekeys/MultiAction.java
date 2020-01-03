@@ -50,9 +50,4 @@ abstract class MultiAction extends Action {
     String[] getNeededPermissions(Context context) {
         return new String[]{};
     }
-//
-//    @Override
-//    boolean isAvailable(Context context) {
-//        return true;
-//    }
 }

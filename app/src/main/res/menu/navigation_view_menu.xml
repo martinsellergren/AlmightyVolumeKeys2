@@ -2,18 +2,18 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/item_enableDisable"
-        android:icon="@android:drawable/ic_menu_preferences"
+        android:icon="@drawable/power_on_24dp"
         android:title="Enable / disable" />
     <item
         android:id="@+id/item_support"
-        android:icon="@android:drawable/ic_menu_help"
+        android:icon="@drawable/help_24dp"
         android:title="Help" />
     <item
         android:id="@+id/item_unlock_pro"
-        android:icon="@android:drawable/ic_lock_lock"
+        android:icon="@drawable/lock_locked_24dp"
         android:title="Unlock pro" />
     <item
         android:id="@+id/item_rate_app"
-        android:icon="@android:drawable/btn_star_big_on"
+        android:icon="@drawable/star_24dp"
         android:title="Rate app" />
 </menu>

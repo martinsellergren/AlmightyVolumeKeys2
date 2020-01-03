@@ -2,4 +2,5 @@
     <string name="app_name">Almighty Volume Keys</string>
     <string name="nav_app_bar_open_drawer_description">Open navigation drawer</string>
     <string name="accessibility_service_description">Necessary for capturing volume key presses.</string>
+    <string name="soundrec_info">Volume key bindings when you are currently recording sound using <a href="">The Sound Recorder</a>.</string>
 </resources>
