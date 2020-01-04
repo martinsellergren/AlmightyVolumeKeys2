@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <Preference
-        app:summary="Volume key bindings when your device is idle, i.e nothing really is going on (no media playing, not sound recording, not ringing or in call)." />
+        app:summary="@string/when_idle_info" />
 
     <PreferenceCategory>
 

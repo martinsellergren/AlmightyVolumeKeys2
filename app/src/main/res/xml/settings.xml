@@ -22,7 +22,7 @@
         <SeekBarPreference
             app:key="SeekBarPreference_preventSleepTimeout"
             app:title="Prevent sleep timeout [minutes]"
-            app:summary="Prevent sleep this long after screen off. Zero means the device falls asleep whenever it pleases. Higher value means less sleep so more battery usage."
+            app:summary="Prevent sleep this long after screen off. Zero means the device falls asleep whenever it pleases. Higher value means less sleep so more battery usage (but usually not significantly more)."
             app:defaultValue="60"/>
 
         <SwitchPreferenceCompat

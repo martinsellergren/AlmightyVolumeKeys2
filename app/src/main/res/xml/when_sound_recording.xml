@@ -5,7 +5,7 @@
 
     <Preference
         app:key="preference_soundrec_info"
-        app:summary="@string/soundrec_info"/>
+        app:summary="@string/when_soundrec_info"/>
 
     <PreferenceCategory>
 

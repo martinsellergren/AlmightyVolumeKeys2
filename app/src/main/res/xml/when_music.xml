@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <Preference
-        app:summary="Volume key bindings when you are currently playing music or other media." />
+        app:summary="@string/when_music_info" />
 
     <PreferenceCategory>
 

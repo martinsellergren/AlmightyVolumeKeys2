@@ -2,5 +2,7 @@
     <string name="app_name">Almighty Volume Keys</string>
     <string name="nav_app_bar_open_drawer_description">Open navigation drawer</string>
     <string name="accessibility_service_description">Necessary for capturing volume key presses.</string>
-    <string name="soundrec_info">Volume key bindings when you are currently recording sound using <a href="">The Sound Recorder</a>.</string>
+    <string name="when_idle_info">Volume key bindings when your device is idle, meaning nothing really is going on (no media playing, not sound recording, not ringing or in call).\n\n<b>Pick actions below:</b></string>
+    <string name="when_music_info">Volume key bindings when you are currently playing music or other media.\n\n<b>Pick actions below:</b></string>
+    <string name="when_soundrec_info">Volume key bindings when you are currently recording sound using <a href="">The Sound Recorder</a>.\n\n<b>Pick actions below:</b></string>
 </resources>
