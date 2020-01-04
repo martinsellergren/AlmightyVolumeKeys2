@@ -5,6 +5,10 @@
         android:icon="@drawable/power_on_24dp"
         android:title="Enable / disable" />
     <item
+        android:id="@+id/item_settings"
+        android:icon="@drawable/settings_24dp"
+        android:title="Settings" />
+    <item
         android:id="@+id/item_support"
         android:icon="@drawable/help_24dp"
         android:title="Help" />

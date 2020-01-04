@@ -103,6 +103,9 @@ public class MainActivity extends AppCompatActivity {
                     case R.id.item_enableDisable:
                         onEnableDisableClick();
                         break;
+                    case R.id.item_settings:
+                        startActivity(new Intent(MainActivity.this, SettingsActivity.class));
+                        break;
                     case R.id.item_support:
                         startActivity(new Intent(MainActivity.this, SupportActivity.class));
                         break;
