@@ -116,7 +116,7 @@ class Notifier {
         long[] vibrationPatternArray = getVibrationPatternArray(vibrationPattern);
 
         Notification notification = new NotificationCompat.Builder(context, channelId)
-                .setSmallIcon(R.mipmap.avk_launcher)
+                .setSmallIcon(R.drawable.avk_notification_icon)
                 .setContentTitle(text)
                 .setPriority(NotificationCompat.PRIORITY_MAX)
                 .setVibrate(vibrationPatternArray)

@@ -98,6 +98,11 @@ class Actions {
         String[] getNeededPermissions(Context context) {
             return new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE};
         }
+
+        @Override
+        boolean isAvailable(Context context) {
+            return TheSoundRecorderConnection.appIsInstalled(context);
+        }
     }
 
     static class Sound_recorder_stop_and_trash extends Action {
@@ -124,6 +129,11 @@ class Actions {
         @Override
         String[] getNeededPermissions(Context context) {
             return new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE};
+        }
+
+        @Override
+        boolean isAvailable(Context context) {
+            return TheSoundRecorderConnection.appIsInstalled(context);
         }
     }
 

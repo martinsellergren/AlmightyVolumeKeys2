@@ -1,11 +1,13 @@
 package com.masel.almightyvolumekeys;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.AttributeSet;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
+import androidx.preference.PreferenceManager;
 
 import com.masel.rec_utils.Utils;
 
@@ -25,18 +27,23 @@ public class MappingListPreference extends ListPreference {
         super(context, attrs);
 
         setTitle(titleFromKey(getKey()));
-        CharSequence[] availableActions = entriesFromKey(getKey());
-        setEntries(availableActions);
-        setEntryValues(availableActions);
+        updateEntries();
         setDefaultValue(new Actions.No_action().getName());
         setSummary("%s");
+        setNoActionIfCurrentlySetIsUnavailable();
 
         setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 String state = extractState(getKey());
                 String actionName = newValue.toString();
+                Action action = Actions.getActionFromName(actionName);
 
+                if (!action.isAvailable(context)) {
+                    Utils.showHeadsUpDialog(getActivity(), "This action is currently not available on your device. See Help for more info.", null);
+                    setValue(new Actions.No_action().getName());
+                    return false;
+                }
                 if (state.equals("music") && !actionName.equals(new Actions.No_action().getName())) {
                     showMusicMappingHeadsUpDialog(extractCommand(getKey()));
                 }
@@ -64,6 +71,46 @@ public class MappingListPreference extends ListPreference {
         });
     }
 
+    private void setNoActionIfCurrentlySetIsUnavailable() {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+        String mappedActionName = sharedPreferences.getString(getKey(), null);
+
+        if (mappedActionName != null && !Actions.getActionFromName(mappedActionName).isAvailable(getContext())) {
+            sharedPreferences.edit().putString(getKey(), new Actions.No_action().getName()).apply();
+        }
+    }
+
+    private void updateEntries() {
+        String state = extractState(getKey());
+        String[] allActions = entriesWithState(state);
+        //String[] availableActions = filterAvailableActions(allActions);
+        setEntries(allActions);
+        setEntryValues(allActions);
+    }
+
+    private String[] filterAvailableActions(String[] actions) {
+        List<String> filteredActions = new ArrayList<>();
+        for (String actionName : actions) {
+            Action action = Actions.getActionFromName(actionName);
+
+            if (action.isAvailable(getContext())) {
+                filteredActions.add(actionName);
+            }
+        }
+        return filteredActions.toArray(new String[0]);
+    }
+
+    /**
+     * Returns array with actions from xml, depending on state. Only returns actions available on this device.
+     */
+    private String[] entriesWithState(String state) {
+        int res;
+        if (state.equals("idle")) res = R.array.idle_actions;
+        else if (state.equals("music")) res = R.array.music_actions;
+        else if (state.equals("soundrec")) res = R.array.soundrec_actions;
+        else throw new RuntimeException("Dead end");
+        return getContext().getResources().getStringArray(res);
+    }
 
 
     private void requestNeededPermissions(String actionName) {
@@ -77,29 +124,6 @@ public class MappingListPreference extends ListPreference {
 
     private String extractState(String key) {
         return key.split("_")[1];
-    }
-
-    /**
-     * Returns array with actions from xml, depending on state. Only returns actions available on this device.
-     */
-    private CharSequence[] entriesFromKey(String key) {
-        String state = extractState(key);
-        int res;
-        if (state.equals("idle")) res = R.array.idle_actions;
-        else if (state.equals("music")) res = R.array.music_actions;
-        else if (state.equals("soundrec")) res = R.array.soundrec_actions;
-        else throw new RuntimeException("Dead end");
-
-        String[] actions = getContext().getResources().getStringArray(res);
-        List<String> filteredActions = new ArrayList<>();
-        for (String actionName : actions) {
-            Action action = Actions.getActionFromName(actionName);
-
-            if (action.isAvailable(getContext())) {
-                filteredActions.add(actionName);
-            }
-        }
-        return filteredActions.toArray(new String[0]);
     }
 
     private String titleFromKey(String key) {

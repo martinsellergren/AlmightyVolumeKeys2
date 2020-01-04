@@ -93,7 +93,7 @@ public class MonitorService extends AccessibilityService {
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
 
         Notification notification = new NotificationCompat.Builder(this, MONITOR_SERVICE_NOTIFICATION_CHANNEL_ID)
-                .setSmallIcon(R.mipmap.avk_launcher)
+                .setSmallIcon(R.drawable.avk_notification_icon)
                 .setContentTitle("Capturing volume key presses")
                 .setContentIntent(pendingIntent)
                 .setPriority(NotificationCompat.PRIORITY_LOW)

@@ -8,6 +8,10 @@
         app:summary="When media is playing, volume keys change volume as usual. Otherwise, 5 quick volume clicks change volume, as well as a long-press." />
 
     <Preference
+        app:title="Why are some actions unavailable on my device?"
+        app:summary="It's possible more actions will be available if you update Android-version. Or maybe your device lacks the right hardware (for example, you can't turn on the flashlight if there is no flash). For sound recording, you need to install The Sound Recorder." />
+
+    <Preference
         app:title="Can I remove the &quot;Capturing volume key presses&quot; notification?"
         app:summary="Sure, just long click the notification and hide/ disable. (This notification is only there on some devices)." />
 
@@ -16,8 +20,8 @@
         app:summary="Every requested permission is necessary for the app to do what you want. Nothing else, it's a promise." />
 
     <Preference
-        app:title="Will this app drain my battery?"
-        app:summary="Normally a device falls asleep if you leave it with the screen off for a while, and when you turn the screen back on it wakes up. A sleeping device won't care about volume clicks, therefore this app prevents sleep. This means some additional battery drain, mainly when you leave it for a long time, like over night. Therefore, if you find this troublesome you might wanna disable the app over night." />
+        app:title="Will this app use much battery?"
+        app:summary="That depends on your user settings. Let me explain a little more. Normally a device falls asleep if you leave it with the screen off for a while, and when you turn the screen back on it wakes up. A sleeping device won't care about volume clicks, therefore this app prevents sleep. This means some additional battery consumption, mainly when you leave it for a long time, like over night. Therefore, if you find this troublesome you might wanna disable the app over night." />
 
     <Preference
         app:title="I need an action that isn't available, what to do?"
