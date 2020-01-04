@@ -34,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        Utils.initSettingsSharedPreferences(this, R.xml.settings);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         setupTabs();
         setupSideMenu();
@@ -181,8 +182,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        updateEnableServiceText();
 
+        updateEnableServiceText();
         requestPermissions();
     }
 

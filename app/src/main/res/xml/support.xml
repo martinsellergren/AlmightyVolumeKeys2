@@ -13,7 +13,7 @@
 
     <Preference
         app:title="Can I remove the &quot;Capturing volume key presses&quot; notification?"
-        app:summary="Sure, just long click the notification and hide/ disable. (This notification is only there on some devices)." />
+        app:summary="Sure, just long click the notification and hide/ disable. (This notification is only there on some devices where it's necessary to ensure stability of the app)." />
 
     <Preference
         app:title="What's the deal with all permissions?"
@@ -21,11 +21,11 @@
 
     <Preference
         app:title="Will this app use much battery?"
-        app:summary="That depends on your user settings. Let me explain a little more. Normally a device falls asleep if you leave it with the screen off for a while, and when you turn the screen back on it wakes up. A sleeping device won't care about volume clicks, therefore this app prevents sleep. This means some additional battery consumption, mainly when you leave it for a long time, like over night. Therefore, if you find this troublesome you might wanna disable the app over night." />
+        app:summary="That depends on your settings in the Settings-page. Let me explain a little more. Normally a device falls asleep if you leave it with the screen off for a while, and when you turn the screen back on it wakes up. A sleeping device will use basically no battery, and won't care about volume clicks. This app has the ability to postpone sleep, for convenience. Set this up in Settings." />
 
-    <Preference
-        app:title="I need an action that isn't available, what to do?"
-        app:summary="Try using the tasker-action (bottom of the list), Tasker can do lot's of stuff. Or, send me an email, perhaps I can add it." />
+<!--    <Preference-->
+<!--        app:title="I need an action that isn't available, what to do?"-->
+<!--        app:summary="Try using the tasker-action (bottom of the list), Tasker can do lot's of stuff. Or, send me an email, perhaps I can add it." />-->
 
     <Preference
         app:title="How to ask another question?"

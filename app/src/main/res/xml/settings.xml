@@ -4,39 +4,43 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <PreferenceCategory
-        app:title="Prevent sleep">
+        app:title="Sound recording settings">
 
         <Preference
-            app:summary="If nothing significant is going on (no music, no phone call etc) your device might fall asleep. (Only happens when the screen is off). When this happens, the volume keys won't work until the screen is turned on and the device wakes up." />
-
-        <SeekBarPreference
-            app:key="SeekBarPreference_preventSleepTimeout"
-            app:title="Prevent sleep timeout"
-            app:summary="Prevent sleep this long after screen off. Zero means the device falls asleep whenever it pleases. Higher value means less sleep so more battery usage." />
-
-        <SwitchPreferenceCompat
-            app:key="SwitchPreferenceCompat_allowSleep"
-            app:title="Allow sleep" />
-
-        <SeekBarPreference
-            app:key="SeekBarPreference_allowSleepStart"
-            app:summary="Always allow sleep (ignoring the timeout above) starting at this time of day..."
-            app:dependency="SwitchPreferenceCompat_allowSleep" />
-
-        <SeekBarPreference
-            app:key="SeekBarPreference_allowSleepEnd"
-            app:summary="...until this time of day."
-            app:dependency="SwitchPreferenceCompat_allowSleep" />
+            app:key="Preference_gotoSoundRec"
+            app:title="Open The Sound Recorder"
+            app:icon="@drawable/mic_24dp"/>
 
     </PreferenceCategory>
 
     <PreferenceCategory
-        app:title="Sound recording settings">
+        app:title="Prevent sleep settings">
 
         <Preference
-            app:key="SwitchPreference_gotoSoundRec"
-            app:title="Open The Sound Recorder"
-            app:icon="@drawable/mic_24dp"/>
+            app:summary="If nothing significant is going on (no music, no phone call, not charging etc) your device might fall asleep. (Only happens when the screen is off). When this happens, the volume keys won't work until the screen is turned on and the device wakes up." />
+
+        <SeekBarPreference
+            app:key="SeekBarPreference_preventSleepTimeout"
+            app:title="Prevent sleep timeout [minutes]"
+            app:summary="Prevent sleep this long after screen off. Zero means the device falls asleep whenever it pleases. Higher value means less sleep so more battery usage."
+            app:defaultValue="60"/>
+
+        <SwitchPreferenceCompat
+            app:key="SwitchPreferenceCompat_allowSleep"
+            app:title="Allow sleep [o'clock]"
+            app:defaultValue="false"/>
+
+        <SeekBarPreference
+            app:key="SeekBarPreference_allowSleepStart"
+            app:summary="Always allow sleep (ignoring the timeout above) starting at this hour of the day..."
+            app:dependency="SwitchPreferenceCompat_allowSleep"
+            app:defaultValue="23" />
+
+        <SeekBarPreference
+            app:key="SeekBarPreference_allowSleepEnd"
+            app:summary="...until this hour of the day."
+            app:dependency="SwitchPreferenceCompat_allowSleep"
+            app:defaultValue="6" />
 
     </PreferenceCategory>
 

@@ -83,7 +83,8 @@ class UserInteractionWhenScreenOffAndMusic {
         startPollingMethod2BroadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                sleepAllowedTime = System.currentTimeMillis() + UserInteraction.PREVENT_SLEEP_TIMEOUT_MINUTES * 60000;
+                int preventSleepMinutes = myContext.sharedPreferences.getInt("SeekBarPreference_allowSleepStart", 10);
+                sleepAllowedTime = System.currentTimeMillis() + preventSleepMinutes * 60000;
                 startPollingAttempts(handler);
             }
         };
