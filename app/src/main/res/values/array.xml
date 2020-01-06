@@ -5,8 +5,9 @@
         <item>Media: play</item>
         <item>Sound recorder: start</item>
         <item>Flashlight: on/off</item>
+        <item>Do not disturb: on</item>
+        <item>Do not disturb: off</item>
         <item>Do not disturb: on/off</item>
-        <item>Bluetooth: on/off</item>
         <item>Sound mode: sound</item>
         <item>Sound mode: vibrate</item>
         <item>Sound mode: silent</item>
@@ -15,6 +16,9 @@
         <item>Tell time (volume 100%)</item>
         <item>Tell time (volume 75%)</item>
         <item>Tell time (volume 50%)</item>
+        <item>Bluetooth: on</item>
+        <item>Bluetooth: off</item>
+        <item>Bluetooth: on/off</item>
     </string-array>
 
     <string-array name="music_actions">

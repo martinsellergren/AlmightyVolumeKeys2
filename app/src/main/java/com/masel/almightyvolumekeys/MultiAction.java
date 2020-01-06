@@ -18,32 +18,26 @@ abstract class MultiAction extends Action {
 
     @Override
     String getName() {
-        return pickedAction.getName();
+        if (pickedAction == null) return "Undetermined multi-action";
+        else return pickedAction.getName();
     }
 
     @Override
     void run(MyContext myContext) throws ExecutionException {
-        pickedAction.run(myContext);
-    }
-
-    @Override
-    String getDescription() {
-        return pickedAction.getDescription();
-    }
-
-    @Override
-    String[] getNotes() {
-        return pickedAction.getNotes();
+        if (pickedAction == null) return;
+        else pickedAction.run(myContext);
     }
 
     @Override
     NotifyOrder getNotifyOrder() {
-        return pickedAction.getNotifyOrder();
+        if (pickedAction == null) return NotifyOrder.ANY;
+        else return pickedAction.getNotifyOrder();
     }
 
     @Override
     Notifier.VibrationPattern getVibrationPattern() {
-        return pickedAction.getVibrationPattern();
+        if (pickedAction == null) return Notifier.VibrationPattern.ON;
+        else return pickedAction.getVibrationPattern();
     }
 
     @Override

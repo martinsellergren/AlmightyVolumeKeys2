@@ -37,17 +37,6 @@ abstract class Action {
     abstract String getName();
     abstract void run(MyContext myContext) throws ExecutionException;
 
-    String getDescription() {
-        return null;
-    }
-
-    /**
-     * @return Any extra info notes about this action.
-     */
-    String[] getNotes() {
-        return null;
-    }
-
     NotifyOrder getNotifyOrder() {
         return NotifyOrder.ANY;
     }
