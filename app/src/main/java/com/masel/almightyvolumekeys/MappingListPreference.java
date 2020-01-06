@@ -30,6 +30,7 @@ public class MappingListPreference extends ListPreference {
         updateEntries();
         setDefaultValue(new Actions.No_action().getName());
         setSummary("%s");
+        setSingleLineTitle(false);
         setNoActionIfCurrentlySetIsUnavailable();
 
         setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
@@ -128,11 +129,11 @@ public class MappingListPreference extends ListPreference {
 
     private String titleFromKey(String key) {
         String actionCode = extractCommand(key);
-        String title = "";
+        String title = "Volume ";
 
         for (char c : actionCode.toCharArray()) {
-            if (c == '1') title += "Up-";
-            else if (c == '0') title += "Down-";
+            if (c == '1') title += "Up→";
+            else if (c == '0') title += "Down→";
             else throw new RuntimeException("Dead end");
         }
         return title.substring(0, title.length()-1);

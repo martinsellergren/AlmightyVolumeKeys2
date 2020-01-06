@@ -25,7 +25,7 @@
 
     <Preference
         app:title="Will this app use much battery?"
-        app:summary="Generally not much, it depends on your settings in the Settings-page. With default settings, battery usage is low. Let me explain a little more. Normally a device falls asleep if you leave it with the screen off for a while, and when you turn the screen back on it wakes up. A sleeping device will use basically no battery, but won't care about volume clicks. This app has the ability to postpone sleep so the volume keys work longer after screen turns off (set this up in Settings)." />
+        app:summary="Generally not much, it depends on your settings in the Settings-page. With default settings, battery usage is low. Let me explain a little more. Normally a device falls asleep if you leave it with the screen off for a while, and when you turn the screen back on it wakes up. A sleeping device will use basically no battery, but won't care about volume clicks. This app has the ability to postpone sleep so the volume keys work longer after screen off (set this up in Settings)." />
 
 <!--    <Preference-->
 <!--        app:title="I need an action that isn't available, what to do?"-->

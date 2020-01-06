@@ -65,7 +65,7 @@ class ActionCommand {
         if (DeviceState.getCurrent(myContext) == deviceStateOnCommandStart) {
             Action action = getMappedAction(command);
 
-            if (action == null) {
+            if (action == null || action.getName().equals(("No action"))) {
                 Utils.log(String.format("Non-mapped command: %s (state:%s)", command, DeviceState.getCurrent(myContext)));
             }
             else {
