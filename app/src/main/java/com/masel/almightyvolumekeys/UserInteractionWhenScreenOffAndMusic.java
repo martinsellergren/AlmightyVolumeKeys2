@@ -9,6 +9,8 @@ import android.media.AudioPlaybackConfiguration;
 import android.os.Build;
 import android.os.Handler;
 
+import androidx.annotation.RequiresApi;
+
 import com.masel.rec_utils.Utils;
 
 import java.util.List;
@@ -19,7 +21,7 @@ import java.util.List;
  */
 class UserInteractionWhenScreenOffAndMusic {
 
-    static final int MUSIC_VOLUME_POLLING_DELTA = 100;
+    private static final int MUSIC_VOLUME_POLLING_DELTA = 100;
 
     private MyContext myContext;
     private ActionCommand actionCommand;
@@ -36,10 +38,14 @@ class UserInteractionWhenScreenOffAndMusic {
         setupStartPollingWhenMusicStarted();
     }
 
-    void release(MyContext myContext) {
-        myContext.context.unregisterReceiver(screenOffReceiver);
-        if (startPollingMethod2BroadcastReceiver != null)
-            myContext.context.unregisterReceiver(startPollingMethod2BroadcastReceiver);
+    void destroy(MyContext myContext) {
+        try {
+            pollingHandler.removeCallbacksAndMessages(null);
+            myContext.context.unregisterReceiver(screenOffReceiver);
+            if (Build.VERSION.SDK_INT >= 26 && audioPlaybackCallback != null) myContext.audioManager.unregisterAudioPlaybackCallback(audioPlaybackCallback);
+            if (startPollingMethod2BroadcastReceiver != null) myContext.context.unregisterReceiver(startPollingMethod2BroadcastReceiver);
+        }
+        catch (Exception e) {}
     }
 
     private void setupStartPollingWhenScreenOff() {
@@ -61,15 +67,16 @@ class UserInteractionWhenScreenOffAndMusic {
         }
     }
 
+    private AudioManager.AudioPlaybackCallback audioPlaybackCallback = null;
+    @RequiresApi(api = 26)
     private void setupStartPollingWhenMusicStarted_method1() {
-        if (Build.VERSION.SDK_INT >= 26) {
-            myContext.audioManager.registerAudioPlaybackCallback(new AudioManager.AudioPlaybackCallback() {
+        audioPlaybackCallback = new AudioManager.AudioPlaybackCallback() {
                 @Override
                 public void onPlaybackConfigChanged(List<AudioPlaybackConfiguration> configs) {
                     startPolling();
                 }
-            }, null);
-        }
+        };
+        myContext.audioManager.registerAudioPlaybackCallback(audioPlaybackCallback, null);
     }
 
     /**
@@ -103,18 +110,35 @@ class UserInteractionWhenScreenOffAndMusic {
     private void startPolling() {
         Utils.log("Start polling music volume");
         prevMusicVolume = myContext.audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+        time_without_music = 0;
         pollMusicVolume();
     }
+
+    private static final long CONTINUE_POLLING_AFTER_MUSIC_STOP_TIME = 1000;
+    private long time_without_music = 0;
 
     /**
      * Continues only if music is playing AND screen is off.
      */
     private void pollMusicVolume() {
         pollingHandler.removeCallbacksAndMessages(null);
-        if (isScreenOn() || DeviceState.getCurrent(myContext) != DeviceState.MUSIC) {
+
+        if (DeviceState.getCurrent(myContext) == DeviceState.MUSIC) {
+            time_without_music = 0;
+        }
+        else {
+            time_without_music += MUSIC_VOLUME_POLLING_DELTA;
+        }
+
+        if (isScreenOn() || time_without_music > CONTINUE_POLLING_AFTER_MUSIC_STOP_TIME) {
             Utils.log("Stop polling music volume");
             return;
         }
+
+//        if (isScreenOn() || DeviceState.getCurrent(myContext) != DeviceState.MUSIC) {
+//            Utils.log("Stop polling music volume");
+//            return;
+//        }
 
         int currentMusicVolume = myContext.audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
         if (currentMusicVolume == prevMusicVolume + 1) {

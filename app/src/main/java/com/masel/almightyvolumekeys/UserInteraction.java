@@ -36,7 +36,7 @@ class UserInteraction {
     }
 
     void destroy() {
-        userInteractionWhenScreenOffAndMusic.release(myContext);
+        userInteractionWhenScreenOffAndMusic.destroy(myContext);
         myContext.destroy();
     }
 
