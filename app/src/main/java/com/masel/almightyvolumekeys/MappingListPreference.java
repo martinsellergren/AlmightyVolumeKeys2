@@ -14,6 +14,7 @@ import com.masel.rec_utils.Utils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A ListPreference for mapping command to action, for a certain device-state.
@@ -45,6 +46,14 @@ public class MappingListPreference extends ListPreference {
                     setValue(new Actions.No_action().getName());
                     return false;
                 }
+
+                if (state.equals("idle") && ProManager.loadIsLocked(context) && getNumberOfSetActionsWhenIdle() >= 3) {
+                    Utils.showHeadsUpDialog(getActivity(),
+                            "For more than three idle-actions, you need to UNLOCK PRO (see the side-menu).",
+                            null);
+                    return false;
+                }
+
                 if (state.equals("music") && !actionName.equals(new Actions.No_action().getName())) {
                     showMusicMappingHeadsUpDialog(extractCommand(getKey()));
                 }
@@ -196,5 +205,16 @@ public class MappingListPreference extends ListPreference {
             throw new RuntimeException("Error to get activity of preference");
         }
         return activity;
+    }
+
+    private int getNumberOfSetActionsWhenIdle() {
+        int count = 0;
+        for (Map.Entry<String, ?> entry : PreferenceManager.getDefaultSharedPreferences(getContext()).getAll().entrySet()) {
+            if (entry.getKey().matches(String.format("mappingListPreference_%s_command_.*", "idle"))) {
+                if (!entry.getValue().equals(new Actions.No_action().getName())) count++;
+            }
+        }
+
+        return count;
     }
 }

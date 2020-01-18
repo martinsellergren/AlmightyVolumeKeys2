@@ -41,7 +41,7 @@
             app:key="mappingListPreference_music_command_100"/>
 
         <com.masel.almightyvolumekeys.MappingListPreference
-            app:key="mappingListPreference_music_command_011"/>
+            app:key="mappingListPreference_music_command_011"/>log
 
         <com.masel.almightyvolumekeys.MappingListPreference
             app:key="mappingListPreference_idle_command_1111" />

@@ -27,12 +27,12 @@ public class MonitorService extends AccessibilityService {
 
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
-        Log.i("<ME>", "listener service onAccessibilityEvent()");
+        Utils.log("listener service onAccessibilityEvent()");
     }
 
     @Override
     public void onInterrupt() {
-        Log.i("<ME>", "listener service onInterrupt()");
+        Utils.log("listener service onInterrupt()");
     }
 
     // endregion
@@ -41,7 +41,7 @@ public class MonitorService extends AccessibilityService {
 
     @Override
     protected void onServiceConnected() {
-        Log.i("<ME>", "onServiceConnected()");
+        Utils.log("onServiceConnected()");
 
         if (Build.VERSION.SDK_INT >= 26) requestForeground();
         userInteraction = new UserInteraction(this);
@@ -104,7 +104,7 @@ public class MonitorService extends AccessibilityService {
 
     @Override
     public boolean onUnbind(Intent intent) {
-        Log.i("<ME>", "onUnbind()");
+        Utils.log("onUnbind()");
 
         userInteraction.destroy();
         return super.onUnbind(intent);

@@ -3,6 +3,7 @@ package com.masel.almightyvolumekeys;
 import android.content.Intent;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
@@ -28,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
 
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle actionBarDrawerToggle;
+    private ProManager proManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,7 +42,56 @@ public class MainActivity extends AppCompatActivity {
         setupSideMenu();
     }
 
-    // region setup tabs
+    // region Unlock pro
+
+    private ProManager setupUnlockPro(MenuItem unlockProButton) {
+        ProManager proManager = new ProManager(this);
+
+        Runnable proLocked = () -> {
+            ProManager.saveIsLocked(this, true);
+            unlockProButton.setTitle("Unlock pro");
+            unlockProButton.setIcon(R.drawable.lock_locked_24dp);
+            unlockProButton.setOnMenuItemClickListener(item -> {
+                proManager.coldStartPurchase();
+                return true;
+            });
+        };
+
+        Runnable proPending = () -> {
+            ProManager.saveIsLocked(this, true);
+            unlockProButton.setTitle("Unlock pro (pending)");
+            unlockProButton.setIcon(R.drawable.lock_locked_24dp);
+            unlockProButton.setOnMenuItemClickListener(item -> {
+                Utils.showHeadsUpDialog(MainActivity.this, "The transaction hasn't gone through yet.", null);
+                return true;
+            });
+        };
+
+        Runnable proUnlocked = () -> {
+            ProManager.saveIsLocked(this, false);
+            unlockProButton.setTitle("Pro is unlocked");
+            unlockProButton.setIcon(R.drawable.lock_open_24dp);
+            unlockProButton.setOnMenuItemClickListener(item -> {
+                Utils.showHeadsUpDialog(MainActivity.this, "Thanks for unlocking pro! Hope you like it!", null);
+                return true;
+            });
+        };
+
+        proManager.setStateActions(proLocked, proPending, proUnlocked);
+        proManager.init();
+        return proManager;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        MenuItem unlockProItem = menu.findItem(R.id.item_unlock_pro);
+        proManager = setupUnlockPro(unlockProItem);
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    // endregion
+
+    // region Setup tabs
 
     class MyPagerAdapter extends FragmentPagerAdapter {
         MyPagerAdapter(FragmentManager fm) {
@@ -85,7 +136,7 @@ public class MainActivity extends AppCompatActivity {
 
     // endregion
 
-    // region setup side-menu
+    // region Setup side-menu
 
     private void setupSideMenu() {
         drawerLayout = findViewById(R.id.drawerLayout);
@@ -111,7 +162,8 @@ public class MainActivity extends AppCompatActivity {
                         startActivity(new Intent(MainActivity.this, SupportActivity.class));
                         break;
                     case R.id.item_unlock_pro:
-                        Utils.toast(MainActivity.this, "Unlock pro");
+                        //Utils.toast(MainActivity.this, "Unlock pro");
+                        // Handled elsewhere
                         break;
                     case R.id.item_rate_app:
                         Utils.showRateAppDialog(MainActivity.this);
@@ -202,4 +254,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // endregion
+
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        proManager.destroy();
+    }
 }

@@ -17,7 +17,7 @@
 
     <Preference
         app:title="What's the deal with all permissions?"
-        app:summary="Every requested permission is necessary for the app to do what you want. Nothing else, it's a promise." />
+        app:summary="Every required/ requested permission is necessary for the app to do what you want. Nothing else, it's a promise." />
 
     <Preference
         app:title="When the screen has been off for a while, nothing happens when I click the volume keys, no action works. Why?"

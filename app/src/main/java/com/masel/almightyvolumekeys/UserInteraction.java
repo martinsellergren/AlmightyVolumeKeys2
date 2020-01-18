@@ -44,6 +44,7 @@ class UserInteraction {
         boolean volumeUp = event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_UP;
 
         if (event.getAction() == KeyEvent.ACTION_DOWN) {
+            longPressHandler.removeCallbacksAndMessages(null);
             longPressHandler.postDelayed(() -> longPress(volumeUp), LONG_PRESS_TIME);
         }
         else if (event.getAction() == KeyEvent.ACTION_UP) {
@@ -68,6 +69,7 @@ class UserInteraction {
         //Utils.log("LONG PRESS");
         currentlyVolumeLongPress = true;
         adjustRelevantStreamVolume(volumeUp);
+        longPressHandler.removeCallbacksAndMessages(null);
         longPressHandler.postDelayed(() -> longPress(volumeUp), LONG_PRESS_VOLUME_CHANGE_TIME);
         actionCommand.reset();
     }
