@@ -44,7 +44,10 @@ public class MainActivity extends AppCompatActivity {
 
     // region Unlock pro
 
-    private ProManager setupUnlockPro(MenuItem unlockProButton) {
+    private ProManager setupUnlockPro() {
+        NavigationView navigationView = findViewById(R.id.navigationView);
+        MenuItem unlockProButton = navigationView.getMenu().findItem(R.id.item_unlock_pro);
+
         ProManager proManager = new ProManager(this);
 
         Runnable proLocked = () -> {
@@ -80,13 +83,6 @@ public class MainActivity extends AppCompatActivity {
         proManager.setStateActions(proLocked, proPending, proUnlocked);
         proManager.init();
         return proManager;
-    }
-
-    @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        MenuItem unlockProItem = menu.findItem(R.id.item_unlock_pro);
-        proManager = setupUnlockPro(unlockProItem);
-        return super.onPrepareOptionsMenu(menu);
     }
 
     // endregion
@@ -235,8 +231,16 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
+        proManager = setupUnlockPro();
         updateEnableServiceText();
         requestPermissions();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        proManager.destroy();
     }
 
     // region Permission request
@@ -254,11 +258,4 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // endregion
-
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        proManager.destroy();
-    }
 }

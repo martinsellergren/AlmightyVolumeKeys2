@@ -87,11 +87,8 @@ class ProManager implements PurchasesUpdatedListener {
                 AcknowledgePurchaseParams.newBuilder()
                         .setPurchaseToken(purchase.getPurchaseToken())
                         .build();
-        billingClient.acknowledgePurchase(acknowledgePurchaseParams, new AcknowledgePurchaseResponseListener() {
-            @Override
-            public void onAcknowledgePurchaseResponse(BillingResult billingResult) {
-                // ...
-            }
+        billingClient.acknowledgePurchase(acknowledgePurchaseParams, billingResult -> {
+            Utils.log("Purchase acknowledged");
         });
     }
 
@@ -135,15 +132,12 @@ class ProManager implements PurchasesUpdatedListener {
             params.setSkusList(skuList).setType(BillingClient.SkuType.INAPP);
 
             billingClient.querySkuDetailsAsync(params.build(),
-                    new SkuDetailsResponseListener() {
-                        @Override
-                        public void onSkuDetailsResponse(BillingResult result, List<SkuDetails> skuDetailsList) {
-                            if (result.getResponseCode() == BillingClient.BillingResponseCode.OK && skuDetailsList != null) {
-                                onProductDetailsFetched.run(skuDetailsList.get(0));
-                            }
-                            else {
-                                Utils.logAndToast(activity, "Are you connected to internet?");
-                            }
+                    (result, skuDetailsList) -> {
+                        if (result.getResponseCode() == BillingClient.BillingResponseCode.OK && skuDetailsList != null && skuDetailsList.size() != 0) {
+                            onProductDetailsFetched.run(skuDetailsList.get(0));
+                        }
+                        else {
+                            Utils.logAndToast(activity, "Are you connected to internet?");
                         }
                     });
         };
