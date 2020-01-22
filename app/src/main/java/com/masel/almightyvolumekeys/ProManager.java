@@ -14,6 +14,8 @@ import com.android.billingclient.api.BillingClient;
 import com.android.billingclient.api.BillingClientStateListener;
 import com.android.billingclient.api.BillingFlowParams;
 import com.android.billingclient.api.BillingResult;
+import com.android.billingclient.api.ConsumeParams;
+import com.android.billingclient.api.ConsumeResponseListener;
 import com.android.billingclient.api.Purchase;
 import com.android.billingclient.api.PurchasesUpdatedListener;
 import com.android.billingclient.api.SkuDetails;
@@ -34,7 +36,8 @@ class ProManager implements PurchasesUpdatedListener {
     private BillingClient billingClient;
 
     /**
-     * State-actions, executed on initialization, and after purchase state changed. */
+     * State-actions, executed on initialization, and after purchase state changed.
+     * Could be called multiple times consecutively (must be actions where this is not a problem). */
     private Runnable onLocked = null;
     private Runnable onPending = null;
     private Runnable onUnlocked = null;
@@ -51,18 +54,19 @@ class ProManager implements PurchasesUpdatedListener {
 
     @Override
     public void onPurchasesUpdated(BillingResult billingResult, @Nullable List<Purchase> purchases) {
-        if (purchases == null || purchases.size() == 0) return;
-
         if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK) {
+            if (purchases == null || purchases.size() == 0) return;
             handlePurchase(purchases.get(0));
         }
         else if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.USER_CANCELED) {
             // Handle an error caused by a user cancelling the purchase flow.
             Utils.log("Billing ended by user");
+            onLocked.run();
         }
         else {
             // Handle any other error codes.
             Utils.log("Billing ended, unknown reason: " + billingResult);
+            onLocked.run();
         }
     }
 
@@ -72,11 +76,17 @@ class ProManager implements PurchasesUpdatedListener {
      */
     private void handlePurchase(Purchase purchase) {
         if (purchase.getPurchaseState() == Purchase.PurchaseState.PURCHASED) {
+            Utils.log("Successful purchase");
             onUnlocked.run();
             acknowledgePurchase(purchase);
         }
         else if (purchase.getPurchaseState() == Purchase.PurchaseState.PENDING) {
+            Utils.log("Pending purchase");
             onPending.run();
+        }
+        else {
+            Utils.log("Canceled purchase?");
+            onLocked.run();
         }
     }
 
@@ -115,8 +125,7 @@ class ProManager implements PurchasesUpdatedListener {
     /**
      * Network needed, else ends with toast.
      */
-    void coldStartPurchase() {
-
+    void startPurchase() {
         RunnableWithProductDetails onProductDetailsFetched = skuDetails -> {
             BillingFlowParams flowParams = BillingFlowParams.newBuilder().setSkuDetails(skuDetails).build();
             BillingResult res = billingClient.launchBillingFlow(activity, flowParams);
@@ -128,6 +137,9 @@ class ProManager implements PurchasesUpdatedListener {
         Runnable onConnected = () -> {
             List<String> skuList = new ArrayList<>();
             skuList.add("com.masel.almightyvolumekeys.product_id_unlock_pro");
+            //skuList.add("android.test.purchased");
+            //skuList.add("android.test.canceled");
+            //skuList.add("android.test.item_unavailable");
             SkuDetailsParams.Builder params = SkuDetailsParams.newBuilder();
             params.setSkusList(skuList).setType(BillingClient.SkuType.INAPP);
 
@@ -150,21 +162,26 @@ class ProManager implements PurchasesUpdatedListener {
      * If error, end with toast.
      */
     private void connectAndExecute(Runnable onConnected) {
-        billingClient.startConnection(new BillingClientStateListener() {
-            @Override
-            public void onBillingSetupFinished(BillingResult billingResult) {
-                if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK) {
-                    onConnected.run();
+        if (billingClient.isReady()) {
+            onConnected.run();
+        }
+        else {
+            billingClient.startConnection(new BillingClientStateListener() {
+                @Override
+                public void onBillingSetupFinished(BillingResult billingResult) {
+                    if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK) {
+                        onConnected.run();
+                    } else {
+                        Utils.logAndToast(activity, "Can't connect to google play.");
+                    }
                 }
-                else {
-                    Utils.logAndToast(activity, "Can't connect to google play.");
+
+                @Override
+                public void onBillingServiceDisconnected() {
+                    Utils.log("Connection with google play lost");
                 }
-            }
-            @Override
-            public void onBillingServiceDisconnected() {
-                Utils.log("Connection with google play lost");
-            }
-        });
+            });
+        }
     }
 
     void destroy() {
@@ -185,4 +202,26 @@ class ProManager implements PurchasesUpdatedListener {
     }
 
     // endregion
+
+    /**
+     * For testing.
+     */
+    void revertPro() {
+        Runnable onConnected = () -> {
+            List<Purchase> purchases = billingClient.queryPurchases(BillingClient.SkuType.INAPP).getPurchasesList();
+            if (purchases.size() == 0) return;
+
+            Purchase purchase = purchases.get(0);
+            ConsumeParams consumeParams =
+                    ConsumeParams.newBuilder()
+                            .setPurchaseToken(purchase.getPurchaseToken())
+                            .build();
+
+            billingClient.consumeAsync(consumeParams, (billingResult, s) -> {
+                Utils.log("Pro reverted");
+            });
+        };
+
+        connectAndExecute(onConnected);
+    }
 }

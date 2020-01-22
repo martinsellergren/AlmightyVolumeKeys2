@@ -3,7 +3,6 @@ package com.masel.almightyvolumekeys;
 import android.content.Intent;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
@@ -55,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
             unlockProButton.setTitle("Unlock pro");
             unlockProButton.setIcon(R.drawable.lock_locked_24dp);
             unlockProButton.setOnMenuItemClickListener(item -> {
-                proManager.coldStartPurchase();
+                proManager.startPurchase();
                 return true;
             });
         };
@@ -75,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
             unlockProButton.setTitle("Pro is unlocked");
             unlockProButton.setIcon(R.drawable.lock_open_24dp);
             unlockProButton.setOnMenuItemClickListener(item -> {
-                Utils.showHeadsUpDialog(MainActivity.this, "Thanks for unlocking pro! Hope you like it!", null);
+                Utils.showHeadsUpDialog(MainActivity.this, "Thanks for unlocking pro! Hope you like it!", proManager::revertPro); // todo
                 return true;
             });
         };
