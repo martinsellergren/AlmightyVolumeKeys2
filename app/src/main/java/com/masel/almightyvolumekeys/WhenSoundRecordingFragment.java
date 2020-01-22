@@ -25,7 +25,10 @@ public class WhenSoundRecordingFragment extends PreferenceFragmentCompat {
         info.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                Utils.openAppOnPlayStore(getContext(), "com.masel.thesoundrecorder");
+                if (!Utils.gotoApp(getContext(), "com.masel.thesoundrecorder")) {
+                    Utils.openAppOnPlayStore(getContext(), "com.masel.thesoundrecorder");
+                }
+
                 return true;
             }
         });

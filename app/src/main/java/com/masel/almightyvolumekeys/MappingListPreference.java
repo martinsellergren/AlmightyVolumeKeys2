@@ -167,8 +167,8 @@ public class MappingListPreference extends ListPreference {
         String fromMaxTxt = fromMax == 1 ? "ONE" : (fromMax == 2 ? "TWO" : "THREE");
         String fromMinTxt = fromMin == 1 ? "ONE" : (fromMin == 2 ? "TWO" : "THREE");
 
-        String alt1 = "This command only works if your device is at least %s %s from %s volume.";
-        String alt2 = "This command only works if your device is at least %s %s from MAX volume and %s %s from MIN volume.";
+        String alt1 = "This command only works if your device is at least <b>%s %s</b> from <b>%s</b> volume.";
+        String alt2 = "This command only works if your device is at least <b>%s %s</b> from <b>MAX</b> volume and <b>%s %s</b> from <b>MIN</b> volume.";
 
         if (fromMax > 0 && fromMin > 0) {
             return String.format(alt2, fromMaxTxt, fromMax == 1 ? "STEP" : "STEPS", fromMinTxt, fromMin == 1 ? "STEP" : "STEPS");

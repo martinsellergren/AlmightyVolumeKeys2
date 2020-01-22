@@ -154,6 +154,11 @@ class Actions {
         }
 
         @Override
+        Notifier.VibrationPattern getVibrationPattern() {
+            return Notifier.VibrationPattern.SILENT;
+        }
+
+        @Override
         boolean isAvailable(Context context) {
             return Build.VERSION.SDK_INT >= 19;
         }
@@ -169,7 +174,12 @@ class Actions {
         void run(MyContext myContext) throws Action.ExecutionException {
             if (Build.VERSION.SDK_INT < 23) return;
             mediaClick(myContext, KeyEvent.KEYCODE_MEDIA_PREVIOUS);
-            mediaClick(myContext, KeyEvent.KEYCODE_MEDIA_PREVIOUS);
+            //mediaClick(myContext, KeyEvent.KEYCODE_MEDIA_PREVIOUS);
+        }
+
+        @Override
+        Notifier.VibrationPattern getVibrationPattern() {
+            return Notifier.VibrationPattern.SILENT;
         }
 
         @Override
@@ -191,6 +201,11 @@ class Actions {
         }
 
         @Override
+        Notifier.VibrationPattern getVibrationPattern() {
+            return Notifier.VibrationPattern.SILENT;
+        }
+
+        @Override
         boolean isAvailable(Context context) {
             return Build.VERSION.SDK_INT >= 19;
         }
@@ -206,6 +221,11 @@ class Actions {
         void run(MyContext myContext) throws Action.ExecutionException {
             if (Build.VERSION.SDK_INT < 19) return;
             mediaClick(myContext, KeyEvent.KEYCODE_MEDIA_PAUSE);
+        }
+
+        @Override
+        Notifier.VibrationPattern getVibrationPattern() {
+            return Notifier.VibrationPattern.SILENT;
         }
 
         @Override
@@ -463,13 +483,13 @@ class Actions {
     static class Flashlight_on extends Action {
         @Override
         String getName() {
-            return "MyFlashlight: on";
+            return "Flashlight: on";
         }
 
         @Override
         void run(MyContext myContext) throws ExecutionException {
             boolean success = myContext.flashlight.turnOn();
-            if (!success) throw new ExecutionException("MyFlashlight error");
+            if (!success) throw new ExecutionException("Flashlight error");
         }
 
         @Override
@@ -481,13 +501,13 @@ class Actions {
     static class Flashlight_off extends Action {
         @Override
         String getName() {
-            return "MyFlashlight: off";
+            return "Flashlight: off";
         }
 
         @Override
         void run(MyContext myContext) throws ExecutionException {
             boolean success = myContext.flashlight.turnOff();
-            if (!success) throw new ExecutionException("MyFlashlight error");
+            if (!success) throw new ExecutionException("Flashlight error");
         }
 
         @Override

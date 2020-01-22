@@ -179,13 +179,10 @@ public class MainActivity extends AppCompatActivity {
         }
         else {
             Utils.showHeadsUpDialog(MainActivity.this,
-                    "In the following screen, find the Almighty Volume Keys' accessibility service and activate it.",
-                    new Runnable() {
-                        @Override
-                        public void run() {
-                            Utils.toast(MainActivity.this, toastText);
-                            openAccessibilitySettings();
-                        }
+                    "In the following screen, <b>find</b> the Almighty Volume Keys' accessibility <b>service</b> and activate it.",
+                    () -> {
+                        Utils.toast(MainActivity.this, toastText);
+                        openAccessibilitySettings();
                     });
         }
     }
