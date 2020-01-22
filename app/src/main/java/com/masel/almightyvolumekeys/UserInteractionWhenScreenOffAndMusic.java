@@ -58,8 +58,10 @@ class UserInteractionWhenScreenOffAndMusic {
         myContext.context.registerReceiver(screenOffReceiver, new IntentFilter(Intent.ACTION_SCREEN_OFF));
     }
 
+    // region Setup start polling
+
     private void setupStartPollingWhenMusicStarted() {
-        if (Build.VERSION.SDK_INT >= 26) {
+        if (false && Build.VERSION.SDK_INT >= 26) { // todo
             setupStartPollingWhenMusicStarted_method1();
         }
         else {
@@ -90,7 +92,7 @@ class UserInteractionWhenScreenOffAndMusic {
         startPollingMethod2BroadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                int preventSleepMinutes = myContext.sharedPreferences.getInt("SeekBarPreference_allowSleepStart", 10);
+                int preventSleepMinutes = myContext.sharedPreferences.getInt("SeekBarPreference_preventSleepTimeout", 60);
                 sleepAllowedTime = System.currentTimeMillis() + preventSleepMinutes * 60000;
                 startPollingAttempts(handler);
             }
@@ -101,10 +103,15 @@ class UserInteractionWhenScreenOffAndMusic {
     private void startPollingAttempts(Handler handler) {
         handler.removeCallbacksAndMessages(null);
         startPolling();
-        if (System.currentTimeMillis() < sleepAllowedTime) {
-            handler.postDelayed(() -> startPollingAttempts(handler), ATTEMPT_RATE);
+
+        if (isScreenOn()) return;
+        try {
+            if (myContext.wakeLock.isHeld()) handler.postDelayed(() -> startPollingAttempts(handler), ATTEMPT_RATE);
         }
+        catch (Exception e) {}
     }
+
+    // endregion
 
 
     private void startPolling() {
