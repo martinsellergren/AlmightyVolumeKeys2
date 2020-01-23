@@ -32,8 +32,8 @@
 <!--        app:summary="Try using the tasker-action (bottom of the list), Tasker can do lot's of stuff. Or, send me an email, perhaps I can add it." />-->
 
     <Preference
-        app:title="Something isn't working the way I expect it.."
-        app:summary="Don't hesitate to let me know: masel7569@gmail.com" />
+        app:title="Something isn't working the way I expect it!"
+        app:summary="Don't hesitate to let me know, hopefully I can fix it: masel7569@gmail.com" />
 
     <Preference
         app:title="How to ask another question?"

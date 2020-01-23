@@ -65,7 +65,7 @@ public class MappingListPreference extends ListPreference {
                 else if (actionName.equals(new Actions.Sound_recorder_start().getName()) && !TheSoundRecorderConnection.appIsInstalled(context)) {
                     Utils.showHeadsUpDialog(getActivity(),
                             "For sound recording, you need to install another app: The Sound Recorder",
-                            () -> Utils.openAppOnPlayStore(getContext(), "com.masel.thesoundrecorder"));
+                            () -> Utils.openAppOnPlayStore(getContext(), "com.masel.thesoundrecorder2"));
                 }
                 else if (actionName.equals(new Actions.Sound_recorder_start().getName()) && TheSoundRecorderConnection.appIsInstalled(context)) {
                     Utils.showHeadsUpDialog(getActivity(),

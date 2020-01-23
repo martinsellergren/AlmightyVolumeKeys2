@@ -86,7 +86,7 @@ class TheSoundRecorderConnection {
      */
     private void bindToTheSoundRecorder() {
         Intent intent = new Intent();
-        intent.setComponent(new ComponentName("com.masel.thesoundrecorder", "com.masel.thesoundrecorder.RecorderService"));
+        intent.setComponent(new ComponentName("com.masel.thesoundrecorder2", "com.masel.thesoundrecorder2.RecorderService"));
         boolean success = context.bindService(intent, theSoundRecorderServiceConnection, 0);
         if (success) {
             Utils.log("Successful bind-init to TheSoundRecorder");
@@ -132,7 +132,7 @@ class TheSoundRecorderConnection {
 
     private static void sendBroadcast(Context context, String action) {
         Intent intent = new Intent(action);
-        intent.setPackage("com.masel.thesoundrecorder");
+        intent.setPackage("com.masel.thesoundrecorder2");
         context.sendBroadcast(intent);
     }
 
@@ -172,9 +172,9 @@ class TheSoundRecorderConnection {
     };
 
     private void registerTheSoundRecorderReceivers() {
-        context.registerReceiver(onCreateReceiver, new IntentFilter("com.masel.thesoundrecorder.ON_CREATE"));
-        context.registerReceiver(stopAndSaveReceiver, new IntentFilter("com.masel.thesoundrecorder.STOP_AND_SAVE_REC"));
-        context.registerReceiver(stopAndTrashReceiver, new IntentFilter("com.masel.thesoundrecorder.STOP_AND_TRASH_REC"));
+        context.registerReceiver(onCreateReceiver, new IntentFilter("com.masel.thesoundrecorder2.ON_CREATE"));
+        context.registerReceiver(stopAndSaveReceiver, new IntentFilter("com.masel.thesoundrecorder2.STOP_AND_SAVE_REC"));
+        context.registerReceiver(stopAndTrashReceiver, new IntentFilter("com.masel.thesoundrecorder2.STOP_AND_TRASH_REC"));
     }
     private void unregisterTheSoundRecorderReceivers() {
         try {
@@ -197,7 +197,7 @@ class TheSoundRecorderConnection {
 
     static boolean appIsInstalled(Context context) {
         try {
-            context.getPackageManager().getPackageInfo("com.masel.thesoundrecorder", 0);
+            context.getPackageManager().getPackageInfo("com.masel.thesoundrecorder2", 0);
             return true;
         } catch (PackageManager.NameNotFoundException e) {
             return false;

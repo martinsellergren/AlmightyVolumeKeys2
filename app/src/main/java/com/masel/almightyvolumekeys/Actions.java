@@ -53,7 +53,7 @@ class Actions {
                 myContext.audioRecorder.start();
             }
             else {
-                Utils.openAppOnPlayStore(myContext.context, "com.masel.thesoundrecorder");
+                Utils.openAppOnPlayStore(myContext.context, "com.masel.thesoundrecorder2");
             }
         }
 
