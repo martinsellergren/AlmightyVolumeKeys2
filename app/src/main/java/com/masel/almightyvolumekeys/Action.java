@@ -5,15 +5,9 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.media.AudioManager;
 import android.os.Build;
 import android.os.Handler;
-
-import androidx.annotation.NonNull;
-
-import java.util.ArrayList;
-import java.util.List;
 
 abstract class Action {
 
@@ -91,7 +85,7 @@ abstract class Action {
             case AFTER_WAIT_ON_DND:
                 action.run(myContext);
                 final long MIN_WAIT_BEFORE_NOTIFY = 10;
-                new Handler().postDelayed(() -> vibrateAfterWaitOnDnd(myContext, action), MIN_WAIT_BEFORE_NOTIFY);
+                new Handler().postDelayed(() -> notifyAfterWaitOnDnd(myContext, action), MIN_WAIT_BEFORE_NOTIFY);
                 break;
             case NEVER:
                 action.run(myContext);
@@ -100,7 +94,7 @@ abstract class Action {
 
     // region Wait on silent device
 
-    private static void vibrateAfterWaitOnDnd(MyContext myContext, Action action) {
+    private static void notifyAfterWaitOnDnd(MyContext myContext, Action action) {
         if (!currentlySilent(myContext)) {
             myContext.notifier.notify(action.getName(), action.getVibrationPattern(), false);
         }

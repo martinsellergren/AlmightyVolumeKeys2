@@ -1,11 +1,9 @@
 package com.masel.almightyvolumekeys;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.util.AttributeSet;
 
 import androidx.preference.Preference;
-import androidx.preference.PreferenceGroup;
 import androidx.preference.PreferenceManager;
 import androidx.preference.PreferenceScreen;
 

@@ -49,6 +49,18 @@
         <com.masel.almightyvolumekeys.MappingListPreference
             app:key="mappingListPreference_idle_command_0000" />
 
+        <com.masel.almightyvolumekeys.MappingListPreference
+            app:key="mappingListPreference_idle_command_1110" />
+
+        <com.masel.almightyvolumekeys.MappingListPreference
+            app:key="mappingListPreference_idle_command_0001" />
+
+        <com.masel.almightyvolumekeys.MappingListPreference
+            app:key="mappingListPreference_idle_command_1000" />
+
+        <com.masel.almightyvolumekeys.MappingListPreference
+            app:key="mappingListPreference_idle_command_0111" />
+
     </PreferenceCategory>
 
     <PreferenceCategory>

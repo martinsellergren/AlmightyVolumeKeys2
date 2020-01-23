@@ -3,13 +3,8 @@ package com.masel.almightyvolumekeys;
 
 import android.os.Bundle;
 
-import androidx.fragment.app.Fragment;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
-
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 
 import com.masel.rec_utils.Utils;
 

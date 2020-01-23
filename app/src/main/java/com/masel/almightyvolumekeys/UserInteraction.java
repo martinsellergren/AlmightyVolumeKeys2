@@ -36,6 +36,7 @@ class UserInteraction {
     }
 
     void destroy() {
+        longPressHandler.removeCallbacksAndMessages(null);
         userInteractionWhenScreenOffAndMusic.destroy(myContext);
         myContext.destroy();
     }

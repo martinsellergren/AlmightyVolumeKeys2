@@ -1,11 +1,8 @@
 package com.masel.almightyvolumekeys;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.media.AudioManager;
 import android.os.Handler;
-
-import androidx.preference.PreferenceManager;
 
 import com.masel.rec_utils.Utils;
 

@@ -26,6 +26,18 @@
         <com.masel.almightyvolumekeys.MappingListPreference
             app:key="mappingListPreference_music_command_011"/>
 
+        <com.masel.almightyvolumekeys.MappingListPreference
+            app:key="mappingListPreference_music_command_1110"/>
+
+        <com.masel.almightyvolumekeys.MappingListPreference
+            app:key="mappingListPreference_music_command_0001"/>
+
+        <com.masel.almightyvolumekeys.MappingListPreference
+            app:key="mappingListPreference_music_command_1000"/>
+
+        <com.masel.almightyvolumekeys.MappingListPreference
+            app:key="mappingListPreference_music_command_0111"/>
+
     </PreferenceCategory>
 
     <PreferenceCategory>

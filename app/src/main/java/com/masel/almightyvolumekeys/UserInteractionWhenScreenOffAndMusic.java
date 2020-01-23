@@ -39,13 +39,20 @@ class UserInteractionWhenScreenOffAndMusic {
     }
 
     void destroy(MyContext myContext) {
+        pollingHandler.removeCallbacksAndMessages(null);
+        startPollingMethod2Handler.removeCallbacksAndMessages(null);
+
         try {
-            pollingHandler.removeCallbacksAndMessages(null);
-            myContext.context.unregisterReceiver(screenOffReceiver);
             if (Build.VERSION.SDK_INT >= 26 && audioPlaybackCallback != null) myContext.audioManager.unregisterAudioPlaybackCallback(audioPlaybackCallback);
+        } catch (Exception e) {}
+
+        try {
             if (startPollingMethod2BroadcastReceiver != null) myContext.context.unregisterReceiver(startPollingMethod2BroadcastReceiver);
-        }
-        catch (Exception e) {}
+        } catch (Exception e) {}
+
+        try {
+            myContext.context.unregisterReceiver(screenOffReceiver);
+        } catch (Exception e) {}
     }
 
     private void setupStartPollingWhenScreenOff() {
@@ -86,27 +93,24 @@ class UserInteractionWhenScreenOffAndMusic {
      */
     private static final long ATTEMPT_RATE = 750;
     private BroadcastReceiver startPollingMethod2BroadcastReceiver = null;
-    private long sleepAllowedTime;
+    private Handler startPollingMethod2Handler = new Handler();
     private void setupStartPollingWhenMusicStarted_method2() {
-        Handler handler = new Handler();
         startPollingMethod2BroadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                int preventSleepMinutes = myContext.sharedPreferences.getInt("SeekBarPreference_preventSleepTimeout", 60);
-                sleepAllowedTime = System.currentTimeMillis() + preventSleepMinutes * 60000;
-                startPollingAttempts(handler);
+                startPollingAttempts();
             }
         };
         myContext.context.registerReceiver(startPollingMethod2BroadcastReceiver, new IntentFilter(Intent.ACTION_SCREEN_OFF));
     }
 
-    private void startPollingAttempts(Handler handler) {
-        handler.removeCallbacksAndMessages(null);
+    private void startPollingAttempts() {
+        startPollingMethod2Handler.removeCallbacksAndMessages(null);
         startPolling();
 
         if (isScreenOn()) return;
         try {
-            if (myContext.wakeLock.isHeld()) handler.postDelayed(() -> startPollingAttempts(handler), ATTEMPT_RATE);
+            if (myContext.wakeLock.isHeld()) startPollingMethod2Handler.postDelayed(this::startPollingAttempts, ATTEMPT_RATE);
         }
         catch (Exception e) {}
     }

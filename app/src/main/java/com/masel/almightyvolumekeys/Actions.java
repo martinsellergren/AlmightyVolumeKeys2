@@ -2,7 +2,6 @@ package com.masel.almightyvolumekeys;
 
 import android.Manifest;
 import android.app.NotificationManager;
-import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.media.AudioManager;
 import android.media.ToneGenerator;
@@ -149,7 +148,6 @@ class Actions {
 
         @Override
         void run(MyContext myContext) throws Action.ExecutionException {
-            if (Build.VERSION.SDK_INT < 19) return;
             mediaClick(myContext, KeyEvent.KEYCODE_MEDIA_NEXT);
         }
 
@@ -172,9 +170,30 @@ class Actions {
 
         @Override
         void run(MyContext myContext) throws Action.ExecutionException {
-            if (Build.VERSION.SDK_INT < 23) return;
             mediaClick(myContext, KeyEvent.KEYCODE_MEDIA_PREVIOUS);
-            //mediaClick(myContext, KeyEvent.KEYCODE_MEDIA_PREVIOUS);
+        }
+
+        @Override
+        Notifier.VibrationPattern getVibrationPattern() {
+            return Notifier.VibrationPattern.SILENT;
+        }
+
+        @Override
+        boolean isAvailable(Context context) {
+            return Build.VERSION.SDK_INT >= 19;
+        }
+    }
+
+    static class Media_previous_x2 extends Action {
+        @Override
+        String getName() {
+            return "Media: previous x2";
+        }
+
+        @Override
+        void run(MyContext myContext) throws Action.ExecutionException {
+            mediaClick(myContext, KeyEvent.KEYCODE_MEDIA_PREVIOUS);
+            mediaClick(myContext, KeyEvent.KEYCODE_MEDIA_PREVIOUS);
         }
 
         @Override
@@ -196,7 +215,6 @@ class Actions {
 
         @Override
         void run(MyContext myContext) throws Action.ExecutionException {
-            if (Build.VERSION.SDK_INT < 19) return;
             mediaClick(myContext, KeyEvent.KEYCODE_MEDIA_PLAY);
         }
 
@@ -219,7 +237,6 @@ class Actions {
 
         @Override
         void run(MyContext myContext) throws Action.ExecutionException {
-            if (Build.VERSION.SDK_INT < 19) return;
             mediaClick(myContext, KeyEvent.KEYCODE_MEDIA_PAUSE);
         }
 
