@@ -47,7 +47,10 @@ public class MappingListPreference extends ListPreference {
                     return false;
                 }
 
-                if (!actionName.equals(new Actions.No_action().getName()) && state.equals("idle") && ProManager.loadIsLocked(context) && getNumberOfSetActionsWhenIdle() >= 3) {
+                if (!actionName.equals(new Actions.No_action().getName())
+                        && getValue().equals(new Actions.No_action().getName())
+                        && state.equals("idle") && ProManager.loadIsLocked(context)
+                        && getNumberOfSetActionsWhenIdle() >= 3) {
                     Utils.showHeadsUpDialog(getActivity(),
                             "For more than three idle-actions, you need to UNLOCK PRO (see the side-menu).",
                             null);

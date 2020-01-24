@@ -37,6 +37,8 @@ class Notifier {
     private static final String CHANNEL_SILENT_ID = "Heads up channel: SILENT";
     private static final String CHANNEL_ERROR_ID = "Heads up channel: ERROR";
 
+    private Handler cancelNotificationHandler = new Handler();
+
 //    /**
 //     * NULL unless supported (>=API 26) */
 //    private NotificationChannel channelOn = null;
@@ -112,6 +114,9 @@ class Notifier {
      * @param waitOnVibration Sleep thread until vibration done.
      */
     void notify(String text, VibrationPattern vibrationPattern, boolean waitOnVibration) {
+        cancelNotificationHandler.removeCallbacksAndMessages(null);
+        cancel();
+
         String channelId = getNotificationChannelId(vibrationPattern);
         long[] vibrationPatternArray = getVibrationPatternArray(vibrationPattern);
 
@@ -129,7 +134,7 @@ class Notifier {
         catch (Exception e) {
             Utils.log("Failed to notify: " + e.toString());
         }
-        new Handler().postDelayed(this::cancel, DISPLAY_TIME);
+        cancelNotificationHandler.postDelayed(this::cancel, DISPLAY_TIME);
 
         if (waitOnVibration) {
             long sum = 0; for (long x : vibrationPatternArray) sum += x;

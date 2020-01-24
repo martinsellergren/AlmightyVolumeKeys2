@@ -49,7 +49,9 @@ class UserInteraction {
             longPressHandler.postDelayed(() -> longPress(volumeUp), LONG_PRESS_TIME);
         }
         else if (event.getAction() == KeyEvent.ACTION_UP) {
-            if (!currentlyVolumeLongPress) handleVolumeKeyPress(volumeUp);
+            if (!currentlyVolumeLongPress) {
+                handleVolumeKeyPress(volumeUp);
+            }
             longPressHandler.removeCallbacksAndMessages(null);
             currentlyVolumeLongPress = false;
         }
@@ -84,6 +86,7 @@ class UserInteraction {
      */
     private void handleVolumeKeyPress(boolean up) {
         DeviceState state = DeviceState.getCurrent(myContext);
+
         if (state.equals(DeviceState.IDLE) || state.equals(DeviceState.SOUNDREC)) {
             if (actionCommand.getLength() >= 4) {
                 adjustRelevantStreamVolume(up);
@@ -134,7 +137,7 @@ class UserInteraction {
     }
 
     /**
-     * Fallback when onKeyEvent doesn't catch the event (i.e when screen is off).
+     * Fallback when onKeyEvent doesn't catch the event (happens when screen is off).
      * Music active, in call, phone ringing etc "should" take control over the volume-keys and
      * therefor suppress this callback. To be safe, check if to add press to action-command OR
      * change volume of appropriate stream.
