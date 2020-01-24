@@ -15,8 +15,6 @@ import androidx.core.app.NotificationManagerCompat;
 import com.masel.rec_utils.Utils;
 
 
-//todo older devices
-
 /**
  * Class for notifiers, i.e a temporary notification with vibration and text. Usually a heads-up-notification.
  */

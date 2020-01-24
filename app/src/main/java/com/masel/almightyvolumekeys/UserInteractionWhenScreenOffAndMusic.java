@@ -8,6 +8,7 @@ import android.media.AudioManager;
 import android.media.AudioPlaybackConfiguration;
 import android.os.Build;
 import android.os.Handler;
+import android.os.PowerManager;
 
 import androidx.annotation.RequiresApi;
 
@@ -68,7 +69,7 @@ class UserInteractionWhenScreenOffAndMusic {
     // region Setup start polling
 
     private void setupStartPollingWhenMusicStarted() {
-        if (false && Build.VERSION.SDK_INT >= 26) { // todo
+        if (Build.VERSION.SDK_INT >= 26) {
             setupStartPollingWhenMusicStarted_method1();
         }
         else {
@@ -108,7 +109,7 @@ class UserInteractionWhenScreenOffAndMusic {
         startPollingMethod2Handler.removeCallbacksAndMessages(null);
         startPolling();
 
-        if (isScreenOn()) return;
+        if (Utils.isScreenOn(myContext.powerManager)) return;
         try {
             if (myContext.wakeLock.isHeld()) startPollingMethod2Handler.postDelayed(this::startPollingAttempts, ATTEMPT_RATE);
         }
@@ -141,7 +142,7 @@ class UserInteractionWhenScreenOffAndMusic {
             time_without_music += MUSIC_VOLUME_POLLING_DELTA;
         }
 
-        if (isScreenOn() || time_without_music > CONTINUE_POLLING_AFTER_MUSIC_STOP_TIME) {
+        if (Utils.isScreenOn(myContext.powerManager) || time_without_music > CONTINUE_POLLING_AFTER_MUSIC_STOP_TIME) {
             Utils.log("Stop polling music volume");
             return;
         }
@@ -161,12 +162,6 @@ class UserInteractionWhenScreenOffAndMusic {
 
         prevMusicVolume = currentMusicVolume;
         pollingHandler.postDelayed(this::pollMusicVolume, MUSIC_VOLUME_POLLING_DELTA);
-    }
-
-    private boolean isScreenOn() {
-        return Build.VERSION.SDK_INT >= 20 ?
-                myContext.powerManager.isInteractive() :
-                myContext.powerManager.isScreenOn();
     }
 
 

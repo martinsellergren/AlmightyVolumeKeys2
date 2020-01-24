@@ -22,11 +22,14 @@ import java.util.Calendar;
 class UserInteraction {
     private MyContext myContext;
     private ActionCommand actionCommand;
+    private Runnable onAccessibilityServiceFail;
 
     private UserInteractionWhenScreenOffAndMusic userInteractionWhenScreenOffAndMusic;
 
-    UserInteraction(Context context) {
+    UserInteraction(Context context, Runnable onAccessibilityServiceFail) {
         this.myContext = new MyContext(context);
+        this.onAccessibilityServiceFail = onAccessibilityServiceFail;
+
         actionCommand = new ActionCommand(myContext);
         setupMediaSessionForScreenOffCallbacks();
         userInteractionWhenScreenOffAndMusic = new UserInteractionWhenScreenOffAndMusic(myContext, actionCommand);
@@ -128,11 +131,11 @@ class UserInteraction {
         MediaSessionCompat mediaSession = myContext.mediaSession;
         mediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
 
-        PlaybackStateCompat.Builder stateBuilder = new PlaybackStateCompat.Builder(); stateBuilder.setActions(PlaybackStateCompat.ACTION_PLAY | PlaybackStateCompat.ACTION_PLAY_PAUSE | PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID | PlaybackStateCompat.ACTION_PAUSE | PlaybackStateCompat.ACTION_SKIP_TO_NEXT | PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS);
+        PlaybackStateCompat.Builder stateBuilder = new PlaybackStateCompat.Builder();
+        stateBuilder.setActions(PlaybackStateCompat.ACTION_PLAY | PlaybackStateCompat.ACTION_PLAY_PAUSE | PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID | PlaybackStateCompat.ACTION_PAUSE | PlaybackStateCompat.ACTION_SKIP_TO_NEXT | PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS);
         stateBuilder.setState(PlaybackStateCompat.STATE_PLAYING, 0, 1);
         mediaSession.setPlaybackState(stateBuilder.build());
-        VolumeProviderCompat volumeProvider = screenOffCallback();
-        mediaSession.setPlaybackToRemote(volumeProvider);
+        mediaSession.setPlaybackToRemote(screenOffCallback());
         mediaSession.setActive(true);
     }
 
@@ -146,6 +149,11 @@ class UserInteraction {
         return new VolumeProviderCompat(VolumeProviderCompat.VOLUME_CONTROL_RELATIVE, 2, 1) {
             @Override
             public void onAdjustVolume(int direction) {
+                if (Utils.isScreenOn(myContext.powerManager)) {
+                    onAccessibilityServiceFail.run();
+                    return;
+                }
+
                 if (direction != 0) {
                     boolean up = direction > 0;
                     handleVolumeKeyPress(up);

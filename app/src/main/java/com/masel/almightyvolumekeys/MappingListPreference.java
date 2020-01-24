@@ -34,53 +34,50 @@ public class MappingListPreference extends ListPreference {
         setSingleLineTitle(false);
         setNoActionIfCurrentlySetIsUnavailable();
 
-        setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
-            @Override
-            public boolean onPreferenceChange(Preference preference, Object newValue) {
-                String state = extractState(getKey());
-                String actionName = newValue.toString();
-                Action action = Actions.getActionFromName(actionName);
+        setOnPreferenceChangeListener((preference, newValue) -> {
+            String state = extractState(getKey());
+            String actionName = newValue.toString();
+            Action action = Actions.getActionFromName(actionName);
 
-                if (!action.isAvailable(context)) {
-                    Utils.showHeadsUpDialog(getActivity(), "This action is currently not available on your device. See Help for more info.", null);
-                    setValue(new Actions.No_action().getName());
-                    return false;
-                }
-
-                if (!actionName.equals(new Actions.No_action().getName())
-                        && getValue().equals(new Actions.No_action().getName())
-                        && state.equals("idle") && ProManager.loadIsLocked(context)
-                        && getNumberOfSetActionsWhenIdle() >= 3) {
-                    Utils.showHeadsUpDialog(getActivity(),
-                            "For more than three idle-actions, you need to UNLOCK PRO (see the side-menu).",
-                            null);
-                    return false;
-                }
-
-                if (state.equals("music") && !actionName.equals(new Actions.No_action().getName())) {
-                    showMusicMappingHeadsUpDialog(extractCommand(getKey()));
-                }
-                else if (actionName.equals(new Actions.Media_play().getName())) {
-                    Utils.showHeadsUpDialog(getActivity(),
-                            "This action will start playing the media you recently paused.\n\nTo control currently playing media, see the MEDIA-tab.",
-                            () -> requestNeededPermissions(actionName));
-                }
-                else if (actionName.equals(new Actions.Sound_recorder_start().getName()) && !TheSoundRecorderConnection.appIsInstalled(context)) {
-                    Utils.showHeadsUpDialog(getActivity(),
-                            "For sound recording, you need to install another app: The Sound Recorder",
-                            () -> Utils.openAppOnPlayStore(getContext(), "com.masel.thesoundrecorder2"));
-                }
-                else if (actionName.equals(new Actions.Sound_recorder_start().getName()) && TheSoundRecorderConnection.appIsInstalled(context)) {
-                    Utils.showHeadsUpDialog(getActivity(),
-                            "To stop recording, see the SOUND REC-tab (or click the Recording... notification).",
-                            () -> requestNeededPermissions(actionName));
-                }
-                else {
-                    requestNeededPermissions(actionName);
-                }
-
-                return true;
+            if (!action.isAvailable(context)) {
+                Utils.showHeadsUpDialog(getActivity(), "This action is currently not available on your device. See Help for more info.", null);
+                setValue(new Actions.No_action().getName());
+                return false;
             }
+
+            if (!actionName.equals(new Actions.No_action().getName())
+                    && getValue().equals(new Actions.No_action().getName())
+                    && state.equals("idle") && ProManager.loadIsLocked(context)
+                    && getNumberOfSetActionsWhenIdle() >= 3) {
+                Utils.showHeadsUpDialog(getActivity(),
+                        "For more than three idle-actions, you <b>need to UNLOCK PRO</b> (see the side-menu).",
+                        null);
+                return false;
+            }
+
+            if (state.equals("music") && !actionName.equals(new Actions.No_action().getName())) {
+                showMusicMappingHeadsUpDialog(extractCommand(getKey()));
+            }
+            else if (actionName.equals(new Actions.Media_play().getName())) {
+                Utils.showHeadsUpDialog(getActivity(),
+                        "This action will start playing the media you <b>recently paused</b>.\n\nTo control currently playing media, see the <b>MEDIA-tab</b>.",
+                        () -> requestNeededPermissions(actionName));
+            }
+            else if (actionName.equals(new Actions.Sound_recorder_start().getName()) && !TheSoundRecorderConnection.appIsInstalled(context)) {
+                Utils.showHeadsUpDialog(getActivity(),
+                        "For sound recording, you need to install another app: <b>The Sound Recorder</b>.",
+                        () -> Utils.openAppOnPlayStore(getContext(), "com.masel.thesoundrecorder2"));
+            }
+            else if (actionName.equals(new Actions.Sound_recorder_start().getName()) && TheSoundRecorderConnection.appIsInstalled(context)) {
+                Utils.showHeadsUpDialog(getActivity(),
+                        "To <b>stop recording</b>, see the <b>SOUND REC-tab</b> (or click the Recording... notification).",
+                        () -> requestNeededPermissions(actionName));
+            }
+            else {
+                requestNeededPermissions(actionName);
+            }
+
+            return true;
         });
     }
 

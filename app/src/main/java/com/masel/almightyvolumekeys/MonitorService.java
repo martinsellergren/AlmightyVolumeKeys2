@@ -43,7 +43,7 @@ public class MonitorService extends AccessibilityService {
         Utils.log("onServiceConnected()");
 
         if (Build.VERSION.SDK_INT >= 26) requestForeground();
-        userInteraction = new UserInteraction(this);
+        userInteraction = new UserInteraction(this, this::onAccessibilityServiceFail);
         cleanUpAfterCrashDuringRecording();
     }
 
@@ -138,5 +138,12 @@ public class MonitorService extends AccessibilityService {
         }
 
         return false;
+    }
+
+    private void onAccessibilityServiceFail() {
+        if (Build.VERSION.SDK_INT < 24) return;
+
+        Utils.gotoMainActivity(this);
+        disableSelf();
     }
 }
