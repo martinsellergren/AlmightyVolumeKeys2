@@ -66,10 +66,6 @@ class ActionCommand {
                 Utils.log(String.format("Non-mapped command: %s (state:%s)", command, DeviceState.getCurrent(myContext)));
             }
             else {
-                if (action instanceof MultiAction) {
-                    ((MultiAction) action).setAction(myContext);
-                }
-
                 Utils.log(String.format("Execute %s -> %s (state:%s)", command, action.getName(), DeviceState.getCurrent(myContext)));
 
                 try {
@@ -123,7 +119,13 @@ class ActionCommand {
 
         String actionName = myContext.sharedPreferences.getString(key, null);
         if (actionName == null) return null;
-        return Actions.getActionFromName(actionName);
+        Action action = Actions.getActionFromName(actionName);
+
+        if (action instanceof MultiAction) {
+            ((MultiAction) action).setAction(myContext);
+        }
+
+        return action;
     }
 
     /**

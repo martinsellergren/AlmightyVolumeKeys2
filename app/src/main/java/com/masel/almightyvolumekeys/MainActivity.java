@@ -74,7 +74,8 @@ public class MainActivity extends AppCompatActivity {
             unlockProButton.setTitle("Pro is unlocked");
             unlockProButton.setIcon(R.drawable.lock_open_24dp);
             unlockProButton.setOnMenuItemClickListener(item -> {
-                Utils.showHeadsUpDialog(MainActivity.this, "Thanks for unlocking pro! Hope you like it!", proManager::revertPro); // todo
+                //Utils.showHeadsUpDialog(MainActivity.this, "Thanks for unlocking pro! Hope you like it!", proManager::revertPro);
+                Utils.showHeadsUpDialog(MainActivity.this, "Thanks for unlocking pro! Hope you like it!", null);
                 return true;
             });
         };

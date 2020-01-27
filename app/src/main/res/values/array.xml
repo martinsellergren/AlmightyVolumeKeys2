@@ -11,6 +11,7 @@
         <item>Sound mode: sound</item>
         <item>Sound mode: vibrate</item>
         <item>Sound mode: silent</item>
+        <item>Sound mode: sound/vibrate</item>
         <item>Sound mode: sound/silent</item>
         <item>Sound mode: vibrate/silent</item>
         <item>Tell time (volume 100%)</item>

@@ -342,6 +342,22 @@ class Actions {
         }
     }
 
+    static class Sound_mode_sound_vibrate extends MultiAction {
+        @Override
+        Action pickAction(MyContext myContext) {
+            switch (myContext.audioManager.getRingerMode()) {
+                case AudioManager.RINGER_MODE_VIBRATE: return new Sound_mode_sound();
+                case AudioManager.RINGER_MODE_NORMAL: return new Sound_mode_vibrate();
+                default: return new Sound_mode_sound();
+            }
+        }
+
+        @Override
+        String[] getNeededPermissions(Context context) {
+            return soundModePermission();
+        }
+    }
+
     static class Sound_mode_sound_silent extends MultiAction {
         @Override
         Action pickAction(MyContext myContext) {
@@ -713,6 +729,10 @@ class Actions {
      */
     @NonNull
     static Action getActionFromName(String name) {
+        if (name.matches("^Tasker.*")) {
+            return new TaskerAction(name);
+        }
+
         name = name.replaceAll("[^a-zA-Z0-9]+", "_");
         name = name.replaceAll("_+$", "");
         name = "com.masel.almightyvolumekeys.Actions$" + name;

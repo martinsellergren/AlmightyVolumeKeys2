@@ -1,7 +1,10 @@
 package com.masel.almightyvolumekeys;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.net.Uri;
 import android.util.AttributeSet;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -21,6 +24,15 @@ import java.util.Map;
  * When action picked, execute custom action if set, and request any needed permissions.
  *
  * Format of key (set in xml), eg: mappingListPreference_idle_command_111
+ *
+ * Shared preferences store the state, example:
+ *  - mappingListPreference_idle_command_1 - No action
+ *  - mappingListPreference_idle_command_0 - Do not disturb: on
+ *  (tasker actions at the end:)
+ *  - mappingListPreference_idle_command_11 - Tasker: camera
+ *  - mappingListPreference_idle_command_00 - Tasker: Turn on screen
+ *  (or if no Tasker tasks:)
+ *  - mappingListPreference_idle_command_00 - Tasker task
  */
 public class MappingListPreference extends ListPreference {
 
@@ -34,6 +46,11 @@ public class MappingListPreference extends ListPreference {
         setSingleLineTitle(false);
         setNoActionIfCurrentlySetIsUnavailable();
 
+        setOnPreferenceClickListener(preference -> {
+            updateEntries();
+            return false;
+        });
+
         setOnPreferenceChangeListener((preference, newValue) -> {
             String state = extractState(getKey());
             String actionName = newValue.toString();
@@ -44,7 +61,6 @@ public class MappingListPreference extends ListPreference {
                 setValue(new Actions.No_action().getName());
                 return false;
             }
-
             if (!actionName.equals(new Actions.No_action().getName())
                     && getValue().equals(new Actions.No_action().getName())
                     && state.equals("idle") && ProManager.loadIsLocked(context)
@@ -52,6 +68,10 @@ public class MappingListPreference extends ListPreference {
                 Utils.showHeadsUpDialog(getActivity(),
                         "For more than three idle-actions, you <b>need to UNLOCK PRO</b> (see the side-menu).",
                         null);
+                return false;
+            }
+            if (actionName.equals("Tasker task")) {
+                prepareForTasker();
                 return false;
             }
 
@@ -81,6 +101,43 @@ public class MappingListPreference extends ListPreference {
         });
     }
 
+    private void prepareForTasker() {
+        String infoText;
+        Runnable endAction = null;
+
+        switch (TaskerIntent.testStatus(getContext())) {
+            case NotInstalled:
+                infoText = "Tasker tasks can do pretty much anything. Install the app and create some tasks. The tasks can then be selected here.";
+                endAction = () -> getActivity().startActivity(TaskerIntent.getTaskerInstallIntent(true));
+                break;
+            case NoPermission:
+                infoText = "Tasker is installed but not accessible. Fix it by reinstalling this app (so Tasker is installed before Almighty Volume Keys).";
+                break;
+            case NotEnabled:
+                infoText = "Tasker is installed but not enabled. Open Tasker and enable it.";
+                endAction = this::openTasker;
+                break;
+            case AccessBlocked:
+                infoText = "Need to <b>allow external access</b> in Tasker-settings.";
+                endAction = () -> getActivity().startActivity(TaskerIntent.getExternalAccessPrefsIntent());
+                break;
+            case NoReceiver:
+                infoText = "Seems something is wrong with Tasker. Try to reinstall or update Tasker.";
+                break;
+            case OK:
+            default:
+                infoText = "Open Tasker and create some tasks. The tasks can then be selected here.";
+                endAction = this::openTasker;
+        }
+
+        Utils.showHeadsUpDialog(getActivity(), infoText, endAction);
+    }
+
+    private void openTasker() {
+        Intent intent = getContext().getPackageManager().getLaunchIntentForPackage("net.dinglisch.android.taskerm");
+        if (intent != null) getContext().startActivity(intent);
+    }
+
     private void setNoActionIfCurrentlySetIsUnavailable() {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
         String mappedActionName = sharedPreferences.getString(getKey(), null);
@@ -92,36 +149,46 @@ public class MappingListPreference extends ListPreference {
 
     private void updateEntries() {
         String state = extractState(getKey());
-        String[] allActions = entriesWithState(state);
-        //String[] availableActions = filterAvailableActions(allActions);
-        setEntries(allActions);
-        setEntryValues(allActions);
-    }
-
-    private String[] filterAvailableActions(String[] actions) {
-        List<String> filteredActions = new ArrayList<>();
-        for (String actionName : actions) {
-            Action action = Actions.getActionFromName(actionName);
-
-            if (action.isAvailable(getContext())) {
-                filteredActions.add(actionName);
-            }
-        }
-        return filteredActions.toArray(new String[0]);
+        String[] actions = entriesWithState(state);
+        setEntries(actions);
+        setEntryValues(actions);
     }
 
     /**
-     * Returns array with actions from xml, depending on state. Only returns actions available on this device.
+     * Returns array with actions from xml, depending on state.
+     * End of list has available tasker tasks dynamically loaded. Formatted 'Tasker: xxx', or if no tasker tasks, one entry: 'Tasker task')
      */
     private String[] entriesWithState(String state) {
         int res;
-        if (state.equals("idle")) res = R.array.idle_actions;
-        else if (state.equals("music")) res = R.array.music_actions;
-        else if (state.equals("soundrec")) res = R.array.soundrec_actions;
+        if (state.equals("idle")) {
+            List<String> entries = new ArrayList<>(Arrays.asList(getContext().getResources().getStringArray(R.array.idle_actions)));
+            List<String> taskerEntries = taskerEntries();
+            entries.addAll(taskerEntries);
+            return entries.toArray(new String[]{});
+        }
+        else if (state.equals("music")) return getContext().getResources().getStringArray(R.array.music_actions);
+        else if (state.equals("soundrec")) return getContext().getResources().getStringArray(R.array.soundrec_actions);
         else throw new RuntimeException("Dead end");
-        return getContext().getResources().getStringArray(res);
     }
 
+    /**
+     * @return Available tasker tasks, or 'Tasker task' if none.
+     */
+    private List<String> taskerEntries() {
+        List<String> entries = new ArrayList<>();
+
+        Cursor cursor = getContext().getContentResolver().query(Uri.parse("content://net.dinglisch.android.tasker/tasks"), null, null, null, null);
+        if (cursor != null) {
+            int nameCol = cursor.getColumnIndex("name");
+            while (cursor.moveToNext()) {
+                entries.add("Tasker: " + cursor.getString(nameCol));
+            }
+            cursor.close();
+        }
+
+        if (entries.isEmpty()) entries.add("Tasker task");
+        return entries;
+    }
 
     private void requestNeededPermissions(String actionName) {
         Action action = Actions.getActionFromName(actionName);
