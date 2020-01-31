@@ -224,11 +224,18 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void showEnableServicePopupIfNotEnabled() {
+        if (!MonitorService.isEnabled(this)) {
+            Utils.showHeadsUpDialog(this, "This app needs to be activated!\nOpen side menu and activate.", null);
+        }
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
 
         proManager = setupUnlockPro();
+        showEnableServicePopupIfNotEnabled();
         updateEnableServiceText();
         requestPermissions();
     }
