@@ -93,6 +93,11 @@ public class MappingListPreference extends ListPreference {
                         "To <b>stop recording</b>, see the <b>SOUND REC-tab</b> (or click the Recording... notification).",
                         () -> requestNeededPermissions(actionName));
             }
+            else if (actionName.equals(new Actions.Sound_mode_sound_volume_100().getName())) {
+                Utils.showHeadsUpDialog(getActivity(),
+                        "This action will set <b>ringtone</b> and <b>notification</b> volume to 100%.",
+                        () -> requestNeededPermissions(actionName));
+            }
             else {
                 requestNeededPermissions(actionName);
             }

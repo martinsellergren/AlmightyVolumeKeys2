@@ -288,6 +288,35 @@ class Actions {
         }
     }
 
+    static class Sound_mode_sound_volume_100 extends Action {
+        @Override
+        String getName() {
+            return "Sound mode: sound (volume 100%)";
+        }
+
+        @Override
+        void run(MyContext myContext) throws ExecutionException {
+            Utils.setStreamVolumePercentage(myContext.audioManager, AudioManager.STREAM_RING, 100);
+            Utils.setStreamVolumePercentage(myContext.audioManager, AudioManager.STREAM_NOTIFICATION, 100);
+            myContext.audioManager.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+        }
+
+        @Override
+        NotifyOrder getNotifyOrder() {
+            return NotifyOrder.AFTER_WAIT_ON_DND;
+        }
+
+        @Override
+        Notifier.VibrationPattern getVibrationPattern() {
+            return Notifier.VibrationPattern.OFF;
+        }
+
+        @Override
+        String[] getNeededPermissions(Context context) {
+            return soundModePermission();
+        }
+    }
+
     static class Sound_mode_vibrate extends Action {
         @Override
         String getName() {
@@ -740,7 +769,7 @@ class Actions {
             return (Action)Class.forName(name).newInstance();
         }
         catch (Exception e) {
-            throw new RuntimeException("Error creating class: " + name);
+            throw new RuntimeException("Error creating object: " + name);
         }
     }
 }
