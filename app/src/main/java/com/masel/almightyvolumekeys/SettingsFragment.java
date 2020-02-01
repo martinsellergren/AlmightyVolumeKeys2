@@ -10,6 +10,8 @@ import com.masel.rec_utils.Utils;
 
 public class SettingsFragment extends PreferenceFragmentCompat {
 
+    public SettingsFragment() {}
+
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setPreferencesFromResource(R.xml.settings, rootKey);
