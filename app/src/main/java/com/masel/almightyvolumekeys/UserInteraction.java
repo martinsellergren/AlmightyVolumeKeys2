@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.AudioManager;
+import android.os.Build;
 import android.os.Handler;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
@@ -72,10 +73,16 @@ class UserInteraction {
     private boolean currentlyVolumeLongPress = false;
 
     private void longPress(boolean volumeUp) {
-        //Utils.log("LONG PRESS");
         currentlyVolumeLongPress = true;
-        adjustRelevantStreamVolume(volumeUp);
         longPressHandler.removeCallbacksAndMessages(null);
+        int currentRelevantStreamVolumePercentage = Utils.getStreamVolumePercentage(myContext.audioManager, getRelevantAudioStream());
+        if ((currentRelevantStreamVolumePercentage == 100 && volumeUp) ||
+                (currentRelevantStreamVolumePercentage == 0 && !volumeUp)) {
+            adjustRelevantStreamVolume(volumeUp);
+            return;
+        }
+
+        adjustRelevantStreamVolume(volumeUp);
         longPressHandler.postDelayed(() -> longPress(volumeUp), LONG_PRESS_VOLUME_CHANGE_TIME);
         actionCommand.reset();
     }
@@ -115,16 +122,24 @@ class UserInteraction {
     private void adjustRelevantStreamVolume(boolean up) {
         int dir = up ? AudioManager.ADJUST_RAISE : AudioManager.ADJUST_LOWER;
         int volumeChangeFlag = AudioManager.FLAG_SHOW_UI;
-        int activeStream = Utils.getActiveAudioStream(myContext.audioManager);
+        int relevantStream = getRelevantAudioStream();
 
+//        if (relevantStream == AudioManager.STREAM_SYSTEM) {
+//            myContext.notifier.notify("SYSTEM VOLUME CHANGE!!!", Notifier.VibrationPattern.ERROR, false);
+//        }
+        myContext.audioManager.adjustStreamVolume(relevantStream, dir, volumeChangeFlag);
+    }
+
+    /**
+     * @return Audio stream to be adjusted on a volume changing key-event.
+     */
+    private int getRelevantAudioStream() {
+        int activeStream = Utils.getActiveAudioStream(myContext.audioManager);
         if (activeStream == AudioManager.USE_DEFAULT_STREAM_TYPE) {
             activeStream = AudioManager.STREAM_MUSIC; //todo: getCurrent from user settings
         }
 
-        if (activeStream == AudioManager.STREAM_SYSTEM) {
-            myContext.notifier.notify("SYSTEM VOLUME CHANGE!!!", Notifier.VibrationPattern.ERROR, false);
-        }
-        myContext.audioManager.adjustStreamVolume(activeStream, dir, volumeChangeFlag);
+        return activeStream;
     }
 
     private void setupMediaSessionForScreenOffCallbacks() {
