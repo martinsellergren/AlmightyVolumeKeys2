@@ -7,6 +7,7 @@ import android.content.IntentFilter;
 import android.media.AudioManager;
 import android.os.Build;
 import android.os.Handler;
+import android.provider.MediaStore;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.view.KeyEvent;
@@ -83,8 +84,8 @@ class UserInteraction {
         }
 
         adjustRelevantStreamVolume(volumeUp);
-        longPressHandler.postDelayed(() -> longPress(volumeUp), LONG_PRESS_VOLUME_CHANGE_TIME);
         actionCommand.reset();
+        longPressHandler.postDelayed(() -> longPress(volumeUp), LONG_PRESS_VOLUME_CHANGE_TIME);
     }
 
     // endregion
@@ -135,11 +136,20 @@ class UserInteraction {
      */
     private int getRelevantAudioStream() {
         int activeStream = Utils.getActiveAudioStream(myContext.audioManager);
-        if (activeStream == AudioManager.USE_DEFAULT_STREAM_TYPE) {
-            activeStream = AudioManager.STREAM_MUSIC; //todo: getCurrent from user settings
+        if (activeStream != AudioManager.USE_DEFAULT_STREAM_TYPE) return activeStream;
+
+        String streamStr;
+        if (!currentlyVolumeLongPress) {
+            streamStr = myContext.sharedPreferences.getString("ListPreference_FiveVolumeClicksChanges", null);
+        }
+        else {
+            streamStr = myContext.sharedPreferences.getString("ListPreference_LongVolumePressChanges", null);
         }
 
-        return activeStream;
+        if (streamStr == null) throw new RuntimeException("Dead end");
+        if (streamStr.equals("Media volume")) return AudioManager.STREAM_MUSIC;
+        else if (streamStr.equals("Ringtone volume")) return AudioManager.STREAM_RING;
+        else throw new RuntimeException("Dead end");
     }
 
     private void setupMediaSessionForScreenOffCallbacks() {

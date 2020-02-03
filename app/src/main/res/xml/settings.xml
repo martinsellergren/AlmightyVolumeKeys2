@@ -4,6 +4,27 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <PreferenceCategory
+        app:title="General">
+
+        <ListPreference
+            app:key="ListPreference_FiveVolumeClicksChanges"
+            app:title="Five or more volume clicks changes"
+            app:entries="@array/media_or_ringtone_volume"
+            app:entryValues="@array/media_or_ringtone_volume"
+            app:defaultValue="Media volume"
+            app:useSimpleSummaryProvider="true" />
+
+        <ListPreference
+            app:key="ListPreference_LongVolumePressChanges"
+            app:title="Long volume press changes"
+            app:entries="@array/media_or_ringtone_volume"
+            app:entryValues="@array/media_or_ringtone_volume"
+            app:defaultValue="Media volume"
+            app:useSimpleSummaryProvider="true" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
         app:title="Sound recording settings">
 
         <Preference

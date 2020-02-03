@@ -37,4 +37,9 @@
         <item>Sound recorder: stop and trash</item>
     </string-array>
 
+    <string-array name="media_or_ringtone_volume">
+        <item>Media volume</item>
+        <item>Ringtone volume</item>
+    </string-array>
+
 </resources>
