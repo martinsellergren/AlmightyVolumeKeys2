@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.AudioManager;
+import android.media.MediaRecorder;
+import android.net.rtp.AudioStream;
 import android.os.Build;
 import android.os.Handler;
 import android.provider.MediaStore;
@@ -25,6 +27,10 @@ class UserInteraction {
     private MyContext myContext;
     private ActionCommand actionCommand;
     private Runnable onAccessibilityServiceFail;
+
+    /**
+     * Audio stream to be changed by a long press. Updated at start of each volume longpress. */
+    private int longPressAudioStream = AudioManager.STREAM_MUSIC;
 
     private UserInteractionWhenScreenOffAndMusic userInteractionWhenScreenOffAndMusic;
 
@@ -51,7 +57,10 @@ class UserInteraction {
 
         if (event.getAction() == KeyEvent.ACTION_DOWN) {
             longPressHandler.removeCallbacksAndMessages(null);
-            longPressHandler.postDelayed(() -> longPress(volumeUp), LONG_PRESS_TIME);
+            longPressHandler.postDelayed(() -> {
+                longPressAudioStream = getLongPressAudioStream();
+                longPress(volumeUp);
+            }, LONG_PRESS_TIME);
         }
         else if (event.getAction() == KeyEvent.ACTION_UP) {
             if (!currentlyVolumeLongPress) {
@@ -136,20 +145,28 @@ class UserInteraction {
      */
     private int getRelevantAudioStream() {
         int activeStream = Utils.getActiveAudioStream(myContext.audioManager);
-        if (activeStream != AudioManager.USE_DEFAULT_STREAM_TYPE) return activeStream;
-
-        String streamStr;
-        if (!currentlyVolumeLongPress) {
-            streamStr = myContext.sharedPreferences.getString("ListPreference_FiveVolumeClicksChanges", null);
+        if (activeStream != AudioManager.USE_DEFAULT_STREAM_TYPE) {
+            return activeStream;
         }
         else {
-            streamStr = myContext.sharedPreferences.getString("ListPreference_LongVolumePressChanges", null);
+            if (currentlyVolumeLongPress) return longPressAudioStream;
+            else return getFiveClicksAudioStream();
         }
+    }
 
-        if (streamStr == null) throw new RuntimeException("Dead end");
-        if (streamStr.equals("Media volume")) return AudioManager.STREAM_MUSIC;
-        else if (streamStr.equals("Ringtone volume")) return AudioManager.STREAM_RING;
-        else throw new RuntimeException("Dead end");
+    private int getLongPressAudioStream() {
+        String value = actionCommand.getLength() >= 5 ?
+                myContext.sharedPreferences.getString("ListPreference_FiveVolumeClicksChanges", null) :
+                myContext.sharedPreferences.getString("ListPreference_LongVolumePressChanges", null);
+
+        if (value == null || value.equals("Ringtone volume")) return AudioManager.STREAM_RING;
+        else return AudioManager.STREAM_MUSIC;
+    }
+
+    private int getFiveClicksAudioStream() {
+        String value = myContext.sharedPreferences.getString("ListPreference_FiveVolumeClicksChanges", null);
+        if (value == null || value.equals("Ringtone volume")) return AudioManager.STREAM_RING;
+        else return AudioManager.STREAM_MUSIC;
     }
 
     private void setupMediaSessionForScreenOffCallbacks() {

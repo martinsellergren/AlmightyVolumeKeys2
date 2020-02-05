@@ -120,6 +120,11 @@ public class MonitorService extends AccessibilityService {
         if (Build.VERSION.SDK_INT < 24) return;
 
         Utils.gotoMainActivity(this);
-        disableSelf();
+        try {
+            disableSelf();
+        }
+        catch (Exception e) {
+            Utils.log("Failed to disable self");
+        }
     }
 }

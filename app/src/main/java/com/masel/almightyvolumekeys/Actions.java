@@ -6,6 +6,7 @@ import android.content.Context;
 import android.media.AudioManager;
 import android.media.ToneGenerator;
 import android.os.Build;
+import android.os.Bundle;
 import android.view.KeyEvent;
 
 import androidx.annotation.NonNull;
@@ -64,7 +65,10 @@ class Actions {
         @Override
         String[] getNeededPermissions(Context context) {
             if (TheSoundRecorderConnection.appIsInstalled(context)) {
-                return new String[]{Manifest.permission.RECORD_AUDIO, Manifest.permission.WRITE_EXTERNAL_STORAGE};
+                if (Build.VERSION.SDK_INT >= 23)
+                    return new String[]{Manifest.permission.RECORD_AUDIO, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.ACCESS_NOTIFICATION_POLICY};
+                else
+                    return new String[]{Manifest.permission.RECORD_AUDIO, Manifest.permission.WRITE_EXTERNAL_STORAGE};
             }
             else {
                 return new String[]{};
@@ -95,7 +99,10 @@ class Actions {
 
         @Override
         String[] getNeededPermissions(Context context) {
-            return new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE};
+            if (Build.VERSION.SDK_INT >= 23)
+                return new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.ACCESS_NOTIFICATION_POLICY};
+            else
+                return new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE};
         }
 
         @Override
@@ -127,7 +134,10 @@ class Actions {
 
         @Override
         String[] getNeededPermissions(Context context) {
-            return new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE};
+            if (Build.VERSION.SDK_INT >= 23)
+                return new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.ACCESS_NOTIFICATION_POLICY};
+            else
+                return new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE};
         }
 
         @Override

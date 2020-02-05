@@ -114,7 +114,7 @@ class TheSoundRecorderConnection {
             messenger.send(msg);
         }
         catch (RemoteException e) {
-            //throw new RuntimeException("Tried to send message when service dead");
+            Utils.log("Tried to send message when service dead");
         }
     }
 
