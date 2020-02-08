@@ -2,6 +2,7 @@ package com.masel.almightyvolumekeys;
 
 import android.os.Bundle;
 
+import androidx.preference.ListPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SeekBarPreference;
@@ -10,11 +11,18 @@ import com.masel.rec_utils.Utils;
 
 public class SettingsFragment extends PreferenceFragmentCompat {
 
-    public SettingsFragment() {}
+    private ListPreference fiveVolumeClicksChanges;
+    private ListPreference longVolumePressChanges;
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setPreferencesFromResource(R.xml.settings, rootKey);
+
+        fiveVolumeClicksChanges = findPreference("ListPreference_FiveVolumeClicksChanges");
+        requestDoNotDisturbPermissionIfRingtoneSet(fiveVolumeClicksChanges);
+        longVolumePressChanges = findPreference("ListPreference_LongVolumePressChanges");
+        requestDoNotDisturbPermissionIfRingtoneSet(longVolumePressChanges);
+
 
         SeekBarPreference preventSleepTimeout = findPreference("SeekBarPreference_preventSleepTimeout");
         preventSleepTimeout.setMin(0);
@@ -35,6 +43,27 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 }
                 return true;
             }
+        });
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        if (!Utils.hasPermissionToSilenceDevice(getContext())) {
+            fiveVolumeClicksChanges.setValue("Media volume");
+            longVolumePressChanges.setValue("Media volume");
+
+        }
+    }
+
+    private void requestDoNotDisturbPermissionIfRingtoneSet(ListPreference listPreference) {
+        listPreference.setOnPreferenceChangeListener((preference, newValue) -> {
+            String value = (String)newValue;
+            if (value.equals("Ringtone volume")) {
+                Utils.requestPermissionToSilenceDevice(getContext());
+            }
+            return true;
         });
     }
 

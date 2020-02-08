@@ -134,10 +134,12 @@ class UserInteraction {
         int volumeChangeFlag = AudioManager.FLAG_SHOW_UI;
         int relevantStream = getRelevantAudioStream();
 
-//        if (relevantStream == AudioManager.STREAM_SYSTEM) {
-//            myContext.notifier.notify("SYSTEM VOLUME CHANGE!!!", Notifier.VibrationPattern.ERROR, false);
-//        }
-        myContext.audioManager.adjustStreamVolume(relevantStream, dir, volumeChangeFlag);
+        try {
+            myContext.audioManager.adjustStreamVolume(relevantStream, dir, volumeChangeFlag);
+        }
+        catch (SecurityException e) {
+            myContext.audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, dir, volumeChangeFlag);
+        }
     }
 
     /**

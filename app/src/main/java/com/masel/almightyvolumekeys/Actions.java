@@ -550,7 +550,7 @@ class Actions {
 
     // endregion
 
-    // region MyFlashlight
+    // region Flashlight
 
     static class Flashlight_on extends Action {
         @Override
