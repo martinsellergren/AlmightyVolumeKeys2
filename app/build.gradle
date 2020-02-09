@@ -6,8 +6,8 @@ android {
         applicationId "com.masel.almightyvolumekeys"
         minSdkVersion 22
         targetSdkVersion 28
-        versionCode 17
-        versionName "1"
+        versionCode 18
+        versionName "1.2"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {

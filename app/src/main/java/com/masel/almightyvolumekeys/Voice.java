@@ -6,7 +6,7 @@ import android.os.Build;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
 
-import com.masel.rec_utils.Utils;
+import com.masel.rec_utils.RecUtils;
 
 class Voice {
 
@@ -48,7 +48,7 @@ class Voice {
         if (tts == null) return false;
 
         beforeSpeechVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
-        Utils.setStreamVolumePercentage(audioManager, AudioManager.STREAM_MUSIC, volumePercentage);
+        RecUtils.setStreamVolumePercentage(audioManager, AudioManager.STREAM_MUSIC, volumePercentage);
 
         int res = tts.speak(speech, TextToSpeech.QUEUE_FLUSH, null, speech);
         return res == TextToSpeech.SUCCESS;

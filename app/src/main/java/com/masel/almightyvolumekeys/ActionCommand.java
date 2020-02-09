@@ -4,13 +4,12 @@ import android.content.Intent;
 import android.media.AudioManager;
 import android.os.Handler;
 
-import com.masel.rec_utils.Utils;
+import com.masel.rec_utils.RecUtils;
 
 import java.util.Map;
 
 /**
  * Builds a command and executes it.
- * 4 or more volume-presses falls back to volume change, so commands should never be longer than 3 bits.
  */
 class ActionCommand {
 
@@ -22,15 +21,19 @@ class ActionCommand {
      * Current action command under construction. String of bits. 0 means down, 1 means up volume-key-press.*/
     private String command = "";
 
-    private DeviceState deviceStateOnCommandStart;
-
-    private int musicVolumeOnCommandStart;
-
     private Handler handler = new Handler();
 
     private MyContext myContext;
 
     private UserInteractionWhenScreenOffAndMusic.ManualMusicVolumeChanger manualMusicVolumeChanger = null;
+
+    private DeviceState deviceStateOnCommandStart;
+
+    private int relevantAudioStreamOnCommandStart;
+
+    private int relevantAudioStreamVolumeOnCommandStart;
+
+//    private int musicVolumeOnCommandStart;
 
     ActionCommand(MyContext myContext) {
         this.myContext = myContext;
@@ -45,8 +48,12 @@ class ActionCommand {
     void addBit(boolean up) {
         if (command.length() == 0) {
             deviceStateOnCommandStart = DeviceState.getCurrent(myContext);
-            musicVolumeOnCommandStart = myContext.audioManager.getStreamVolume(AudioManager.STREAM_MUSIC) +
-                    (deviceStateOnCommandStart == DeviceState.MUSIC ? (up ? -1 : 1) : 0);
+            relevantAudioStreamOnCommandStart = getRelevantAudioStream(deviceStateOnCommandStart);
+            relevantAudioStreamVolumeOnCommandStart = myContext.audioManager.getStreamVolume(relevantAudioStreamOnCommandStart);
+
+            if (UserInteractionWhenScreenOffAndMusic.screenOffAndMusic(myContext)) {
+                relevantAudioStreamVolumeOnCommandStart += up ? -1 : 1;
+            }
         }
         command += (up ? "1" : "0");
 
@@ -57,45 +64,48 @@ class ActionCommand {
     /**
      * Executes current command.
      * Discards any command that started in a different device-state than the current device-state.
+     * Discards any volume changes during command input if valid command.
      */
     private void executeCommand() {
-        if (DeviceState.getCurrent(myContext) == deviceStateOnCommandStart) {
-            Action action = getMappedAction(command);
+        if (DeviceState.getCurrent(myContext) != deviceStateOnCommandStart) {
+            reset();
+            return;
+        }
 
-            if (action == null || action.getName().equals(("No action"))) {
-                Utils.log(String.format("Non-mapped command: %s (state:%s)", command, DeviceState.getCurrent(myContext)));
+        Action action = getMappedAction(command);
+
+        if (action == null || action.getName().equals((new Actions.No_action().getName()))) {
+            RecUtils.log(String.format("Non-mapped command: %s (state:%s)", command, DeviceState.getCurrent(myContext)));
+            reset();
+            return;
+        }
+
+        RecUtils.log(String.format("Execute %s -> %s (state:%s)", command, action.getName(), DeviceState.getCurrent(myContext)));
+
+        try {
+            if (!RecUtils.hasPermissions(myContext.context, action.getNeededPermissions(myContext.context))) {
+                throw new Action.ExecutionException("Missing permission");
             }
-            else {
-                Utils.log(String.format("Execute %s -> %s (state:%s)", command, action.getName(), DeviceState.getCurrent(myContext)));
+            if (!action.isAvailable(myContext.context)) {
+                throw new Action.ExecutionException("Action not available on this device");
+            }
 
-                try {
-                    if (!Utils.hasPermissions(myContext.context, action.getNeededPermissions(myContext.context))) {
-                        throw new Action.ExecutionException("Missing permission");
-                    }
-                    if (!action.isAvailable(myContext.context)) {
-                        throw new Action.ExecutionException("Action not available on this device");
-                    }
+            discardAnyVolumeChanges();
+            Action.execute(myContext, action);
+        }
+        catch (Action.ExecutionException e) {
+            myContext.notifier.notify(e.getMessage(), Notifier.VibrationPattern.ERROR, false);
+            RecUtils.log(e.getMessage());
 
-                    if (deviceStateOnCommandStart == DeviceState.MUSIC && manualMusicVolumeChanger != null) {
-                        manualMusicVolumeChanger.setVolume(musicVolumeOnCommandStart);
-                    }
-
-                    Action.execute(myContext, action);
-                }
-                catch (Action.ExecutionException e) {
-                    myContext.notifier.notify(e.getMessage(), Notifier.VibrationPattern.ERROR, false);
-                    Utils.log(e.getMessage());
-
-                    if (e.getMessage().equals("Missing permission")) {
-                        fixPermissions(action.getNeededPermissions(myContext.context));
-                    }
-                }
-                catch (Exception e) {
-                    myContext.notifier.notify(e.getMessage(), Notifier.VibrationPattern.ERROR, false);
-                    Utils.log("Unknown error during action execution: " + action.toString() + "\n" + e.getMessage());
-                }
+            if (e.getMessage().equals("Missing permission")) {
+                fixPermissions(action.getNeededPermissions(myContext.context));
             }
         }
+        catch (Exception e) {
+            myContext.notifier.notify(e.getMessage(), Notifier.VibrationPattern.ERROR, false);
+            RecUtils.log("Unknown error during action execution: " + action.toString() + "\n" + e.getMessage());
+        }
+
 
         reset();
     }
@@ -128,6 +138,15 @@ class ActionCommand {
         return action;
     }
 
+    private void discardAnyVolumeChanges() {
+        if (deviceStateOnCommandStart == DeviceState.MUSIC && manualMusicVolumeChanger != null) {
+            manualMusicVolumeChanger.setVolume(relevantAudioStreamVolumeOnCommandStart);
+        }
+        else {
+            myContext.audioManager.setStreamVolume(relevantAudioStreamOnCommandStart, relevantAudioStreamVolumeOnCommandStart, AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE);
+        }
+    }
+
     /**
      * Remove all mappings of action
      */
@@ -144,5 +163,15 @@ class ActionCommand {
         intent.putExtra(MainActivity.EXTRA_PERMISSION_REQUEST, permissions);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         myContext.context.startActivity(intent);
+    }
+
+    private int getRelevantAudioStream(DeviceState state) {
+        int activeStream = RecUtils.getActiveAudioStream(myContext.audioManager);
+        if (activeStream != AudioManager.USE_DEFAULT_STREAM_TYPE) {
+            return activeStream;
+        }
+        else {
+            return Utils.loadVolumeClicksAudioStream(myContext);
+        }
     }
 }

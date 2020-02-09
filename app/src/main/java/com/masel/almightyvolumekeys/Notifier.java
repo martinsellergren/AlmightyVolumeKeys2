@@ -12,7 +12,7 @@ import android.os.SystemClock;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
-import com.masel.rec_utils.Utils;
+import com.masel.rec_utils.RecUtils;
 
 
 /**
@@ -130,7 +130,7 @@ class Notifier {
             notificationManager.notify(NOTIFICATION_ID, notification);
         }
         catch (Exception e) {
-            Utils.log("Failed to notify: " + e.toString());
+            RecUtils.log("Failed to notify: " + e.toString());
         }
         cancelNotificationHandler.postDelayed(this::cancel, DISPLAY_TIME);
 

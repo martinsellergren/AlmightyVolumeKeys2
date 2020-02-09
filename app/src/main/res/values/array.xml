@@ -42,4 +42,11 @@
         <item>Ringtone volume</item>
     </string-array>
 
+    <string-array name="media_or_ringtone_volume_with_after_5_clicks">
+        <item>Media volume</item>
+        <item>Ringtone volume</item>
+        <item>Media volume after 5 clicks</item>
+        <item>Ringtone volume after 5 clicks</item>
+    </string-array>
+
 </resources>

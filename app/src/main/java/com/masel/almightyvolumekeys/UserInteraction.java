@@ -5,18 +5,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.AudioManager;
-import android.media.MediaRecorder;
-import android.net.rtp.AudioStream;
-import android.os.Build;
 import android.os.Handler;
-import android.provider.MediaStore;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.view.KeyEvent;
 
 import androidx.media.VolumeProviderCompat;
 
-import com.masel.rec_utils.Utils;
+import com.masel.rec_utils.RecUtils;
 
 import java.util.Calendar;
 
@@ -70,7 +66,7 @@ class UserInteraction {
             currentlyVolumeLongPress = false;
         }
         else if (event.getAction() == KeyEvent.ACTION_MULTIPLE) {
-            Utils.log("MULTIPLE KEY PRESS");
+            RecUtils.log("MULTIPLE KEY PRESS");
         }
         else throw new RuntimeException("Dead end");
     }
@@ -85,7 +81,7 @@ class UserInteraction {
     private void longPress(boolean volumeUp) {
         currentlyVolumeLongPress = true;
         longPressHandler.removeCallbacksAndMessages(null);
-        int currentRelevantStreamVolumePercentage = Utils.getStreamVolumePercentage(myContext.audioManager, getRelevantAudioStream());
+        int currentRelevantStreamVolumePercentage = RecUtils.getStreamVolumePercentage(myContext.audioManager, getRelevantAudioStream());
         if ((currentRelevantStreamVolumePercentage == 100 && volumeUp) ||
                 (currentRelevantStreamVolumePercentage == 0 && !volumeUp)) {
             adjustRelevantStreamVolume(volumeUp);
@@ -108,14 +104,14 @@ class UserInteraction {
         DeviceState state = DeviceState.getCurrent(myContext);
 
         if (state.equals(DeviceState.IDLE) || state.equals(DeviceState.SOUNDREC)) {
-            if (actionCommand.getLength() >= 4) {
+            actionCommand.addBit(up);
+            if (!Utils.loadFiveClicksBeforeVolumeChange(myContext) || actionCommand.getLength() >= 4) {
                 adjustRelevantStreamVolume(up);
             }
-            actionCommand.addBit(up);
         }
         else if (state.equals(DeviceState.MUSIC)) {
-            adjustRelevantStreamVolume(up);
             actionCommand.addBit(up);
+            adjustRelevantStreamVolume(up);
         }
         else {
             adjustRelevantStreamVolume(up);
@@ -146,29 +142,20 @@ class UserInteraction {
      * @return Audio stream to be adjusted on a volume changing key-event.
      */
     private int getRelevantAudioStream() {
-        int activeStream = Utils.getActiveAudioStream(myContext.audioManager);
+        int activeStream = RecUtils.getActiveAudioStream(myContext.audioManager);
         if (activeStream != AudioManager.USE_DEFAULT_STREAM_TYPE) {
             return activeStream;
         }
         else {
             if (currentlyVolumeLongPress) return longPressAudioStream;
-            else return getFiveClicksAudioStream();
+            else return Utils.loadVolumeClicksAudioStream(myContext);
         }
     }
 
     private int getLongPressAudioStream() {
-        String value = actionCommand.getLength() >= 5 ?
-                myContext.sharedPreferences.getString("ListPreference_FiveVolumeClicksChanges", null) :
-                myContext.sharedPreferences.getString("ListPreference_LongVolumePressChanges", null);
-
-        if (value == null || value.equals("Ringtone volume")) return AudioManager.STREAM_RING;
-        else return AudioManager.STREAM_MUSIC;
-    }
-
-    private int getFiveClicksAudioStream() {
-        String value = myContext.sharedPreferences.getString("ListPreference_FiveVolumeClicksChanges", null);
-        if (value == null || value.equals("Ringtone volume")) return AudioManager.STREAM_RING;
-        else return AudioManager.STREAM_MUSIC;
+        return actionCommand.getLength() >= 1 ?
+                Utils.loadVolumeClicksAudioStream(myContext) :
+                Utils.loadVolumeLongPressAudioStream(myContext);
     }
 
     private void setupMediaSessionForScreenOffCallbacks() {
@@ -193,7 +180,7 @@ class UserInteraction {
         return new VolumeProviderCompat(VolumeProviderCompat.VOLUME_CONTROL_RELATIVE, 2, 1) {
             @Override
             public void onAdjustVolume(int direction) {
-                if (Utils.isScreenOn(myContext.powerManager)) {
+                if (RecUtils.isScreenOn(myContext.powerManager)) {
                     onAccessibilityServiceFail.run();
                     return;
                 }
@@ -223,10 +210,10 @@ class UserInteraction {
 
                 if (!allowSleep) {
                     myContext.wakeLock.acquire(timeout);
-                    Utils.log("Wake lock acquired for (minutes): " + preventSleepMinutes);
+                    RecUtils.log("Wake lock acquired for (minutes): " + preventSleepMinutes);
                 }
                 else {
-                    Utils.log("Wake lock not acquired (prevention bypassed by user settings)");
+                    RecUtils.log("Wake lock not acquired (prevention bypassed by user settings)");
                 }
             }
         }, new IntentFilter(Intent.ACTION_SCREEN_OFF));

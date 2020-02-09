@@ -16,7 +16,7 @@ import com.android.billingclient.api.Purchase;
 import com.android.billingclient.api.PurchasesUpdatedListener;
 import com.android.billingclient.api.SkuDetails;
 import com.android.billingclient.api.SkuDetailsParams;
-import com.masel.rec_utils.Utils;
+import com.masel.rec_utils.RecUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,12 +55,12 @@ class ProManager implements PurchasesUpdatedListener {
         }
         else if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.USER_CANCELED) {
             // Handle an error caused by a user cancelling the purchase flow.
-            Utils.log("Billing ended by user");
+            RecUtils.log("Billing ended by user");
             onLocked.run();
         }
         else {
             // Handle any other error codes.
-            Utils.log("Billing ended, unknown reason: " + billingResult);
+            RecUtils.log("Billing ended, unknown reason: " + billingResult);
             onLocked.run();
         }
     }
@@ -71,16 +71,16 @@ class ProManager implements PurchasesUpdatedListener {
      */
     private void handlePurchase(Purchase purchase) {
         if (purchase.getPurchaseState() == Purchase.PurchaseState.PURCHASED) {
-            Utils.log("Successful purchase");
+            RecUtils.log("Successful purchase");
             onUnlocked.run();
             acknowledgePurchase(purchase);
         }
         else if (purchase.getPurchaseState() == Purchase.PurchaseState.PENDING) {
-            Utils.log("Pending purchase");
+            RecUtils.log("Pending purchase");
             onPending.run();
         }
         else {
-            Utils.log("Canceled purchase?");
+            RecUtils.log("Canceled purchase?");
             onLocked.run();
         }
     }
@@ -93,7 +93,7 @@ class ProManager implements PurchasesUpdatedListener {
                         .setPurchaseToken(purchase.getPurchaseToken())
                         .build();
         billingClient.acknowledgePurchase(acknowledgePurchaseParams, billingResult -> {
-            Utils.log("Purchase acknowledged");
+            RecUtils.log("Purchase acknowledged");
         });
     }
 
@@ -125,7 +125,7 @@ class ProManager implements PurchasesUpdatedListener {
             BillingFlowParams flowParams = BillingFlowParams.newBuilder().setSkuDetails(skuDetails).build();
             BillingResult res = billingClient.launchBillingFlow(activity, flowParams);
             if (res.getResponseCode() != BillingClient.BillingResponseCode.OK) {
-                Utils.logAndToast(activity, "Are you connected to internet?");
+                RecUtils.logAndToast(activity, "Are you connected to internet?");
             }
         };
 
@@ -144,7 +144,7 @@ class ProManager implements PurchasesUpdatedListener {
                             onProductDetailsFetched.run(skuDetailsList.get(0));
                         }
                         else {
-                            Utils.logAndToast(activity, "Are you connected to internet?");
+                            RecUtils.logAndToast(activity, "Are you connected to internet?");
                         }
                     });
         };
@@ -167,13 +167,13 @@ class ProManager implements PurchasesUpdatedListener {
                     if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK) {
                         onConnected.run();
                     } else {
-                        Utils.logAndToast(activity, "Can't connect to google play.");
+                        RecUtils.logAndToast(activity, "Can't connect to google play.");
                     }
                 }
 
                 @Override
                 public void onBillingServiceDisconnected() {
-                    Utils.log("Connection with google play lost");
+                    RecUtils.log("Connection with google play lost");
                 }
             });
         }
@@ -213,7 +213,7 @@ class ProManager implements PurchasesUpdatedListener {
                             .build();
 
             billingClient.consumeAsync(consumeParams, (billingResult, s) -> {
-                Utils.log("Pro reverted");
+                RecUtils.log("Pro reverted");
             });
         };
 

@@ -2,7 +2,7 @@ package com.masel.almightyvolumekeys;
 
 import android.media.AudioManager;
 
-import com.masel.rec_utils.Utils;
+import com.masel.rec_utils.RecUtils;
 
 /**
  * Defines device states. States are mutually exclusive. Hijack volume keys only when in IDLE.
@@ -24,7 +24,7 @@ enum DeviceState {
      */
     static DeviceState getCurrent(MyContext myContext) {
         AudioManager manager = myContext.audioManager;
-        int activeAudioStream = Utils.getActiveAudioStream(manager);
+        int activeAudioStream = RecUtils.getActiveAudioStream(manager);
 
         if (manager.isMusicActive()) return DeviceState.MUSIC;
         if (myContext.audioRecorder.isRecording()) return DeviceState.SOUNDREC;

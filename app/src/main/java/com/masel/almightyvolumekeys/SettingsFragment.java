@@ -7,19 +7,19 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SeekBarPreference;
 
-import com.masel.rec_utils.Utils;
+import com.masel.rec_utils.RecUtils;
 
 public class SettingsFragment extends PreferenceFragmentCompat {
 
-    private ListPreference fiveVolumeClicksChanges;
+    private ListPreference volumeClicksChange;
     private ListPreference longVolumePressChanges;
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setPreferencesFromResource(R.xml.settings, rootKey);
 
-        fiveVolumeClicksChanges = findPreference("ListPreference_FiveVolumeClicksChanges");
-        requestDoNotDisturbPermissionIfRingtoneSet(fiveVolumeClicksChanges);
+        volumeClicksChange = findPreference("ListPreference_VolumeClicksChange");
+        requestDoNotDisturbPermissionIfRingtoneSet(volumeClicksChange);
         longVolumePressChanges = findPreference("ListPreference_LongVolumePressChanges");
         requestDoNotDisturbPermissionIfRingtoneSet(longVolumePressChanges);
 
@@ -38,8 +38,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         gotoSoundRec.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                if (!Utils.gotoApp(getContext(), "com.masel.thesoundrecorder2")) {
-                    Utils.openAppOnPlayStore(getContext(), "com.masel.thesoundrecorder2");
+                if (!RecUtils.gotoApp(getContext(), "com.masel.thesoundrecorder2")) {
+                    RecUtils.openAppOnPlayStore(getContext(), "com.masel.thesoundrecorder2");
                 }
                 return true;
             }
@@ -50,8 +50,8 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     public void onResume() {
         super.onResume();
 
-        if (!Utils.hasPermissionToSilenceDevice(getContext())) {
-            fiveVolumeClicksChanges.setValue("Media volume");
+        if (!RecUtils.hasPermissionToSilenceDevice(getContext())) {
+            volumeClicksChange.setValue("Media volume");
             longVolumePressChanges.setValue("Media volume");
 
         }
@@ -61,7 +61,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         listPreference.setOnPreferenceChangeListener((preference, newValue) -> {
             String value = (String)newValue;
             if (value.equals("Ringtone volume")) {
-                Utils.requestPermissionToSilenceDevice(getContext());
+                RecUtils.requestPermissionToSilenceDevice(getContext());
             }
             return true;
         });

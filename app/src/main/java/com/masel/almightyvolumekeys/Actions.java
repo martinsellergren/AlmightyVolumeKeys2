@@ -11,7 +11,7 @@ import android.view.KeyEvent;
 
 import androidx.annotation.NonNull;
 
-import com.masel.rec_utils.Utils;
+import com.masel.rec_utils.RecUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -53,7 +53,7 @@ class Actions {
                 myContext.audioRecorder.start();
             }
             else {
-                Utils.openAppOnPlayStore(myContext.context, "com.masel.thesoundrecorder2");
+                RecUtils.openAppOnPlayStore(myContext.context, "com.masel.thesoundrecorder2");
             }
         }
 
@@ -306,8 +306,8 @@ class Actions {
 
         @Override
         void run(MyContext myContext) throws ExecutionException {
-            Utils.setStreamVolumePercentage(myContext.audioManager, AudioManager.STREAM_RING, 100);
-            Utils.setStreamVolumePercentage(myContext.audioManager, AudioManager.STREAM_NOTIFICATION, 100);
+            RecUtils.setStreamVolumePercentage(myContext.audioManager, AudioManager.STREAM_RING, 100);
+            RecUtils.setStreamVolumePercentage(myContext.audioManager, AudioManager.STREAM_NOTIFICATION, 100);
             myContext.audioManager.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
         }
 

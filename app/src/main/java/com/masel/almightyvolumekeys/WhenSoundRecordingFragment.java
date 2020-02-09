@@ -6,7 +6,7 @@ import android.os.Bundle;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 
-import com.masel.rec_utils.Utils;
+import com.masel.rec_utils.RecUtils;
 
 public class WhenSoundRecordingFragment extends PreferenceFragmentCompat {
 
@@ -20,8 +20,8 @@ public class WhenSoundRecordingFragment extends PreferenceFragmentCompat {
         info.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                if (!Utils.gotoApp(getContext(), "com.masel.thesoundrecorder2")) {
-                    Utils.openAppOnPlayStore(getContext(), "com.masel.thesoundrecorder2");
+                if (!RecUtils.gotoApp(getContext(), "com.masel.thesoundrecorder2")) {
+                    RecUtils.openAppOnPlayStore(getContext(), "com.masel.thesoundrecorder2");
                 }
 
                 return true;

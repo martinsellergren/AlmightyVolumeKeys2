@@ -18,7 +18,7 @@ import androidx.core.app.NotificationCompat;
 
 import com.masel.rec_utils.AudioRecorder;
 import com.masel.rec_utils.KeyValueStore;
-import com.masel.rec_utils.Utils;
+import com.masel.rec_utils.RecUtils;
 
 public class MonitorService extends AccessibilityService {
 
@@ -26,12 +26,12 @@ public class MonitorService extends AccessibilityService {
 
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
-        Utils.log("listener service onAccessibilityEvent()");
+        RecUtils.log("listener service onAccessibilityEvent()");
     }
 
     @Override
     public void onInterrupt() {
-        Utils.log("listener service onInterrupt()");
+        RecUtils.log("listener service onInterrupt()");
     }
 
     // endregion
@@ -40,7 +40,7 @@ public class MonitorService extends AccessibilityService {
 
     @Override
     protected void onServiceConnected() {
-        Utils.log("onServiceConnected()");
+        RecUtils.log("onServiceConnected()");
 
         if (Build.VERSION.SDK_INT >= 26) requestForeground();
         userInteraction = new UserInteraction(this, this::onAccessibilityServiceFail);
@@ -60,7 +60,7 @@ public class MonitorService extends AccessibilityService {
      */
     @Override
     protected boolean onKeyEvent(KeyEvent event) {
-        Utils.log("onKeyEvent()");
+        RecUtils.log("onKeyEvent()");
         if (event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_UP || event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_DOWN) {
             userInteraction.onVolumeKeyEvent(event);
             return true;
@@ -103,7 +103,7 @@ public class MonitorService extends AccessibilityService {
 
     @Override
     public boolean onUnbind(Intent intent) {
-        Utils.log("onUnbind()");
+        RecUtils.log("onUnbind()");
 
         userInteraction.destroy();
         return super.onUnbind(intent);
@@ -113,18 +113,18 @@ public class MonitorService extends AccessibilityService {
      * @return True if this accessibility service is enabled in settings.
      */
     static boolean isEnabled(Context context) {
-        return Utils.almightyVolumeKeysEnabled(context);
+        return RecUtils.almightyVolumeKeysEnabled(context);
     }
 
     private void onAccessibilityServiceFail() {
         if (Build.VERSION.SDK_INT < 24) return;
 
-        Utils.gotoMainActivity(this);
+        RecUtils.gotoMainActivity(this);
         try {
             disableSelf();
         }
         catch (Exception e) {
-            Utils.log("Failed to disable self");
+            RecUtils.log("Failed to disable self");
         }
     }
 }

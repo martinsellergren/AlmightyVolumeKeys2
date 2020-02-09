@@ -12,7 +12,7 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 
-import com.masel.rec_utils.Utils;
+import com.masel.rec_utils.RecUtils;
 
 
 /**
@@ -89,10 +89,10 @@ class TheSoundRecorderConnection {
         intent.setComponent(new ComponentName("com.masel.thesoundrecorder2", "com.masel.thesoundrecorder2.RecorderService"));
         boolean success = context.bindService(intent, theSoundRecorderServiceConnection, 0);
         if (success) {
-            Utils.log("Successful bind-init to TheSoundRecorder");
+            RecUtils.log("Successful bind-init to TheSoundRecorder");
         }
         else {
-            Utils.log("Failed to init bind to TheSoundRecorder");
+            RecUtils.log("Failed to init bind to TheSoundRecorder");
         }
     }
 
@@ -114,7 +114,7 @@ class TheSoundRecorderConnection {
             messenger.send(msg);
         }
         catch (RemoteException e) {
-            Utils.log("Tried to send message when service dead");
+            RecUtils.log("Tried to send message when service dead");
         }
     }
 

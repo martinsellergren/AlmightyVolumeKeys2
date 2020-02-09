@@ -12,7 +12,7 @@ import androidx.preference.ListPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceManager;
 
-import com.masel.rec_utils.Utils;
+import com.masel.rec_utils.RecUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -57,7 +57,7 @@ public class MappingListPreference extends ListPreference {
             Action action = Actions.getActionFromName(actionName);
 
             if (!action.isAvailable(context)) {
-                Utils.showHeadsUpDialog(getActivity(), "This action is currently not available on your device. See Help for more info.", null);
+                RecUtils.showHeadsUpDialog(getActivity(), "This action is currently not available on your device. See Help for more info.", null);
                 setValue(new Actions.No_action().getName());
                 return false;
             }
@@ -65,7 +65,7 @@ public class MappingListPreference extends ListPreference {
                     && getValue().equals(new Actions.No_action().getName())
                     && state.equals("idle") && ProManager.loadIsLocked(context)
                     && getNumberOfSetActionsWhenIdle() >= 3) {
-                Utils.showHeadsUpDialog(getActivity(),
+                RecUtils.showHeadsUpDialog(getActivity(),
                         "For more than three idle-actions, you <b>need to UNLOCK PRO</b> (see the side-menu).",
                         null);
                 return false;
@@ -79,22 +79,22 @@ public class MappingListPreference extends ListPreference {
                 showMusicMappingHeadsUpDialog(extractCommand(getKey()));
             }
             else if (actionName.equals(new Actions.Media_play().getName())) {
-                Utils.showHeadsUpDialog(getActivity(),
+                RecUtils.showHeadsUpDialog(getActivity(),
                         "This action will start playing the media you <b>recently paused</b>.\n\nTo control currently playing media, see the <b>MEDIA-tab</b>.",
                         () -> requestNeededPermissions(actionName));
             }
             else if (actionName.equals(new Actions.Sound_recorder_start().getName()) && !TheSoundRecorderConnection.appIsInstalled(context)) {
-                Utils.showHeadsUpDialog(getActivity(),
+                RecUtils.showHeadsUpDialog(getActivity(),
                         "For sound recording, you need to install another app: <b>The Sound Recorder</b>.",
-                        () -> Utils.openAppOnPlayStore(getContext(), "com.masel.thesoundrecorder2"));
+                        () -> RecUtils.openAppOnPlayStore(getContext(), "com.masel.thesoundrecorder2"));
             }
             else if (actionName.equals(new Actions.Sound_recorder_start().getName()) && TheSoundRecorderConnection.appIsInstalled(context)) {
-                Utils.showHeadsUpDialog(getActivity(),
+                RecUtils.showHeadsUpDialog(getActivity(),
                         "To <b>stop recording</b>, see the <b>SOUND REC-tab</b> (or click the Recording... notification).",
                         () -> requestNeededPermissions(actionName));
             }
             else if (actionName.equals(new Actions.Sound_mode_sound_volume_100().getName())) {
-                Utils.showHeadsUpDialog(getActivity(),
+                RecUtils.showHeadsUpDialog(getActivity(),
                         "This action will set <b>ringtone</b> and <b>notification</b> volume to 100%.",
                         () -> requestNeededPermissions(actionName));
             }
@@ -135,7 +135,7 @@ public class MappingListPreference extends ListPreference {
                 endAction = this::openTasker;
         }
 
-        Utils.showHeadsUpDialog(getActivity(), infoText, endAction);
+        RecUtils.showHeadsUpDialog(getActivity(), infoText, endAction);
     }
 
     private void openTasker() {
@@ -197,7 +197,7 @@ public class MappingListPreference extends ListPreference {
 
     private void requestNeededPermissions(String actionName) {
         Action action = Actions.getActionFromName(actionName);
-        Utils.requestPermissions(getActivity(), Arrays.asList(action.getNeededPermissions(getContext())));
+        RecUtils.requestPermissions(getActivity(), Arrays.asList(action.getNeededPermissions(getContext())));
     }
 
     private String extractCommand(String key) {
@@ -226,11 +226,11 @@ public class MappingListPreference extends ListPreference {
      * @param command e.g 101, for Up-Down-Up
      */
     private void showMusicMappingHeadsUpDialog(String command) {
-        AppCompatActivity activity = (AppCompatActivity) Utils.getActivityOfPreference(this);
+        AppCompatActivity activity = (AppCompatActivity) RecUtils.getActivityOfPreference(this);
         if (activity == null) return;
 
         String text = getMusicMappingHeadsUpText(command);
-        Utils.showHeadsUpDialog(activity, text, null);
+        RecUtils.showHeadsUpDialog(activity, text, null);
     }
 
     private String getMusicMappingHeadsUpText(String command) {
@@ -272,7 +272,7 @@ public class MappingListPreference extends ListPreference {
     // endregion
 
     private AppCompatActivity getActivity() {
-        AppCompatActivity activity = (AppCompatActivity) Utils.getActivityOfPreference(this);
+        AppCompatActivity activity = (AppCompatActivity) RecUtils.getActivityOfPreference(this);
         if (activity == null) {
             throw new RuntimeException("Error to get activity of preference");
         }

@@ -12,7 +12,7 @@ import android.support.v4.media.session.MediaSessionCompat;
 import androidx.media.session.MediaButtonReceiver;
 import androidx.preference.PreferenceManager;
 
-import com.masel.rec_utils.Utils;
+import com.masel.rec_utils.RecUtils;
 
 class MyContext {
     final Context context;
@@ -48,7 +48,7 @@ class MyContext {
         mediaSession.release();
         if (audioRecorder.isRecording()) {
             audioRecorder.stopAndSave();
-            Utils.toast(context, "Recording stopped unexpectedly");
+            RecUtils.toast(context, "Recording stopped unexpectedly");
         }
         audioRecorder.destroy();
         notifier.cancel();

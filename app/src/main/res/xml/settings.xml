@@ -7,10 +7,10 @@
         app:title="General">
 
         <ListPreference
-            app:key="ListPreference_FiveVolumeClicksChanges"
-            app:title="Five or more volume clicks changes"
+            app:key="ListPreference_VolumeClicksChange"
+            app:title="Volume clicks change"
             app:entries="@array/media_or_ringtone_volume"
-            app:entryValues="@array/media_or_ringtone_volume"
+            app:entryValues="@array/media_or_ringtone_volume_with_after_5_clicks"
             app:defaultValue="Media volume"
             app:useSimpleSummaryProvider="true" />
 

@@ -20,7 +20,7 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
-import com.masel.rec_utils.Utils;
+import com.masel.rec_utils.RecUtils;
 
 import java.util.Arrays;
 
@@ -35,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Utils.initSettingsSharedPreferences(this, R.xml.settings);
+        RecUtils.initSettingsSharedPreferences(this, R.xml.settings);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         setupTabs();
         setupSideMenu();
@@ -64,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
             unlockProButton.setTitle("Unlock pro (pending)");
             unlockProButton.setIcon(R.drawable.lock_locked_24dp);
             unlockProButton.setOnMenuItemClickListener(item -> {
-                Utils.showHeadsUpDialog(MainActivity.this, "The transaction hasn't gone through yet.", null);
+                RecUtils.showHeadsUpDialog(MainActivity.this, "The transaction hasn't gone through yet.", null);
                 return true;
             });
         };
@@ -74,8 +74,8 @@ public class MainActivity extends AppCompatActivity {
             unlockProButton.setTitle("Pro is unlocked");
             unlockProButton.setIcon(R.drawable.lock_open_24dp);
             unlockProButton.setOnMenuItemClickListener(item -> {
-                //Utils.showHeadsUpDialog(MainActivity.this, "Thanks for unlocking pro! Hope you like it!", proManager::revertPro);
-                Utils.showHeadsUpDialog(MainActivity.this, "Thanks for unlocking pro! Hope you like it!", null);
+                //RecUtils.showHeadsUpDialog(MainActivity.this, "Thanks for unlocking pro! Hope you like it!", proManager::revertPro);
+                RecUtils.showHeadsUpDialog(MainActivity.this, "Thanks for unlocking pro! Hope you like it!", null);
                 return true;
             });
         };
@@ -158,11 +158,11 @@ public class MainActivity extends AppCompatActivity {
                         startActivity(new Intent(MainActivity.this, SupportActivity.class));
                         break;
                     case R.id.item_unlock_pro:
-                        //Utils.toast(MainActivity.this, "Unlock pro");
+                        //RecUtils.toast(MainActivity.this, "Unlock pro");
                         // Handled elsewhere
                         break;
                     case R.id.item_rate_app:
-                        Utils.showRateAppDialog(MainActivity.this);
+                        RecUtils.showRateAppDialog(MainActivity.this);
                         break;
                     default:
                         throw new RuntimeException("Dead end");
@@ -175,14 +175,14 @@ public class MainActivity extends AppCompatActivity {
     private void onEnableDisableClick() {
         String toastText = "Find the Almighty Volume Keys-service";
         if (MonitorService.isEnabled(MainActivity.this)) {
-            Utils.toast(this, toastText);
+            RecUtils.toast(this, toastText);
             openAccessibilitySettings();
         }
         else {
-            Utils.showHeadsUpDialog(MainActivity.this,
+            RecUtils.showHeadsUpDialog(MainActivity.this,
                     "In the following screen, <b>find</b> the Almighty Volume Keys' accessibility <b>service</b> and activate it.",
                     () -> {
-                        Utils.toast(MainActivity.this, toastText);
+                        RecUtils.toast(MainActivity.this, toastText);
                         openAccessibilitySettings();
                     });
         }
@@ -226,7 +226,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void showEnableServicePopupIfNotEnabled() {
         if (!MonitorService.isEnabled(this)) {
-            Utils.showHeadsUpDialog(this, "This app needs to be activated!\nOpen side menu and activate.", null);
+            RecUtils.showHeadsUpDialog(this, "This app needs to be activated!\nOpen side menu and activate.", null);
         }
     }
 
@@ -258,7 +258,7 @@ public class MainActivity extends AppCompatActivity {
         if (permissions == null) return;
         getIntent().removeExtra(EXTRA_PERMISSION_REQUEST);
 
-        Utils.requestPermissions(this, Arrays.asList(permissions));
+        RecUtils.requestPermissions(this, Arrays.asList(permissions));
     }
 
     // endregion
