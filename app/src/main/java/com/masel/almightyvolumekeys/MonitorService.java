@@ -36,6 +36,7 @@ public class MonitorService extends AccessibilityService {
 
     // endregion
 
+    private MyContext myContext;
     private UserInteraction userInteraction;
 
     @Override
@@ -43,7 +44,8 @@ public class MonitorService extends AccessibilityService {
         RecUtils.log("onServiceConnected()");
 
         if (Build.VERSION.SDK_INT >= 26) requestForeground();
-        userInteraction = new UserInteraction(this, this::onAccessibilityServiceFail);
+        this.myContext = new MyContext(this);
+        userInteraction = new UserInteraction(myContext, this::onAccessibilityServiceFail);
         cleanUpAfterCrashDuringRecording();
     }
 
@@ -54,6 +56,7 @@ public class MonitorService extends AccessibilityService {
 
     /**
      * Fired only when screen is on. Consumes volume key presses and pass them along for processing.
+     * When camera active, pass volume press through (take photo with volume keys is default on many devices).
      * Other events pass through.
      * @param event
      * @return True to consume event
@@ -62,8 +65,13 @@ public class MonitorService extends AccessibilityService {
     protected boolean onKeyEvent(KeyEvent event) {
         RecUtils.log("onKeyEvent()");
         if (event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_UP || event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_DOWN) {
-            userInteraction.onVolumeKeyEvent(event);
-            return true;
+            if (Utils.loadDefaultVolumeKeyActionWhenCameraActive(myContext) && myContext.isCameraActive()) {
+                return super.onKeyEvent(event);
+            }
+            else {
+                userInteraction.onVolumeKeyEvent(event);
+                return true;
+            }
         }
 
         return super.onKeyEvent(event);

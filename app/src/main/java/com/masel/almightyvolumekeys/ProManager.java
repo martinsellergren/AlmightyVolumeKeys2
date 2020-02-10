@@ -23,6 +23,8 @@ import java.util.List;
 
 class ProManager implements PurchasesUpdatedListener {
 
+    static int numberOfFreeIdleActions = 2;
+
     private interface RunnableWithProductDetails {
         void run(SkuDetails skuDetails);
     }

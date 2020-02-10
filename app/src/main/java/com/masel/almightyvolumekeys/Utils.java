@@ -1,7 +1,6 @@
 package com.masel.almightyvolumekeys;
 
 import android.media.AudioManager;
-import com.masel.rec_utils.RecUtils;
 
 class Utils {
 
@@ -28,5 +27,9 @@ class Utils {
         String value = myContext.sharedPreferences.getString("ListPreference_LongVolumePressChanges", null);
         if (value == null || value.equals("Ringtone volume")) return AudioManager.STREAM_RING;
         else return AudioManager.STREAM_MUSIC;
+    }
+
+    static boolean loadDefaultVolumeKeyActionWhenCameraActive(MyContext myContext) {
+        return myContext.sharedPreferences.getBoolean("SwitchPreferenceCompat_defaultVolumeKeyActionWhenCameraActive", true);
     }
 }

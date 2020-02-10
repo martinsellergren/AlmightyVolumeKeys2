@@ -30,8 +30,8 @@ class UserInteraction {
 
     private UserInteractionWhenScreenOffAndMusic userInteractionWhenScreenOffAndMusic;
 
-    UserInteraction(Context context, Runnable onAccessibilityServiceFail) {
-        this.myContext = new MyContext(context);
+    UserInteraction(MyContext myContext, Runnable onAccessibilityServiceFail) {
+        this.myContext = myContext;
         this.onAccessibilityServiceFail = onAccessibilityServiceFail;
 
         actionCommand = new ActionCommand(myContext);
@@ -44,6 +44,7 @@ class UserInteraction {
 
     void destroy() {
         longPressHandler.removeCallbacksAndMessages(null);
+        failCountHandler.removeCallbacksAndMessages(null);
         userInteractionWhenScreenOffAndMusic.destroy(myContext);
         myContext.destroy();
     }
@@ -103,9 +104,9 @@ class UserInteraction {
     private void handleVolumeKeyPress(boolean up) {
         DeviceState state = DeviceState.getCurrent(myContext);
 
-        if (state.equals(DeviceState.IDLE) || state.equals(DeviceState.SOUNDREC)) {
+        if (state.equals(DeviceState.IDLE) || state.equals(DeviceState.SOUNDREC) || state.equals(DeviceState.CAMERA)) {
             actionCommand.addBit(up);
-            if (!Utils.loadFiveClicksBeforeVolumeChange(myContext) || actionCommand.getLength() >= 4) {
+            if (!Utils.loadFiveClicksBeforeVolumeChange(myContext) || actionCommand.getLength() >= 5) {
                 adjustRelevantStreamVolume(up);
             }
         }
@@ -158,6 +159,9 @@ class UserInteraction {
                 Utils.loadVolumeLongPressAudioStream(myContext);
     }
 
+    /**
+     * Disable media session when camera is active.
+     */
     private void setupMediaSessionForScreenOffCallbacks() {
         MediaSessionCompat mediaSession = myContext.mediaSession;
         mediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
@@ -168,6 +172,7 @@ class UserInteraction {
         mediaSession.setPlaybackState(stateBuilder.build());
         mediaSession.setPlaybackToRemote(screenOffCallback());
         mediaSession.setActive(true);
+        myContext.setCameraStateCallbacks(() -> mediaSession.setActive(false), () -> mediaSession.setActive(true));
     }
 
     /**
@@ -175,18 +180,31 @@ class UserInteraction {
      * Music active, in call, phone ringing etc "should" take control over the volume-keys and
      * therefor suppress this callback. To be safe, check if to add press to action-command OR
      * change volume of appropriate stream.
+     *
+     * Screen on and active camera: media session should be disabled. If for some reason not
+     * yet disabled and volume press passes through here, do nothing.
+     *
+     * Else if happens when screen on: accessibility service fail to catch volume press.
+     * Run fail-action, if happens 3 times within 10 seconds.
      */
+    private int failCount = 0;
+    private Handler failCountHandler = new Handler();
     private VolumeProviderCompat screenOffCallback() {
         return new VolumeProviderCompat(VolumeProviderCompat.VOLUME_CONTROL_RELATIVE, 2, 1) {
             @Override
             public void onAdjustVolume(int direction) {
-                if (RecUtils.isScreenOn(myContext.powerManager)) {
-                    onAccessibilityServiceFail.run();
-                    return;
-                }
+                boolean up = direction > 0;
 
-                if (direction != 0) {
-                    boolean up = direction > 0;
+                if (myContext.isCameraActive()) {
+                    // noop
+                }
+                else if (RecUtils.isScreenOn(myContext.powerManager)) {
+                    failCountHandler.removeCallbacksAndMessages(null);
+                    if (failCount == 0) failCountHandler.postDelayed(() -> failCount = 0, 10000);
+                    failCount += 1;
+                    if (failCount > 3) onAccessibilityServiceFail.run();
+                }
+                else if (direction != 0) {
                     handleVolumeKeyPress(up);
                 }
             }

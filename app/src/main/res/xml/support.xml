@@ -3,9 +3,9 @@
 <androidx.preference.PreferenceScreen
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <Preference
-        app:title="How to change volume now when volume keys are doing something else?"
-        app:summary="When media is playing, volume keys change volume as usual. Otherwise, 5 or more quick volume clicks change volume, as well as a long-press." />
+<!--    <Preference-->
+<!--        app:title="How to change volume now when volume keys are doing something else?"-->
+<!--        app:summary="When media is playing, volume keys change volume as usual. Otherwise, 5 or more quick volume clicks change volume, as well as a long-press." />-->
 
     <Preference
         app:title="When I pick some of the actions there is a dialog saying the action is unavailable on my device. What can I do?"

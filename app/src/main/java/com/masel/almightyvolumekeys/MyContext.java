@@ -4,11 +4,13 @@ import android.app.NotificationManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.hardware.camera2.CameraManager;
 import android.media.AudioManager;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.support.v4.media.session.MediaSessionCompat;
 
+import androidx.annotation.NonNull;
 import androidx.media.session.MediaButtonReceiver;
 import androidx.preference.PreferenceManager;
 
@@ -27,6 +29,10 @@ class MyContext {
     final MyFlashlight flashlight;
     final WakeLock wakeLock;
 
+    private boolean isCameraActive;
+    private Runnable onCameraActive = null;
+    private Runnable onCameraNotActive = null;
+
     MyContext(Context c) {
         context = c.getApplicationContext();
         audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
@@ -41,6 +47,8 @@ class MyContext {
 
         PowerManager powerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
         this.wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,"com.masel.almightyvolumekeys::WakeLock");
+
+        setupCameraActiveSync();
     }
 
     void destroy() {
@@ -56,4 +64,37 @@ class MyContext {
         flashlight.destroy();
         if (wakeLock.isHeld()) wakeLock.release();
     }
+
+    // region Camera state and callbacks
+
+    boolean isCameraActive() {
+        return isCameraActive;
+    }
+
+    void setCameraStateCallbacks(Runnable onCameraActive, Runnable onCameraNotActive) {
+        this.onCameraActive = onCameraActive;
+        this.onCameraNotActive = onCameraNotActive;
+    }
+
+    private void setupCameraActiveSync() {
+        CameraManager manager = (CameraManager) context.getSystemService(Context.CAMERA_SERVICE);
+
+        manager.registerAvailabilityCallback(new CameraManager.AvailabilityCallback() {
+            @Override
+            public void onCameraAvailable(@NonNull String cameraId) {
+                super.onCameraAvailable(cameraId);
+                isCameraActive = false;
+                if (onCameraNotActive != null) onCameraNotActive.run();
+            }
+
+            @Override
+            public void onCameraUnavailable(@NonNull String cameraId) {
+                super.onCameraUnavailable(cameraId);
+                isCameraActive = true;
+                if (onCameraActive != null) onCameraActive.run();
+            }
+        }, null);
+    }
+
+    // endregion
 }

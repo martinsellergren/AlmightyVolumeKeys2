@@ -64,9 +64,9 @@ public class MappingListPreference extends ListPreference {
             if (!actionName.equals(new Actions.No_action().getName())
                     && getValue().equals(new Actions.No_action().getName())
                     && state.equals("idle") && ProManager.loadIsLocked(context)
-                    && getNumberOfSetActionsWhenIdle() >= 3) {
+                    && getNumberOfSetActionsWhenIdle() >= ProManager.numberOfFreeIdleActions) {
                 RecUtils.showHeadsUpDialog(getActivity(),
-                        "For more than three idle-actions, you <b>need to UNLOCK PRO</b> (see the side-menu).",
+                        "For more than two idle-actions, you <b>need to unlock pro</b> (see the side-menu).",
                         null);
                 return false;
             }
@@ -236,8 +236,8 @@ public class MappingListPreference extends ListPreference {
     private String getMusicMappingHeadsUpText(String command) {
         int fromMax = volumeChange(command, true);
         int fromMin = volumeChange(command, false);
-        String fromMaxTxt = fromMax == 1 ? "ONE" : (fromMax == 2 ? "TWO" : "THREE");
-        String fromMinTxt = fromMin == 1 ? "ONE" : (fromMin == 2 ? "TWO" : "THREE");
+        String fromMaxTxt = fromMax == 1 ? "ONE" : (fromMax == 2 ? "TWO" : (fromMax == 3 ? "THREE" : "FOUR"));
+        String fromMinTxt = fromMin == 1 ? "ONE" : (fromMin == 2 ? "TWO" : (fromMin == 3 ? "THREE" : "FOUR"));
 
         String alt1 = "This command only works if your device is at least <b>%s %s</b> from <b>%s</b> volume.";
         String alt2 = "This command only works if your device is at least <b>%s %s</b> from <b>MAX</b> volume and <b>%s %s</b> from <b>MIN</b> volume.";

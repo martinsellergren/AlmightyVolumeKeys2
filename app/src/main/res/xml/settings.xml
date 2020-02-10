@@ -4,12 +4,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <PreferenceCategory
-        app:title="General">
+        app:title="General"
+        app:singleLineTitle="false">
 
         <ListPreference
             app:key="ListPreference_VolumeClicksChange"
             app:title="Volume clicks change"
-            app:entries="@array/media_or_ringtone_volume"
+            app:singleLineTitle="false"
+            app:entries="@array/media_or_ringtone_volume_with_after_5_clicks"
             app:entryValues="@array/media_or_ringtone_volume_with_after_5_clicks"
             app:defaultValue="Media volume"
             app:useSimpleSummaryProvider="true" />
@@ -17,25 +19,36 @@
         <ListPreference
             app:key="ListPreference_LongVolumePressChanges"
             app:title="Long volume press changes"
+            app:singleLineTitle="false"
             app:entries="@array/media_or_ringtone_volume"
             app:entryValues="@array/media_or_ringtone_volume"
             app:defaultValue="Media volume"
             app:useSimpleSummaryProvider="true" />
 
+        <SwitchPreferenceCompat
+            app:key="SwitchPreferenceCompat_defaultVolumeKeyActionWhenCameraActive"
+            app:title="Default action when camera is active"
+            app:singleLineTitle="false"
+            app:summary="When camera is active a photo is usually taken when pressing a volume key (a system feature on many Android devices). Set this to True to execute this default camera-action instead of any mapped Almighty Volume Keys' action."
+            app:defaultValue="true"/>
+
     </PreferenceCategory>
 
     <PreferenceCategory
-        app:title="Sound recording settings">
+        app:title="Sound recording settings"
+        app:singleLineTitle="false">
 
         <Preference
             app:key="Preference_gotoSoundRec"
             app:title="Open The Sound Recorder"
+            app:singleLineTitle="false"
             app:icon="@drawable/mic_24dp"/>
 
     </PreferenceCategory>
 
     <PreferenceCategory
-        app:title="Control sleep settings (advanced)">
+        app:title="Control sleep settings (advanced)"
+        app:singleLineTitle="false">
 
         <Preference
             app:summary="If nothing significant is going on (no music, no phone call, not charging etc) your device might fall asleep. (Only happens when the screen is off). When this happens, the volume keys won't work until the screen is turned on and the device wakes up." />
@@ -43,12 +56,14 @@
         <SeekBarPreference
             app:key="SeekBarPreference_preventSleepTimeout"
             app:title="Prevent sleep timeout [minutes]"
+            app:singleLineTitle="false"
             app:summary="Prevent sleep this long after screen off. Zero means the device falls asleep whenever it pleases. Higher value means less sleep so more battery usage (but usually not too bad)."
             app:defaultValue="60"/>
 
         <SwitchPreferenceCompat
             app:key="SwitchPreferenceCompat_allowSleep"
             app:title="Allow sleep [o'clock]"
+            app:singleLineTitle="false"
             app:defaultValue="false"/>
 
         <SeekBarPreference

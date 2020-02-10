@@ -124,8 +124,9 @@ class ActionCommand {
     }
 
     private Action getMappedAction(String command) {
-        String state = DeviceState.getCurrent(myContext).toString().toLowerCase();
-        String key = String.format("mappingListPreference_%s_command_%s", state, command);
+        DeviceState state = DeviceState.getCurrent(myContext);
+        if (state == DeviceState.CAMERA) state = DeviceState.IDLE;
+        String key = String.format("mappingListPreference_%s_command_%s", state.toString().toLowerCase(), command);
 
         String actionName = myContext.sharedPreferences.getString(key, null);
         if (actionName == null) return null;
