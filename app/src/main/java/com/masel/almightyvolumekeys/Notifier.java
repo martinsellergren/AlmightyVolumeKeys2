@@ -144,4 +144,9 @@ class Notifier {
     void cancel() {
         notificationManager.cancel(NOTIFICATION_ID);
     }
+
+    void destroy() {
+        cancel();
+        cancelNotificationHandler.removeCallbacksAndMessages(null);
+    }
 }

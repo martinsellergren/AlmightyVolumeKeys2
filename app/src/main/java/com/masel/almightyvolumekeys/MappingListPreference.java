@@ -108,7 +108,7 @@ public class MappingListPreference extends ListPreference {
 
     private void prepareForTasker() {
         String infoText;
-        Runnable endAction = null;
+        RecUtils.SRunnable endAction = null;
 
         switch (TaskerIntent.testStatus(getContext())) {
             case NotInstalled:

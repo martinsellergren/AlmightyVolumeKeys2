@@ -4,7 +4,19 @@ import android.media.AudioManager;
 
 class Utils {
 
-    static int loadVolumeClicksAudioStream(MyContext myContext) {
+    static void adjustStreamVolume_noUI(MyContext myContext, int stream, boolean up) {
+        int dir = up ? AudioManager.ADJUST_RAISE : AudioManager.ADJUST_LOWER;
+        int volumeChangeFlag = AudioManager.FLAG_SHOW_UI;
+
+        try {
+            myContext.audioManager.adjustStreamVolume(stream, dir, volumeChangeFlag);
+        }
+        catch (SecurityException e) {
+            myContext.audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, dir, volumeChangeFlag);
+        }
+    }
+
+    static int loadVolumeClickAudioStream(MyContext myContext) {
         String value = myContext.sharedPreferences.getString("ListPreference_VolumeClicksChange", null);
         int backupStream = AudioManager.STREAM_MUSIC;
         if (value == null) return backupStream;

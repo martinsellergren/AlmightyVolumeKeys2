@@ -9,8 +9,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
-import android.provider.Settings;
-import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.accessibility.AccessibilityEvent;
 
@@ -37,21 +35,40 @@ public class MonitorService extends AccessibilityService {
     // endregion
 
     private MyContext myContext;
-    private UserInteraction userInteraction;
+    private VolumeKeyInputController volumeKeyInputController;
+    private VolumeKeyCaptureWhenScreenOff volumeKeyCaptureWhenScreenOff;
+    private VolumeKeyCaptureWhenScreenOffAndMusic volumeKeyCaptureWhenScreenOffAndMusic;
+    private PreventSleepOnScreenOff preventSleepOnScreenOff;
 
     @Override
     protected void onServiceConnected() {
         RecUtils.log("onServiceConnected()");
-
         if (Build.VERSION.SDK_INT >= 26) requestForeground();
-        this.myContext = new MyContext(this);
-        userInteraction = new UserInteraction(myContext, this::onAccessibilityServiceFail);
         cleanUpAfterCrashDuringRecording();
+
+        myContext = new MyContext(this);
+        volumeKeyInputController = new VolumeKeyInputController(myContext);
+        volumeKeyCaptureWhenScreenOff = new VolumeKeyCaptureWhenScreenOff(myContext, volumeKeyInputController, this::onAccessibilityServiceFail);
+        volumeKeyCaptureWhenScreenOffAndMusic = new VolumeKeyCaptureWhenScreenOffAndMusic(myContext, volumeKeyInputController);
+        volumeKeyInputController.setManualMusicVolumeChanger(volumeKeyCaptureWhenScreenOffAndMusic.getManualMusicVolumeChanger());
+        preventSleepOnScreenOff = new PreventSleepOnScreenOff(myContext);
     }
 
     private void cleanUpAfterCrashDuringRecording() {
         KeyValueStore.setAlmightyVolumeKeysIsRecording(this, false);
         AudioRecorder.removeNotification(this);
+    }
+
+    @Override
+    public boolean onUnbind(Intent intent) {
+        RecUtils.log("onUnbind()");
+        volumeKeyCaptureWhenScreenOff.destroy();
+        volumeKeyCaptureWhenScreenOffAndMusic.destroy(myContext);
+        volumeKeyInputController.destroy();
+        preventSleepOnScreenOff.destroy();
+        myContext.destroy();
+
+        return super.onUnbind(intent);
     }
 
     /**
@@ -65,11 +82,13 @@ public class MonitorService extends AccessibilityService {
     protected boolean onKeyEvent(KeyEvent event) {
         RecUtils.log("onKeyEvent()");
         if (event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_UP || event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_DOWN) {
-            if (Utils.loadDefaultVolumeKeyActionWhenCameraActive(myContext) && myContext.isCameraActive()) {
+            if (Utils.loadDefaultVolumeKeyActionWhenCameraActive(myContext) && myContext.cameraState.isCameraActive()) {
                 return super.onKeyEvent(event);
             }
             else {
-                userInteraction.onVolumeKeyEvent(event);
+                boolean volumeUp = event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_UP;
+                boolean keyIn = event.getAction() == KeyEvent.ACTION_DOWN;
+                volumeKeyInputController.pairedClick(volumeUp, keyIn);
                 return true;
             }
         }
@@ -107,14 +126,6 @@ public class MonitorService extends AccessibilityService {
                 .build();
 
         startForeground(NOTIFICATION_ID, notification);
-    }
-
-    @Override
-    public boolean onUnbind(Intent intent) {
-        RecUtils.log("onUnbind()");
-
-        userInteraction.destroy();
-        return super.onUnbind(intent);
     }
 
     /**

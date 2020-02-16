@@ -8,7 +8,6 @@ import android.media.AudioManager;
 import android.media.AudioPlaybackConfiguration;
 import android.os.Build;
 import android.os.Handler;
-import android.os.PowerManager;
 
 import androidx.annotation.RequiresApi;
 
@@ -20,20 +19,20 @@ import java.util.List;
  * When screen off when music is playing: start polling music-volume, and look for changes.
  * Stops polling when screen turns on, or if music stops.
  */
-class UserInteractionWhenScreenOffAndMusic {
+class VolumeKeyCaptureWhenScreenOffAndMusic {
 
     private static final int MUSIC_VOLUME_POLLING_DELTA = 100;
 
     private MyContext myContext;
-    private ActionCommand actionCommand;
+    private VolumeKeyInputController inputController;
     private BroadcastReceiver screenOffReceiver;
 
     private int prevMusicVolume;
     private Handler pollingHandler = new Handler();
 
-    UserInteractionWhenScreenOffAndMusic(MyContext myContext, ActionCommand actionCommand) {
+    VolumeKeyCaptureWhenScreenOffAndMusic(MyContext myContext, VolumeKeyInputController inputController) {
         this.myContext = myContext;
-        this.actionCommand = actionCommand;
+        this.inputController = inputController;
 
         setupStartPollingWhenScreenOff();
         setupStartPollingWhenMusicStarted();
@@ -66,7 +65,7 @@ class UserInteractionWhenScreenOffAndMusic {
         myContext.context.registerReceiver(screenOffReceiver, new IntentFilter(Intent.ACTION_SCREEN_OFF));
     }
 
-    // region Setup start polling
+    // region Setup start polling when music started
 
     private void setupStartPollingWhenMusicStarted() {
         if (Build.VERSION.SDK_INT >= 26) {
@@ -122,42 +121,37 @@ class UserInteractionWhenScreenOffAndMusic {
     private void startPolling() {
         RecUtils.log("Start polling music volume");
         prevMusicVolume = myContext.audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
-        time_without_music = 0;
+        timeWithoutMusic = 0;
         pollMusicVolume();
     }
 
     private static final long CONTINUE_POLLING_AFTER_MUSIC_STOP_TIME = 1000;
-    private long time_without_music = 0;
+    private long timeWithoutMusic = 0;
 
     /**
-     * Continues only if music is playing AND screen is off.
+     * Continues only if music is playing (or just recently stopped) AND screen is off.
      */
     private void pollMusicVolume() {
         pollingHandler.removeCallbacksAndMessages(null);
 
         if (DeviceState.getCurrent(myContext) == DeviceState.MUSIC) {
-            time_without_music = 0;
+            timeWithoutMusic = 0;
         }
         else {
-            time_without_music += MUSIC_VOLUME_POLLING_DELTA;
+            timeWithoutMusic += MUSIC_VOLUME_POLLING_DELTA;
         }
 
-        if (RecUtils.isScreenOn(myContext.powerManager) || time_without_music > CONTINUE_POLLING_AFTER_MUSIC_STOP_TIME) {
+        if (RecUtils.isScreenOn(myContext.powerManager) || timeWithoutMusic > CONTINUE_POLLING_AFTER_MUSIC_STOP_TIME) {
             RecUtils.log("Stop polling music volume");
             return;
         }
 
-//        if (isScreenOn() || DeviceState.getCurrent(myContext) != DeviceState.MUSIC) {
-//            Utils.log("Stop polling music volume");
-//            return;
-//        }
-
         int currentMusicVolume = myContext.audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
-        if (currentMusicVolume == prevMusicVolume + 1) {
-            actionCommand.addBit(true);
-        }
-        else if (currentMusicVolume == prevMusicVolume - 1) {
-            actionCommand.addBit(false);
+        int diff = currentMusicVolume - prevMusicVolume;
+        boolean volumeUp = diff > 0;
+
+        for (int i = 0; i < Math.abs(diff); i++) {
+            inputController.singleClick(volumeUp, true);
         }
 
         prevMusicVolume = currentMusicVolume;

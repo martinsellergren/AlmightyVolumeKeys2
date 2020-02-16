@@ -25,7 +25,7 @@ class ActionCommand {
 
     private MyContext myContext;
 
-    private UserInteractionWhenScreenOffAndMusic.ManualMusicVolumeChanger manualMusicVolumeChanger = null;
+    private VolumeKeyCaptureWhenScreenOffAndMusic.ManualMusicVolumeChanger manualMusicVolumeChanger = null;
 
     private DeviceState deviceStateOnCommandStart;
 
@@ -51,7 +51,7 @@ class ActionCommand {
             relevantAudioStreamOnCommandStart = getRelevantAudioStream(deviceStateOnCommandStart);
             relevantAudioStreamVolumeOnCommandStart = myContext.audioManager.getStreamVolume(relevantAudioStreamOnCommandStart);
 
-            if (UserInteractionWhenScreenOffAndMusic.screenOffAndMusic(myContext)) {
+            if (VolumeKeyCaptureWhenScreenOffAndMusic.screenOffAndMusic(myContext)) {
                 relevantAudioStreamVolumeOnCommandStart += up ? -1 : 1;
             }
         }
@@ -119,13 +119,12 @@ class ActionCommand {
         return command.length();
     }
 
-    void setManualMusicVolumeChanger(UserInteractionWhenScreenOffAndMusic.ManualMusicVolumeChanger manualMusicVolumeChanger) {
+    void setManualMusicVolumeChanger(VolumeKeyCaptureWhenScreenOffAndMusic.ManualMusicVolumeChanger manualMusicVolumeChanger) {
         this.manualMusicVolumeChanger = manualMusicVolumeChanger;
     }
 
     private Action getMappedAction(String command) {
         DeviceState state = DeviceState.getCurrent(myContext);
-        if (state == DeviceState.CAMERA) state = DeviceState.IDLE;
         String key = String.format("mappingListPreference_%s_command_%s", state.toString().toLowerCase(), command);
 
         String actionName = myContext.sharedPreferences.getString(key, null);
@@ -172,7 +171,7 @@ class ActionCommand {
             return activeStream;
         }
         else {
-            return Utils.loadVolumeClicksAudioStream(myContext);
+            return Utils.loadVolumeClickAudioStream(myContext);
         }
     }
 }

@@ -27,9 +27,9 @@
 
         <SwitchPreferenceCompat
             app:key="SwitchPreferenceCompat_defaultVolumeKeyActionWhenCameraActive"
-            app:title="Default action when camera is active"
+            app:title="Default volume key camera-action"
             app:singleLineTitle="false"
-            app:summary="When camera is active a photo is usually taken when pressing a volume key (a system feature on many Android devices). Set this to True to execute this default camera-action instead of any mapped Almighty Volume Keys' action."
+            app:summary="When camera is active a photo is usually taken when pressing a volume key (a system feature on many Android devices). Set this to True to execute this default camera-action instead of any mapped Almighty Volume Keys-action."
             app:defaultValue="true"/>
 
     </PreferenceCategory>

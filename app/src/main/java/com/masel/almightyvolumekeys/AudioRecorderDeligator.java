@@ -8,6 +8,7 @@ import androidx.annotation.Nullable;
 
 import com.masel.rec_utils.AudioRecorder;
 import com.masel.rec_utils.KeyValueStore;
+import com.masel.rec_utils.RecUtils;
 
 import java.io.IOException;
 
@@ -110,8 +111,11 @@ class AudioRecorderDeligator {
     }
 
     void destroy() {
-        if (localRecorder != null) localRecorder.stopAndSave();
+        if (isRecording()) {
+            stopAndSave();
+            RecUtils.toast(context, "Recording stopped unexpectedly");
+        }
+
         theSoundRecorder.disconnect();
     }
-
 }
