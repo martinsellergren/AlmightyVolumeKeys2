@@ -6,7 +6,8 @@
     <Preference
         app:summary="@string/when_idle_info" />
 
-    <PreferenceCategory>
+    <PreferenceCategory
+        app:title="Short clicks">
 
         <com.masel.almightyvolumekeys.MappingListPreference
             app:key="mappingListPreference_idle_command_1" />
@@ -61,6 +62,17 @@
 
         <com.masel.almightyvolumekeys.MappingListPreference
             app:key="mappingListPreference_idle_command_0111" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:title="Long clicks">
+
+        <com.masel.almightyvolumekeys.MappingListPreference
+            app:key="mappingListPreference_idle_command_2" />
+
+        <com.masel.almightyvolumekeys.MappingListPreference
+            app:key="mappingListPreference_idle_command_3" />
 
     </PreferenceCategory>
 

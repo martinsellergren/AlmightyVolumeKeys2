@@ -17,6 +17,11 @@ class ActionCommand {
      * Max time between added bits before command executed. */
     private static final int DELTA_PRESS_TIME = 1000;
 
+    static final int VOLUME_PRESS_DOWN = 0;
+    static final int VOLUME_PRESS_UP = 1;
+    static final int VOLUME_PRESS_LONG_DOWN = 2;
+    static final int VOLUME_PRESS_LONG_UP = 3;
+
     /**
      * Current action command under construction. String of bits. 0 means down, 1 means up volume-key-press.*/
     private String command = "";
@@ -29,9 +34,12 @@ class ActionCommand {
 
     private DeviceState deviceStateOnCommandStart;
 
-    private int relevantAudioStreamOnCommandStart;
+    private AudioStreamState resetAudioStreamState = null;
 
-    private int relevantAudioStreamVolumeOnCommandStart;
+//
+//    private int relevantAudioStreamOnCommandStart;
+//
+//    private int relevantAudioStreamVolumeOnCommandStart;
 
 //    private int musicVolumeOnCommandStart;
 
@@ -40,29 +48,35 @@ class ActionCommand {
     }
 
     /**
-     * Adds a command-bit to the command. Executes command if no other bit added before multi-press-time.
-     * Execute command: Perform action mapped to command. Mapping depends on current audio-state.
-     * If no mapped action registered, does nothing.
-     * @param up else down-command-bit
+     * Adds a command-bit to the command.
      */
-    void addBit(boolean up) {
-        if (command.length() == 0) {
-            deviceStateOnCommandStart = DeviceState.getCurrent(myContext);
-            relevantAudioStreamOnCommandStart = getRelevantAudioStream(deviceStateOnCommandStart);
-            relevantAudioStreamVolumeOnCommandStart = myContext.audioManager.getStreamVolume(relevantAudioStreamOnCommandStart);
-
-            if (VolumeKeyCaptureWhenScreenOffAndMusic.screenOffAndMusic(myContext)) {
-                relevantAudioStreamVolumeOnCommandStart += up ? -1 : 1;
-            }
-        }
-        command += (up ? "1" : "0");
-
+    void addBit(int volumePress, AudioStreamState resetAudioStreamState) {
         handler.removeCallbacksAndMessages(null);
+
+        if (command.length() == 0) {
+
+            deviceStateOnCommandStart = DeviceState.getCurrent(myContext);
+            this.resetAudioStreamState = resetAudioStreamState;
+//            relevantAudioStreamOnCommandStart = getRelevantAudioStream(deviceStateOnCommandStart);
+//            relevantAudioStreamVolumeOnCommandStart = myContext.audioManager.getStreamVolume(relevantAudioStreamOnCommandStart);
+//
+//            if (VolumeKeyCaptureWhenScreenOffAndMusic.screenOffAndMusic(myContext)) {
+//                relevantAudioStreamVolumeOnCommandStart += up ? -1 : 1;
+//            }
+        }
+        command += volumePress;
         handler.postDelayed(this::executeCommand, DELTA_PRESS_TIME);
     }
 
     /**
-     * Executes current command.
+     * Halt execution count down.
+     */
+    void halt() {
+        handler.removeCallbacksAndMessages(null);
+    }
+
+    /**
+     * Executes current command: Perform action mapped to command. Mapping depends on current audio-state.
      * Discards any command that started in a different device-state than the current device-state.
      * Discards any volume changes during command input if valid command.
      */
@@ -139,11 +153,13 @@ class ActionCommand {
     }
 
     private void discardAnyVolumeChanges() {
+        if (resetAudioStreamState == null) return;
+
         if (deviceStateOnCommandStart == DeviceState.MUSIC && manualMusicVolumeChanger != null) {
-            manualMusicVolumeChanger.setVolume(relevantAudioStreamVolumeOnCommandStart);
+            manualMusicVolumeChanger.setVolume(resetAudioStreamState.getVolume());
         }
         else {
-            myContext.audioManager.setStreamVolume(relevantAudioStreamOnCommandStart, relevantAudioStreamVolumeOnCommandStart, AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE);
+            resetAudioStreamState.commit_noUI(myContext);
         }
     }
 

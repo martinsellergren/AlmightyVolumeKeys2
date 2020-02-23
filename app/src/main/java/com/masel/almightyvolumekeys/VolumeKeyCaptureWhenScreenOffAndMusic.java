@@ -151,7 +151,7 @@ class VolumeKeyCaptureWhenScreenOffAndMusic {
         boolean volumeUp = diff > 0;
 
         for (int i = 0; i < Math.abs(diff); i++) {
-            inputController.singleClick(volumeUp, true);
+            inputController.singleClickDetectedFromMusicVolumeChange(volumeUp, prevMusicVolume);
         }
 
         prevMusicVolume = currentMusicVolume;

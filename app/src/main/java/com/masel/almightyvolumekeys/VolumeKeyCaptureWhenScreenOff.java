@@ -73,7 +73,7 @@ class VolumeKeyCaptureWhenScreenOff {
             }
             else if (direction != 0) {
                 RecUtils.log("Media session caught press");
-                inputController.singleClick(direction > 0, false);
+                inputController.singleClick(direction > 0);
             }
         }
     };

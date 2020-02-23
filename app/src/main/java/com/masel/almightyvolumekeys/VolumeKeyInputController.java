@@ -29,14 +29,24 @@ class VolumeKeyInputController {
     void pairedClick(boolean volumeUp, boolean keyIn) {
         boolean consumed = longPressController.pairedClick(volumeUp, keyIn);
         if (!consumed && !keyIn) {
-            handleClick(volumeUp, true);
+            AudioStreamState resetAudioStreamState = new AudioStreamState(myContext.audioManager, getRelevantAudioStream());
+            handleClick(volumeUp, true, resetAudioStreamState);
         }
     }
 
-    void singleClick(boolean volumeUp, boolean volumeChanged) {
-        boolean consumed = longPressController.singleClick(volumeUp, !volumeChanged);
+    void singleClick(boolean volumeUp) {
+        boolean consumed = longPressController.singleClick(volumeUp);
         if (!consumed) {
-            handleClick(volumeUp, !volumeChanged);
+            AudioStreamState resetAudioStreamState = new AudioStreamState(myContext.audioManager, getRelevantAudioStream());
+            handleClick(volumeUp, true, resetAudioStreamState);
+        }
+    }
+
+    void singleClickDetectedFromMusicVolumeChange(boolean volumeUp, int musicVolumeBeforeDetected) {
+        boolean consumed = longPressController.singleClickDetectedFromMusicVolumeChange(volumeUp, musicVolumeBeforeDetected);
+        if (!consumed) {
+            AudioStreamState resetAudioStreamState = new AudioStreamState(AudioManager.STREAM_MUSIC, musicVolumeBeforeDetected);
+            handleClick(volumeUp, false, resetAudioStreamState);
         }
     }
 
@@ -44,17 +54,18 @@ class VolumeKeyInputController {
      * @param volumeUp
      * @param changeVolume True if to change volume (if appropriate) in addition to register click.
      */
-    private void handleClick(boolean volumeUp, boolean changeVolume) {
+    private void handleClick(boolean volumeUp, boolean changeVolume, AudioStreamState resetAudioStreamState) {
         DeviceState state = DeviceState.getCurrent(myContext);
+        int volumePress = volumeUp ? ActionCommand.VOLUME_PRESS_UP : ActionCommand.VOLUME_PRESS_DOWN;
 
         if (state.equals(DeviceState.IDLE) || state.equals(DeviceState.SOUNDREC)) {
-            actionCommand.addBit(volumeUp);
+            actionCommand.addBit(volumePress, resetAudioStreamState);
             if (changeVolume && (!Utils.loadFiveClicksBeforeVolumeChange(myContext) || actionCommand.getLength() >= 5)) {
                 Utils.adjustStreamVolume_noUI(myContext, getRelevantAudioStream(), volumeUp);
             }
         }
         else if (state.equals(DeviceState.MUSIC)) {
-            actionCommand.addBit(volumeUp);
+            actionCommand.addBit(volumePress, resetAudioStreamState);
             if (changeVolume) Utils.adjustStreamVolume_noUI(myContext, getRelevantAudioStream(), volumeUp);
         }
         else if (changeVolume) {

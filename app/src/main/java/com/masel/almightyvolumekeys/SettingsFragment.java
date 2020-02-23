@@ -18,7 +18,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setPreferencesFromResource(R.xml.settings, rootKey);
 
-        volumeClicksChange = findPreference("ListPreference_VolumeClicksChange");
+        volumeClicksChange = findPreference("ListPreference_VolumeClickChanges");
         requestDoNotDisturbPermissionIfRingtoneSet(volumeClicksChange);
         longVolumePressChanges = findPreference("ListPreference_LongVolumePressChanges");
         requestDoNotDisturbPermissionIfRingtoneSet(longVolumePressChanges);

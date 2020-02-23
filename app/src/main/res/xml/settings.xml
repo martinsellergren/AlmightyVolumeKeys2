@@ -8,8 +8,8 @@
         app:singleLineTitle="false">
 
         <ListPreference
-            app:key="ListPreference_VolumeClicksChange"
-            app:title="Volume clicks change"
+            app:key="ListPreference_VolumeClickChanges"
+            app:title="Volume click changes"
             app:singleLineTitle="false"
             app:entries="@array/media_or_ringtone_volume_with_after_5_clicks"
             app:entryValues="@array/media_or_ringtone_volume_with_after_5_clicks"

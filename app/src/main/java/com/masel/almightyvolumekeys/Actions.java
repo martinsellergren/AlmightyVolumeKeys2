@@ -242,7 +242,7 @@ class Actions {
     static class Media_pause extends Action {
         @Override
         String getName() {
-            return "Media: pause";
+            return "Media: halt";
         }
 
         @Override

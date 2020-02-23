@@ -17,7 +17,7 @@ class Utils {
     }
 
     static int loadVolumeClickAudioStream(MyContext myContext) {
-        String value = myContext.sharedPreferences.getString("ListPreference_VolumeClicksChange", null);
+        String value = myContext.sharedPreferences.getString("ListPreference_VolumeClickChanges", null);
         int backupStream = AudioManager.STREAM_MUSIC;
         if (value == null) return backupStream;
 
@@ -29,7 +29,7 @@ class Utils {
 
 
     static boolean loadFiveClicksBeforeVolumeChange(MyContext myContext) {
-        String value = myContext.sharedPreferences.getString("ListPreference_VolumeClicksChange", null);
+        String value = myContext.sharedPreferences.getString("ListPreference_VolumeClickChanges", null);
         if (value == null) return false;
         return value.equals("Media volume after 5 clicks") ||
                 value.equals("Ringtone volume after 5 clicks");

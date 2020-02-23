@@ -9,6 +9,7 @@ class LongPressController {
 
     private MyContext myContext;
     private ActionCommand actionCommand;
+    private AudioStreamState resetAudioStreamState = null;
 
     LongPressController(MyContext myContext, ActionCommand actionCommand) {
         this.myContext = myContext;
@@ -23,28 +24,51 @@ class LongPressController {
 
 
     private static final long LONG_PRESS_TIME = 400;
-    private static final long LONG_PRESS_VOLUME_CHANGE_TIME = 40;
     private Handler pairedPressHandler = new Handler();
     private boolean pairedPressLongPress = false;
     //private int longPressAudioStream = AudioManager.STREAM_MUSIC;
 
     boolean pairedClick(boolean volumeUp, boolean keyIn) {
+        if (pairedPressLongPress) return true;
+
         if (keyIn) {
+            actionCommand.halt();
             pairedPressHandler.removeCallbacksAndMessages(null);
             pairedPressHandler.postDelayed(() -> {
                 pairedPressLongPress = true;
-                RecUtils.log("Long press");
-                //longPressAudioStream = getLongPressAudioStream();
-                //longPress(volumeUp);
+                resetAudioStreamState = new AudioStreamState(myContext.audioManager, getRelevantAudioStream());
+                notifyLongPress();
+                moveVolume(resetAudioStreamState.getStream(), volumeUp);
             }, LONG_PRESS_TIME);
             return false;
         }
         else {
             pairedPressHandler.removeCallbacksAndMessages(null);
-            boolean pairedPressLongPress_ = pairedPressLongPress;
-            pairedPressLongPress = false;
-            return pairedPressLongPress_;
+
+            if (pairedPressLongPress) {
+                pairedPressLongPress = false;
+                onKeyReleased(volumeUp);
+                return true;
+            }
+            else {
+                return false;
+            }
         }
+    }
+
+    private static final long LONG_PRESS_VOLUME_CHANGE_TIME = 40;
+
+    private void moveVolume(int stream, boolean volumeUp) {
+
+    }
+
+    private void notifyLongPress() {
+        //short vibrate
+    }
+
+    private void onKeyReleased(boolean volumeUp) {
+        int volumePress = volumeUp ? ActionCommand.VOLUME_PRESS_LONG_UP : ActionCommand.VOLUME_PRESS_LONG_DOWN;
+        actionCommand.addBit(volumePress, resetAudioStreamState);
     }
 
 //    private void longPress(boolean volumeUp) {
@@ -74,22 +98,27 @@ class LongPressController {
 
     // region single click
 
-    boolean singleClick(boolean up, boolean volumeChanged) {
+    boolean singleClick(boolean up) {
+        return false;
+    }
+
+    boolean singleClickDetectedFromMusicVolumeChange(boolean up, int musicVolumeBeforeDetected) {
         return false;
     }
 
     /**
      * @return Audio stream to be adjusted on a volume changing key-event.
      */
-//    private int getRelevantAudioStream() {
-//        int activeStream = RecUtils.getActiveAudioStream(myContext.audioManager);
-//        if (activeStream != AudioManager.USE_DEFAULT_STREAM_TYPE) {
-//            return activeStream;
-//        }
-//        else {
-//            return longPressAudioStream;
-//        }
-//    }
+    private int getRelevantAudioStream() {
+        int activeStream = RecUtils.getActiveAudioStream(myContext.audioManager);
+        if (activeStream != AudioManager.USE_DEFAULT_STREAM_TYPE) {
+            return activeStream;
+        }
+        else {
+            //return longPressAudioStream;
+            return Utils.loadVolumeLongPressAudioStream(myContext);
+        }
+    }
 
     // endregion
 }

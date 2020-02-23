@@ -213,8 +213,10 @@ public class MappingListPreference extends ListPreference {
         String title = "Volume ";
 
         for (char c : actionCode.toCharArray()) {
-            if (c == '1') title += "Up→";
-            else if (c == '0') title += "Down→";
+            if (c == '0') title += "Down→";
+            else if (c == '1') title += "Up→";
+            else if (c == '2') title += "Long Down→";
+            else if (c == '3') title += "Long Up→";
             else throw new RuntimeException("Dead end");
         }
         return title.substring(0, title.length()-1);
