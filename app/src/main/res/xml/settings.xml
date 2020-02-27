@@ -8,22 +8,22 @@
         app:singleLineTitle="false">
 
         <ListPreference
-            app:key="ListPreference_VolumeClickChanges"
-            app:title="Volume click changes"
+            app:key="ListPreference_VolumeKeysChange"
+            app:title="Volume keys change"
             app:singleLineTitle="false"
             app:entries="@array/media_or_ringtone_volume_with_after_5_clicks"
             app:entryValues="@array/media_or_ringtone_volume_with_after_5_clicks"
             app:defaultValue="Media volume"
             app:useSimpleSummaryProvider="true" />
 
-        <ListPreference
-            app:key="ListPreference_LongVolumePressChanges"
-            app:title="Long volume press changes"
-            app:singleLineTitle="false"
-            app:entries="@array/media_or_ringtone_volume"
-            app:entryValues="@array/media_or_ringtone_volume"
-            app:defaultValue="Media volume"
-            app:useSimpleSummaryProvider="true" />
+<!--        <ListPreference-->
+<!--            app:key="ListPreference_LongVolumePressChanges"-->
+<!--            app:title="Long volume press changes"-->
+<!--            app:singleLineTitle="false"-->
+<!--            app:entries="@array/media_or_ringtone_volume"-->
+<!--            app:entryValues="@array/media_or_ringtone_volume"-->
+<!--            app:defaultValue="Media volume"-->
+<!--            app:useSimpleSummaryProvider="true" />-->
 
         <SwitchPreferenceCompat
             app:key="SwitchPreferenceCompat_defaultVolumeKeyActionWhenCameraActive"

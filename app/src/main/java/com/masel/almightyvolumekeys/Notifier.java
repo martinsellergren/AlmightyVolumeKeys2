@@ -61,13 +61,13 @@ class Notifier {
      * pre: context set
      */
     private void createChannel(VibrationPattern vibrationPattern) {
-        if (notificationChannelIsSupported()) {
+        if (Build.VERSION.SDK_INT >= 26) {
             String notificationChannelId = getNotificationChannelId(vibrationPattern);
             long[] vibrationPatternArray = getVibrationPatternArray(vibrationPattern);
 
             String NOTIFICATION_CHANNEL_GROUP_ID = "Heads ups";
             String notificationChannelGroupName = NOTIFICATION_CHANNEL_GROUP_ID;
-            NotificationManager notificationManager = context.getSystemService(NotificationManager.class);
+            //NotificationManager notificationManager = context.getSystemService(NotificationManager.class);
             notificationManager.createNotificationChannelGroup(new NotificationChannelGroup(NOTIFICATION_CHANNEL_GROUP_ID, notificationChannelGroupName));
 
             String notificationChannelName = notificationChannelId;
@@ -79,10 +79,6 @@ class Notifier {
 
             notificationManager.createNotificationChannel(channel);
         }
-    }
-
-    private boolean notificationChannelIsSupported() {
-        return Build.VERSION.SDK_INT >= 26;
     }
 
     private String getNotificationChannelId(VibrationPattern pattern) {
@@ -124,6 +120,7 @@ class Notifier {
                 .setPriority(NotificationCompat.PRIORITY_MAX)
                 .setVibrate(vibrationPatternArray)
                 .setSound(null)
+                .setAutoCancel(true)
                 .build();
 
         try {

@@ -1,20 +1,23 @@
 package com.masel.almightyvolumekeys;
 
-import android.media.AudioManager;
+import android.os.Handler;
 
 import com.masel.rec_utils.RecUtils;
 
 class VolumeKeyInputController {
 
+    private static final long LONG_PRESS_TIME = 400;
+
     private MyContext myContext;
     private ActionCommand actionCommand;
-    private LongPressController longPressController;
+
+    private boolean currentLongPress = false;
+    private Handler longPressHandler = new Handler();
 
     VolumeKeyInputController(MyContext myContext) {
         this.myContext = myContext;
 
         actionCommand = new ActionCommand(myContext);
-        longPressController = new LongPressController(myContext, actionCommand);
     }
 
     void setManualMusicVolumeChanger(VolumeKeyCaptureWhenScreenOffAndMusic.ManualMusicVolumeChanger manualMusicVolumeChanger) {
@@ -22,67 +25,61 @@ class VolumeKeyInputController {
     }
 
     void destroy() {
+        longPressHandler.removeCallbacksAndMessages(null);
         actionCommand.reset();
-        longPressController.destroy();
-    }
-
-    void pairedClick(boolean volumeUp, boolean keyIn) {
-        boolean consumed = longPressController.pairedClick(volumeUp, keyIn);
-        if (!consumed && !keyIn) {
-            AudioStreamState resetAudioStreamState = new AudioStreamState(myContext.audioManager, getRelevantAudioStream());
-            handleClick(volumeUp, true, resetAudioStreamState);
-        }
-    }
-
-    void singleClick(boolean volumeUp) {
-        boolean consumed = longPressController.singleClick(volumeUp);
-        if (!consumed) {
-            AudioStreamState resetAudioStreamState = new AudioStreamState(myContext.audioManager, getRelevantAudioStream());
-            handleClick(volumeUp, true, resetAudioStreamState);
-        }
-    }
-
-    void singleClickDetectedFromMusicVolumeChange(boolean volumeUp, int musicVolumeBeforeDetected) {
-        boolean consumed = longPressController.singleClickDetectedFromMusicVolumeChange(volumeUp, musicVolumeBeforeDetected);
-        if (!consumed) {
-            AudioStreamState resetAudioStreamState = new AudioStreamState(AudioManager.STREAM_MUSIC, musicVolumeBeforeDetected);
-            handleClick(volumeUp, false, resetAudioStreamState);
-        }
     }
 
     /**
-     * @param volumeUp
-     * @param changeVolume True if to change volume (if appropriate) in addition to register click.
+     * On volume key down. Must match with volumeUp().
+     * @param onLongPress Additional action when long-press detected.
      */
-    private void handleClick(boolean volumeUp, boolean changeVolume, AudioStreamState resetAudioStreamState) {
+    void keyDown(Runnable onLongPress) {
+        actionCommand.halt();
+
+        longPressHandler.postDelayed(() -> {
+            onLongPress.run();
+            longPressDetected();
+        }, LONG_PRESS_TIME);
+    }
+
+    /**
+     * On volume key up.
+     * @param volumeUp Else down.
+     * @param resetAudioStreamState Audio stream state as it was before click happened.
+     */
+    void keyUp(boolean volumeUp, AudioStreamState resetAudioStreamState) {
+        int press = volumeUp ? ActionCommand.VOLUME_PRESS_UP : ActionCommand.VOLUME_PRESS_DOWN;
+        if (currentLongPress) press = volumeUp ? ActionCommand.VOLUME_PRESS_LONG_UP : ActionCommand.VOLUME_PRESS_LONG_DOWN;
+
         DeviceState state = DeviceState.getCurrent(myContext);
-        int volumePress = volumeUp ? ActionCommand.VOLUME_PRESS_UP : ActionCommand.VOLUME_PRESS_DOWN;
+        if (state == DeviceState.IDLE || state == DeviceState.MUSIC || state == DeviceState.SOUNDREC) {
+            actionCommand.addBit(press, resetAudioStreamState);
+        }
+
+        longPressHandler.removeCallbacksAndMessages(null);
+        currentLongPress = false;
+    }
+
+    void longPressDetected() {
+        currentLongPress = true;
+        myContext.vibrator.vibrate();
+    }
+
+    void adjustVolumeIfAppropriate(int audioStream, boolean volumeUp) {
+        DeviceState state = DeviceState.getCurrent(myContext);
+        boolean appropriate = false;
 
         if (state.equals(DeviceState.IDLE) || state.equals(DeviceState.SOUNDREC)) {
-            actionCommand.addBit(volumePress, resetAudioStreamState);
-            if (changeVolume && (!Utils.loadFiveClicksBeforeVolumeChange(myContext) || actionCommand.getLength() >= 5)) {
-                Utils.adjustStreamVolume_noUI(myContext, getRelevantAudioStream(), volumeUp);
+            if (RecUtils.isScreenOn(myContext.powerManager) && (!Utils.loadFiveClicksBeforeVolumeChange(myContext) || actionCommand.getLength() >= 5)) {
+                appropriate = true;
             }
         }
-        else if (state.equals(DeviceState.MUSIC)) {
-            actionCommand.addBit(volumePress, resetAudioStreamState);
-            if (changeVolume) Utils.adjustStreamVolume_noUI(myContext, getRelevantAudioStream(), volumeUp);
-        }
-        else if (changeVolume) {
-            Utils.adjustStreamVolume_noUI(myContext, getRelevantAudioStream(), volumeUp);
-        }
-    }
-
-    /**
-     * @return Audio stream to be adjusted on a volume changing key-event.
-     */
-    private int getRelevantAudioStream() {
-        int activeStream = RecUtils.getActiveAudioStream(myContext.audioManager);
-        if (activeStream != AudioManager.USE_DEFAULT_STREAM_TYPE) {
-            return activeStream;
-        }
         else {
-            return Utils.loadVolumeClickAudioStream(myContext);
+            appropriate = true;
+        }
+
+        if (appropriate) {
+            Utils.adjustVolume_withFallback(myContext.audioManager, audioStream, volumeUp, true);
         }
     }
 }

@@ -9,6 +9,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
+import android.os.Handler;
 import android.view.KeyEvent;
 import android.view.accessibility.AccessibilityEvent;
 
@@ -48,7 +49,7 @@ public class MonitorService extends AccessibilityService {
 
         myContext = new MyContext(this);
         volumeKeyInputController = new VolumeKeyInputController(myContext);
-        volumeKeyCaptureWhenScreenOff = new VolumeKeyCaptureWhenScreenOff(myContext, volumeKeyInputController, this::onAccessibilityServiceFail);
+        volumeKeyCaptureWhenScreenOff = new VolumeKeyCaptureWhenScreenOff(myContext, volumeKeyInputController);
         volumeKeyCaptureWhenScreenOffAndMusic = new VolumeKeyCaptureWhenScreenOffAndMusic(myContext, volumeKeyInputController);
         volumeKeyInputController.setManualMusicVolumeChanger(volumeKeyCaptureWhenScreenOffAndMusic.getManualMusicVolumeChanger());
         preventSleepOnScreenOff = new PreventSleepOnScreenOff(myContext);
@@ -71,6 +72,9 @@ public class MonitorService extends AccessibilityService {
         return super.onUnbind(intent);
     }
 
+
+    private AudioStreamState resetAudioStreamState;
+
     /**
      * Fired only when screen is on. Consumes volume key presses and pass them along for processing.
      * When camera active, pass volume press through (take photo with volume keys is default on many devices).
@@ -81,19 +85,28 @@ public class MonitorService extends AccessibilityService {
     @Override
     protected boolean onKeyEvent(KeyEvent event) {
         RecUtils.log("onKeyEvent()");
-        if (event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_UP || event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_DOWN) {
-            if (Utils.loadDefaultVolumeKeyActionWhenCameraActive(myContext) && myContext.cameraState.isCameraActive()) {
-                return super.onKeyEvent(event);
-            }
-            else {
-                boolean volumeUp = event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_UP;
-                boolean keyIn = event.getAction() == KeyEvent.ACTION_DOWN;
-                volumeKeyInputController.pairedClick(volumeUp, keyIn);
-                return true;
-            }
+
+        if (event.getKeyCode() != KeyEvent.KEYCODE_VOLUME_UP && event.getKeyCode() != KeyEvent.KEYCODE_VOLUME_DOWN) {
+            return super.onKeyEvent(event);
+        }
+        if (Utils.loadDefaultVolumeKeyActionWhenCameraActive(myContext) && myContext.cameraState.isCameraActive()) {
+            return super.onKeyEvent(event);
         }
 
-        return super.onKeyEvent(event);
+        boolean volumeUp = event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_UP;
+        int relevantAudioStream = Utils.getRelevantAudioStream(myContext);
+
+        if (event.getAction() == KeyEvent.ACTION_DOWN) {
+            volumeKeyInputController.keyDown(() -> myContext.volumeMovement.start(relevantAudioStream, volumeUp));
+            resetAudioStreamState = new AudioStreamState(myContext.audioManager, relevantAudioStream);
+        }
+        else {
+            volumeKeyInputController.keyUp(volumeUp, resetAudioStreamState);
+            myContext.volumeMovement.stop();
+            volumeKeyInputController.adjustVolumeIfAppropriate(relevantAudioStream, volumeUp);
+        }
+
+        return true;
     }
 
     /**
@@ -133,17 +146,5 @@ public class MonitorService extends AccessibilityService {
      */
     static boolean isEnabled(Context context) {
         return RecUtils.almightyVolumeKeysEnabled(context);
-    }
-
-    private void onAccessibilityServiceFail() {
-        if (Build.VERSION.SDK_INT < 24) return;
-
-        RecUtils.gotoMainActivity(this);
-        try {
-            disableSelf();
-        }
-        catch (Exception e) {
-            RecUtils.log("Failed to disable self");
-        }
     }
 }

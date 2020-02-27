@@ -16,10 +16,12 @@ class MyContext {
     final NotificationManager notificationManager;
     final AudioRecorderDeligator audioRecorder;
     final Notifier notifier;
+    final MyVibrator vibrator;
     final Voice voice;
     final SharedPreferences sharedPreferences;
     final MyFlashlight flashlight;
     final CameraState cameraState;
+    final VolumeMovement volumeMovement;
     final WakeLock wakeLock;
 
     MyContext(Context c) {
@@ -29,11 +31,13 @@ class MyContext {
 
         notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         notifier = new Notifier(context);
+        vibrator = new MyVibrator(context);
         audioRecorder = new AudioRecorderDeligator(context);
         voice = new Voice(context);
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         flashlight = new MyFlashlight(context);
         cameraState = new CameraState(context);
+        volumeMovement = new VolumeMovement(audioManager);
 
         PowerManager powerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
         this.wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,"com.masel.almightyvolumekeys::WakeLock");
@@ -42,9 +46,11 @@ class MyContext {
     void destroy() {
         audioRecorder.destroy();
         notifier.destroy();
+        vibrator.cancel();
         voice.destroy();
         flashlight.destroy();
         cameraState.destroy();
+        volumeMovement.stop();
         if (wakeLock.isHeld()) wakeLock.release();
     }
 }

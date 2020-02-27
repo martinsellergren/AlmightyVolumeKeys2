@@ -2,22 +2,24 @@ package com.masel.almightyvolumekeys;
 
 import android.media.AudioManager;
 
+import com.masel.rec_utils.RecUtils;
+
 class Utils {
 
-    static void adjustStreamVolume_noUI(MyContext myContext, int stream, boolean up) {
-        int dir = up ? AudioManager.ADJUST_RAISE : AudioManager.ADJUST_LOWER;
-        int volumeChangeFlag = AudioManager.FLAG_SHOW_UI;
+    static void adjustVolume_withFallback(AudioManager audioManager, int stream, boolean volumeUp, boolean showUi) {
+        int dir = volumeUp ? AudioManager.ADJUST_RAISE : AudioManager.ADJUST_LOWER;
+        int volumeChangeFlag = showUi ? AudioManager.FLAG_SHOW_UI : AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE;
 
         try {
-            myContext.audioManager.adjustStreamVolume(stream, dir, volumeChangeFlag);
+            audioManager.adjustStreamVolume(stream, dir, volumeChangeFlag);
         }
         catch (SecurityException e) {
-            myContext.audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, dir, volumeChangeFlag);
+            audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, dir, volumeChangeFlag);
         }
     }
 
-    static int loadVolumeClickAudioStream(MyContext myContext) {
-        String value = myContext.sharedPreferences.getString("ListPreference_VolumeClickChanges", null);
+    static int loadVolumeKeysAudioStream(MyContext myContext) {
+        String value = myContext.sharedPreferences.getString("ListPreference_VolumeKeysChange", null);
         int backupStream = AudioManager.STREAM_MUSIC;
         if (value == null) return backupStream;
 
@@ -29,19 +31,26 @@ class Utils {
 
 
     static boolean loadFiveClicksBeforeVolumeChange(MyContext myContext) {
-        String value = myContext.sharedPreferences.getString("ListPreference_VolumeClickChanges", null);
+        String value = myContext.sharedPreferences.getString("ListPreference_VolumeKeysChange", null);
         if (value == null) return false;
         return value.equals("Media volume after 5 clicks") ||
                 value.equals("Ringtone volume after 5 clicks");
     }
 
-    static int loadVolumeLongPressAudioStream(MyContext myContext) {
-        String value = myContext.sharedPreferences.getString("ListPreference_LongVolumePressChanges", null);
-        if (value == null || value.equals("Ringtone volume")) return AudioManager.STREAM_RING;
-        else return AudioManager.STREAM_MUSIC;
-    }
-
     static boolean loadDefaultVolumeKeyActionWhenCameraActive(MyContext myContext) {
         return myContext.sharedPreferences.getBoolean("SwitchPreferenceCompat_defaultVolumeKeyActionWhenCameraActive", true);
+    }
+
+    /**
+     * @return Audio stream to be adjusted on a volume changing key-event.
+     */
+    static int getRelevantAudioStream(MyContext myContext) {
+        int activeStream = RecUtils.getActiveAudioStream(myContext.audioManager);
+        if (activeStream != AudioManager.USE_DEFAULT_STREAM_TYPE) {
+            return activeStream;
+        }
+        else {
+            return Utils.loadVolumeKeysAudioStream(myContext);
+        }
     }
 }

@@ -159,7 +159,7 @@ class ActionCommand {
             manualMusicVolumeChanger.setVolume(resetAudioStreamState.getVolume());
         }
         else {
-            resetAudioStreamState.commit_noUI(myContext);
+            resetAudioStreamState.commit_noUi(myContext);
         }
     }
 
@@ -187,7 +187,7 @@ class ActionCommand {
             return activeStream;
         }
         else {
-            return Utils.loadVolumeClickAudioStream(myContext);
+            return Utils.loadVolumeKeysAudioStream(myContext);
         }
     }
 }

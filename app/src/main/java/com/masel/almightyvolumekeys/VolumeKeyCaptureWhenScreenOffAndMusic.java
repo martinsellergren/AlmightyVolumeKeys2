@@ -149,9 +149,10 @@ class VolumeKeyCaptureWhenScreenOffAndMusic {
         int currentMusicVolume = myContext.audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
         int diff = currentMusicVolume - prevMusicVolume;
         boolean volumeUp = diff > 0;
+        AudioStreamState prevMusicStreamState = new AudioStreamState(AudioManager.STREAM_MUSIC, prevMusicVolume);
 
         for (int i = 0; i < Math.abs(diff); i++) {
-            inputController.singleClickDetectedFromMusicVolumeChange(volumeUp, prevMusicVolume);
+            keyPress(volumeUp);
         }
 
         prevMusicVolume = currentMusicVolume;

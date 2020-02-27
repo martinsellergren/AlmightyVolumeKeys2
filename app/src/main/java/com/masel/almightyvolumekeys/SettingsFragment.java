@@ -11,17 +11,14 @@ import com.masel.rec_utils.RecUtils;
 
 public class SettingsFragment extends PreferenceFragmentCompat {
 
-    private ListPreference volumeClicksChange;
-    private ListPreference longVolumePressChanges;
+    private ListPreference volumeKeysChange;
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setPreferencesFromResource(R.xml.settings, rootKey);
 
-        volumeClicksChange = findPreference("ListPreference_VolumeClickChanges");
-        requestDoNotDisturbPermissionIfRingtoneSet(volumeClicksChange);
-        longVolumePressChanges = findPreference("ListPreference_LongVolumePressChanges");
-        requestDoNotDisturbPermissionIfRingtoneSet(longVolumePressChanges);
+        volumeKeysChange = findPreference("ListPreference_VolumeKeysChange");
+        requestDoNotDisturbPermissionIfRingtoneSet(volumeKeysChange);
 
 
         SeekBarPreference preventSleepTimeout = findPreference("SeekBarPreference_preventSleepTimeout");
@@ -51,8 +48,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         super.onResume();
 
         if (!RecUtils.hasPermissionToSilenceDevice(getContext())) {
-            volumeClicksChange.setValue("Media volume");
-            longVolumePressChanges.setValue("Media volume");
+            volumeKeysChange.setValue("Media volume");
 
         }
     }
