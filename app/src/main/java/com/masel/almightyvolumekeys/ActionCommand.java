@@ -75,6 +75,10 @@ class ActionCommand {
         handler.removeCallbacksAndMessages(null);
     }
 
+    void removeLastBit() {
+        if (command.length() > 0) command = command.substring(0, command.length()-1);
+    }
+
     /**
      * Executes current command: Perform action mapped to command. Mapping depends on current audio-state.
      * Discards any command that started in a different device-state than the current device-state.

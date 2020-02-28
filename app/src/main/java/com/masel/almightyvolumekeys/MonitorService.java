@@ -75,6 +75,8 @@ public class MonitorService extends AccessibilityService {
 
     private AudioStreamState resetAudioStreamState;
 
+
+    long prevTime = System.currentTimeMillis();
     /**
      * Fired only when screen is on. Consumes volume key presses and pass them along for processing.
      * When camera active, pass volume press through (take photo with volume keys is default on many devices).
@@ -99,6 +101,10 @@ public class MonitorService extends AccessibilityService {
         if (event.getAction() == KeyEvent.ACTION_DOWN) {
             volumeKeyInputController.keyDown(() -> myContext.volumeMovement.start(relevantAudioStream, volumeUp));
             resetAudioStreamState = new AudioStreamState(myContext.audioManager, relevantAudioStream);
+
+//            long time = System.currentTimeMillis();
+//            RecUtils.log(time-prevTime + "");
+//            prevTime = time;
         }
         else {
             volumeKeyInputController.keyUp(volumeUp, resetAudioStreamState);

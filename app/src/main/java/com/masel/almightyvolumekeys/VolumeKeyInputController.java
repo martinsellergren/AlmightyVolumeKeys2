@@ -30,15 +30,16 @@ class VolumeKeyInputController {
     }
 
     /**
-     * On volume key down. Must match with volumeUp().
+     * On volume key down.
      * @param onLongPress Additional action when long-press detected.
      */
     void keyDown(Runnable onLongPress) {
         actionCommand.halt();
 
+        longPressHandler.removeCallbacksAndMessages(null);
         longPressHandler.postDelayed(() -> {
             onLongPress.run();
-            longPressDetected();
+            longPressDetected(0);
         }, LONG_PRESS_TIME);
     }
 
@@ -60,9 +61,11 @@ class VolumeKeyInputController {
         currentLongPress = false;
     }
 
-    void longPressDetected() {
+    void longPressDetected(int noRollbackPresses) {
+        actionCommand.halt();
         currentLongPress = true;
         myContext.vibrator.vibrate();
+        for (int i = 0; i < noRollbackPresses; i++) actionCommand.removeLastBit();
     }
 
     void adjustVolumeIfAppropriate(int audioStream, boolean volumeUp) {

@@ -13,6 +13,7 @@ import androidx.annotation.RequiresApi;
 
 import com.masel.rec_utils.RecUtils;
 
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -23,16 +24,25 @@ class VolumeKeyCaptureWhenScreenOffAndMusic {
 
     private static final int MUSIC_VOLUME_POLLING_DELTA = 100;
 
+    /**
+     * Time between two presses more than this indicates manual presses.
+     */
+    private static final long MAX_DELTA_PRESS_TIME_FOR_LONG_PRESS = 130;
+
     private MyContext myContext;
-    private VolumeKeyInputController inputController;
+    private VolumeKeyInputController volumeKeyInputController;
     private BroadcastReceiver screenOffReceiver;
+    private final int minMusicVolume;
+    private final int maxMusicVolume;
 
     private int prevMusicVolume;
     private Handler pollingHandler = new Handler();
 
-    VolumeKeyCaptureWhenScreenOffAndMusic(MyContext myContext, VolumeKeyInputController inputController) {
+    VolumeKeyCaptureWhenScreenOffAndMusic(MyContext myContext, VolumeKeyInputController volumeKeyInputController) {
         this.myContext = myContext;
-        this.inputController = inputController;
+        this.volumeKeyInputController = volumeKeyInputController;
+        this.minMusicVolume = Build.VERSION.SDK_INT >= 28 ? myContext.audioManager.getStreamMinVolume(AudioManager.STREAM_MUSIC) : 0;
+        this.maxMusicVolume = myContext.audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
 
         setupStartPollingWhenScreenOff();
         setupStartPollingWhenMusicStarted();
@@ -149,15 +159,103 @@ class VolumeKeyCaptureWhenScreenOffAndMusic {
         int currentMusicVolume = myContext.audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
         int diff = currentMusicVolume - prevMusicVolume;
         boolean volumeUp = diff > 0;
-        AudioStreamState prevMusicStreamState = new AudioStreamState(AudioManager.STREAM_MUSIC, prevMusicVolume);
 
         for (int i = 0; i < Math.abs(diff); i++) {
-            keyPress(volumeUp);
+            volumeChange(volumeUp, currentMusicVolume, prevMusicVolume);
         }
 
         prevMusicVolume = currentMusicVolume;
         pollingHandler.postDelayed(this::pollMusicVolume, MUSIC_VOLUME_POLLING_DELTA);
     }
+
+    // region Long press
+
+    private final int NO_HISTORY_ENTRIES = 2;
+    private List<Boolean> volumeChangesHistory = new LinkedList<>();
+    private List<Long> volumeChangeTimesHistory = new LinkedList<>();
+    private List<Integer> prevVolumesHistory = new LinkedList<>();
+
+    private boolean waitingForKeyRelease = false;
+    private Handler longPressKeyReleaseHandler = new Handler();
+    private static final long TIME_INACTIVE_BEFORE_KEY_RELEASE_ASSUMED = 700; //todo Math.max(MAX_DELTA_PRESS_TIME_FOR_LONG_PRESS, MUSIC_VOLUME_POLLING_DELTA * 2);
+
+    /**
+     *
+     * @param volumeUp
+     */
+    private void volumeChange(boolean volumeUp, int currentMusicVolume, int prevMusicVolume) {
+        //RecUtils.log(volumeChangeTimesHistory.toString());
+
+        if (waitingForKeyRelease) {
+            resetLongPressKeyReleaseHandler();
+            preventVolumeExtremes(currentMusicVolume);
+            this.prevMusicVolume = myContext.audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+            return;
+        }
+
+        updateHistory(volumeUp, prevMusicVolume);
+
+        if (detectLongPress()) {
+            volumeKeyInputController.longPressDetected(NO_HISTORY_ENTRIES);
+            waitingForKeyRelease = true;
+            resetLongPressKeyReleaseHandler();
+        }
+        else if (prevMusicVolume != currentMusicVolume) {
+            AudioStreamState resetAudioStreamState = new AudioStreamState(AudioManager.STREAM_MUSIC, prevMusicVolume);
+            volumeKeyInputController.keyUp(volumeUp, resetAudioStreamState);
+        }
+    }
+
+    private boolean detectLongPress() {
+        if (volumeChangeTimesHistory.size() < NO_HISTORY_ENTRIES) return false;
+
+        boolean first = volumeChangesHistory.get(0);
+        for (boolean volumeChange : volumeChangesHistory) {
+            if (volumeChange != first) return false;
+        }
+
+        long deltaTime = volumeChangeTimesHistory.get(NO_HISTORY_ENTRIES - 1) - volumeChangeTimesHistory.get(0);
+        long maxDeltaTime = (NO_HISTORY_ENTRIES - 1) * MAX_DELTA_PRESS_TIME_FOR_LONG_PRESS;
+        return deltaTime <= maxDeltaTime;
+    }
+
+    private void updateHistory(boolean volumeUp, int prevMusicVolume) {
+        if (volumeChangesHistory.size() == NO_HISTORY_ENTRIES) {
+            volumeChangesHistory.remove(0);
+            volumeChangeTimesHistory.remove(0);
+            prevVolumesHistory.remove(0);
+        }
+        else if (volumeChangesHistory.size() > NO_HISTORY_ENTRIES) {
+            throw new RuntimeException("Dead end");
+        }
+
+        volumeChangesHistory.add(volumeUp);
+        volumeChangeTimesHistory.add(System.currentTimeMillis());
+        prevVolumesHistory.add(prevMusicVolume);
+    }
+
+    private void preventVolumeExtremes(int currentMusicVolume) {
+        if (currentMusicVolume == maxMusicVolume) {
+            Utils.adjustVolume_withFallback(myContext.audioManager, AudioManager.STREAM_MUSIC, false, false);
+        }
+        else if (currentMusicVolume == minMusicVolume) {
+            Utils.adjustVolume_withFallback(myContext.audioManager, AudioManager.STREAM_MUSIC, true, false);
+        }
+    }
+
+    private void resetLongPressKeyReleaseHandler() {
+        longPressKeyReleaseHandler.removeCallbacksAndMessages(null);
+        longPressKeyReleaseHandler.postDelayed(this::completeLongPressDetected, TIME_INACTIVE_BEFORE_KEY_RELEASE_ASSUMED);
+    }
+
+    private void completeLongPressDetected() {
+        longPressKeyReleaseHandler.removeCallbacksAndMessages(null);
+        waitingForKeyRelease = false;
+        AudioStreamState resetAudioStreamState = new AudioStreamState(AudioManager.STREAM_MUSIC, prevVolumesHistory.get(0));
+        volumeKeyInputController.keyUp(volumeChangesHistory.get(0), resetAudioStreamState);
+    }
+
+    // endregion
 
 
     interface ManualMusicVolumeChanger {
