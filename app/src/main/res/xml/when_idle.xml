@@ -69,10 +69,34 @@
         app:title="Long clicks">
 
         <com.masel.almightyvolumekeys.MappingListPreference
+            app:key="mappingListPreference_idle_command_3" />
+
+        <com.masel.almightyvolumekeys.MappingListPreference
             app:key="mappingListPreference_idle_command_2" />
 
         <com.masel.almightyvolumekeys.MappingListPreference
-            app:key="mappingListPreference_idle_command_3" />
+            app:key="mappingListPreference_idle_command_33" />
+
+        <com.masel.almightyvolumekeys.MappingListPreference
+            app:key="mappingListPreference_idle_command_22" />
+
+        <com.masel.almightyvolumekeys.MappingListPreference
+            app:key="mappingListPreference_idle_command_32" />
+
+        <com.masel.almightyvolumekeys.MappingListPreference
+            app:key="mappingListPreference_idle_command_23" />
+
+        <com.masel.almightyvolumekeys.MappingListPreference
+            app:key="mappingListPreference_idle_command_31" />
+
+        <com.masel.almightyvolumekeys.MappingListPreference
+            app:key="mappingListPreference_idle_command_20" />
+
+        <com.masel.almightyvolumekeys.MappingListPreference
+            app:key="mappingListPreference_idle_command_13" />
+
+        <com.masel.almightyvolumekeys.MappingListPreference
+            app:key="mappingListPreference_idle_command_02" />
 
     </PreferenceCategory>
 

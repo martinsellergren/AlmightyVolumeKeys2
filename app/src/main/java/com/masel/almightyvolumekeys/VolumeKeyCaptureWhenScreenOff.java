@@ -17,11 +17,13 @@ import com.masel.rec_utils.RecUtils;
 class VolumeKeyCaptureWhenScreenOff {
     private MyContext myContext;
     private VolumeKeyInputController volumeKeyInputController;
+    private VolumeKeyCaptureWhenScreenOffAndMusic volumeKeyCaptureWhenScreenOffAndMusic;
     private MediaSessionCompat mediaSession;
 
-    VolumeKeyCaptureWhenScreenOff(MyContext myContext, VolumeKeyInputController volumeKeyInputController) {
+    VolumeKeyCaptureWhenScreenOff(MyContext myContext, VolumeKeyInputController volumeKeyInputController, VolumeKeyCaptureWhenScreenOffAndMusic volumeKeyCaptureWhenScreenOffAndMusic) {
         this.myContext = myContext;
         this.volumeKeyInputController = volumeKeyInputController;
+        this.volumeKeyCaptureWhenScreenOffAndMusic = volumeKeyCaptureWhenScreenOffAndMusic;
 
         mediaSession = new MediaSessionCompat(myContext.context, "AVK MEDIA SESSION", new ComponentName(myContext.context, MediaButtonReceiver.class), null);
         mediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
@@ -43,6 +45,10 @@ class VolumeKeyCaptureWhenScreenOff {
     void destroy() {
         mediaSession.setActive(false);
         mediaSession.release();
+    }
+
+    boolean isActive() {
+        return mediaSession.isActive();
     }
 
     private enum Status {noHeld, volumeDownHeld, volumeUpHeld };
@@ -80,12 +86,10 @@ class VolumeKeyCaptureWhenScreenOff {
 
     private void keyDown(boolean volumeUp) {
         RecUtils.log("Media session caught press");
+
+        volumeKeyCaptureWhenScreenOffAndMusic.setDisabled(true);
         int relevantAudioStream = Utils.getRelevantAudioStream(myContext);
-        volumeKeyInputController.keyDown(() -> {
-            if (RecUtils.isScreenOn(myContext.powerManager)) {
-                myContext.volumeMovement.start(relevantAudioStream, volumeUp);
-            }
-        });
+        volumeKeyInputController.keyDown(() -> myContext.volumeMovement.start(relevantAudioStream, volumeUp));
         resetAudioStreamState = new AudioStreamState(myContext.audioManager, Utils.getRelevantAudioStream(myContext));
     }
 
@@ -93,5 +97,6 @@ class VolumeKeyCaptureWhenScreenOff {
         volumeKeyInputController.keyUp(volumeUp, resetAudioStreamState);
         myContext.volumeMovement.stop();
         volumeKeyInputController.adjustVolumeIfAppropriate(resetAudioStreamState.getStream(), volumeUp);
+        volumeKeyCaptureWhenScreenOffAndMusic.setDisabled(false);
     }
 }

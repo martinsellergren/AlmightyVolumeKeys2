@@ -39,7 +39,7 @@ class VolumeKeyInputController {
         longPressHandler.removeCallbacksAndMessages(null);
         longPressHandler.postDelayed(() -> {
             onLongPress.run();
-            longPressDetected(0);
+            longPressDetected();
         }, LONG_PRESS_TIME);
     }
 
@@ -61,11 +61,14 @@ class VolumeKeyInputController {
         currentLongPress = false;
     }
 
-    void longPressDetected(int noRollbackPresses) {
+    void longPressDetected() {
         actionCommand.halt();
         currentLongPress = true;
         myContext.vibrator.vibrate();
-        for (int i = 0; i < noRollbackPresses; i++) actionCommand.removeLastBit();
+    }
+
+    void undoPresses(int count) {
+        for (int i = 0; i < count; i++) actionCommand.removeLastBit();
     }
 
     void adjustVolumeIfAppropriate(int audioStream, boolean volumeUp) {

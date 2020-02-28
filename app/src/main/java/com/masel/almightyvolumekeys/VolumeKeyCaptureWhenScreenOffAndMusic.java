@@ -22,12 +22,11 @@ import java.util.List;
  */
 class VolumeKeyCaptureWhenScreenOffAndMusic {
 
-    private static final int MUSIC_VOLUME_POLLING_DELTA = 100;
+    private static final int MUSIC_VOLUME_POLLING_DELTA = 50;
 
     /**
-     * Time between two presses more than this indicates manual presses.
-     */
-    private static final long MAX_DELTA_PRESS_TIME_FOR_LONG_PRESS = 130;
+     * Time between two presses more than this indicates manual presses. */
+    private static final long MAX_DELTA_PRESS_TIME_FOR_LONG_PRESS = 100;
 
     private MyContext myContext;
     private VolumeKeyInputController volumeKeyInputController;
@@ -37,6 +36,8 @@ class VolumeKeyCaptureWhenScreenOffAndMusic {
 
     private int prevMusicVolume;
     private Handler pollingHandler = new Handler();
+
+    private boolean disabled = false;
 
     VolumeKeyCaptureWhenScreenOffAndMusic(MyContext myContext, VolumeKeyInputController volumeKeyInputController) {
         this.myContext = myContext;
@@ -63,6 +64,11 @@ class VolumeKeyCaptureWhenScreenOffAndMusic {
         try {
             myContext.context.unregisterReceiver(screenOffReceiver);
         } catch (Exception e) {}
+    }
+
+    void setDisabled(boolean disabled) {
+        this.disabled = disabled;
+        if (!disabled) startPolling();
     }
 
     private void setupStartPollingWhenScreenOff() {
@@ -155,6 +161,9 @@ class VolumeKeyCaptureWhenScreenOffAndMusic {
             RecUtils.log("Stop polling music volume");
             return;
         }
+        if (disabled) {
+            return;
+        }
 
         int currentMusicVolume = myContext.audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
         int diff = currentMusicVolume - prevMusicVolume;
@@ -165,6 +174,11 @@ class VolumeKeyCaptureWhenScreenOffAndMusic {
         }
 
         prevMusicVolume = currentMusicVolume;
+        if (waitingForKeyRelease) {
+            if (prevMusicVolume == minMusicVolume) prevMusicVolume = minMusicVolume + 1;
+            else if (prevMusicVolume == maxMusicVolume) prevMusicVolume = maxMusicVolume - 1;
+        }
+
         pollingHandler.postDelayed(this::pollMusicVolume, MUSIC_VOLUME_POLLING_DELTA);
     }
 
@@ -177,26 +191,24 @@ class VolumeKeyCaptureWhenScreenOffAndMusic {
 
     private boolean waitingForKeyRelease = false;
     private Handler longPressKeyReleaseHandler = new Handler();
-    private static final long TIME_INACTIVE_BEFORE_KEY_RELEASE_ASSUMED = 700; //todo Math.max(MAX_DELTA_PRESS_TIME_FOR_LONG_PRESS, MUSIC_VOLUME_POLLING_DELTA * 2);
+    private static final long TIME_INACTIVE_BEFORE_KEY_RELEASE_ASSUMED = Math.max(MAX_DELTA_PRESS_TIME_FOR_LONG_PRESS, MUSIC_VOLUME_POLLING_DELTA * 2);
 
     /**
      *
      * @param volumeUp
      */
     private void volumeChange(boolean volumeUp, int currentMusicVolume, int prevMusicVolume) {
-        //RecUtils.log(volumeChangeTimesHistory.toString());
-
         if (waitingForKeyRelease) {
             resetLongPressKeyReleaseHandler();
             preventVolumeExtremes(currentMusicVolume);
-            this.prevMusicVolume = myContext.audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
             return;
         }
 
         updateHistory(volumeUp, prevMusicVolume);
 
         if (detectLongPress()) {
-            volumeKeyInputController.longPressDetected(NO_HISTORY_ENTRIES);
+            volumeKeyInputController.longPressDetected();
+            volumeKeyInputController.undoPresses(NO_HISTORY_ENTRIES);
             waitingForKeyRelease = true;
             resetLongPressKeyReleaseHandler();
         }
@@ -240,6 +252,7 @@ class VolumeKeyCaptureWhenScreenOffAndMusic {
         }
         else if (currentMusicVolume == minMusicVolume) {
             Utils.adjustVolume_withFallback(myContext.audioManager, AudioManager.STREAM_MUSIC, true, false);
+            //myContext.audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, maxMusicVolume, AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE);
         }
     }
 
@@ -253,6 +266,7 @@ class VolumeKeyCaptureWhenScreenOffAndMusic {
         waitingForKeyRelease = false;
         AudioStreamState resetAudioStreamState = new AudioStreamState(AudioManager.STREAM_MUSIC, prevVolumesHistory.get(0));
         volumeKeyInputController.keyUp(volumeChangesHistory.get(0), resetAudioStreamState);
+        preventVolumeExtremes(myContext.audioManager.getStreamVolume(AudioManager.STREAM_MUSIC));
     }
 
     // endregion

@@ -70,6 +70,40 @@
             app:key="mappingListPreference_music_command_0000"/>
 
 
+
+<!--long clicks-->
+
+        <com.masel.almightyvolumekeys.MappingListPreference
+            app:key="mappingListPreference_music_command_3" />
+
+        <com.masel.almightyvolumekeys.MappingListPreference
+            app:key="mappingListPreference_music_command_2" />
+
+        <com.masel.almightyvolumekeys.MappingListPreference
+            app:key="mappingListPreference_music_command_33" />
+
+        <com.masel.almightyvolumekeys.MappingListPreference
+            app:key="mappingListPreference_music_command_22" />
+
+        <com.masel.almightyvolumekeys.MappingListPreference
+            app:key="mappingListPreference_music_command_32" />
+
+        <com.masel.almightyvolumekeys.MappingListPreference
+            app:key="mappingListPreference_music_command_23" />
+
+        <com.masel.almightyvolumekeys.MappingListPreference
+            app:key="mappingListPreference_music_command_31" />
+
+        <com.masel.almightyvolumekeys.MappingListPreference
+            app:key="mappingListPreference_music_command_20" />
+
+        <com.masel.almightyvolumekeys.MappingListPreference
+            app:key="mappingListPreference_music_command_13" />
+
+        <com.masel.almightyvolumekeys.MappingListPreference
+            app:key="mappingListPreference_music_command_02" />
+
+
     </PreferenceCategory>
 
     <PreferenceCategory>

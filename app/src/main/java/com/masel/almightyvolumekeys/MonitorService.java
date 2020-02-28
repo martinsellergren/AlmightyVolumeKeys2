@@ -37,8 +37,8 @@ public class MonitorService extends AccessibilityService {
 
     private MyContext myContext;
     private VolumeKeyInputController volumeKeyInputController;
-    private VolumeKeyCaptureWhenScreenOff volumeKeyCaptureWhenScreenOff;
     private VolumeKeyCaptureWhenScreenOffAndMusic volumeKeyCaptureWhenScreenOffAndMusic;
+    private VolumeKeyCaptureWhenScreenOff volumeKeyCaptureWhenScreenOff;
     private PreventSleepOnScreenOff preventSleepOnScreenOff;
 
     @Override
@@ -49,8 +49,8 @@ public class MonitorService extends AccessibilityService {
 
         myContext = new MyContext(this);
         volumeKeyInputController = new VolumeKeyInputController(myContext);
-        volumeKeyCaptureWhenScreenOff = new VolumeKeyCaptureWhenScreenOff(myContext, volumeKeyInputController);
         volumeKeyCaptureWhenScreenOffAndMusic = new VolumeKeyCaptureWhenScreenOffAndMusic(myContext, volumeKeyInputController);
+        volumeKeyCaptureWhenScreenOff = new VolumeKeyCaptureWhenScreenOff(myContext, volumeKeyInputController, volumeKeyCaptureWhenScreenOffAndMusic);
         volumeKeyInputController.setManualMusicVolumeChanger(volumeKeyCaptureWhenScreenOffAndMusic.getManualMusicVolumeChanger());
         preventSleepOnScreenOff = new PreventSleepOnScreenOff(myContext);
     }
