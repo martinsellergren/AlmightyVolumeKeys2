@@ -1,6 +1,16 @@
 package com.masel.almightyvolumekeys;
 
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.app.Service;
+import android.content.ComponentName;
+import android.content.Intent;
 import android.media.AudioManager;
+import android.os.Build;
+
+import androidx.core.app.NotificationCompat;
 
 import com.masel.rec_utils.RecUtils;
 
@@ -63,5 +73,37 @@ class Utils {
         else {
             return Utils.loadVolumeKeysAudioStream(myContext);
         }
+    }
+
+    /**
+     * Good for stability of a service. Skip for older devices (API <26) (no notification-channels, can't hide notification).
+     */
+    static void requestForeground(Service service) {
+        final String MONITOR_SERVICE_NOTIFICATION_CHANNEL_ID = "MONITOR_SERVICE_NOTIFICATION_CHANNEL_ID";
+        final int NOTIFICATION_ID = 6664867;
+
+        if (Build.VERSION.SDK_INT >= 26) {
+            String name = "Monitor service (Hide me!)";
+            String description = "This notification is necessary to ensure stability of the monitor service. But you can simply hide it if you like, just switch the toggle.";
+            int importance = NotificationManager.IMPORTANCE_LOW;
+            NotificationChannel channel = new NotificationChannel(MONITOR_SERVICE_NOTIFICATION_CHANNEL_ID, name, importance);
+            channel.setDescription(description);
+            NotificationManager notificationManager = service.getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+
+        Intent notificationIntent = new Intent();
+        notificationIntent.setComponent(new ComponentName("com.masel.almightyvolumekeys", "com.masel.almightyvolumekeys.MainActivity"));
+        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        PendingIntent pendingIntent = PendingIntent.getActivity(service, 0, notificationIntent, 0);
+
+        Notification notification = new NotificationCompat.Builder(service, MONITOR_SERVICE_NOTIFICATION_CHANNEL_ID)
+                .setSmallIcon(R.drawable.avk_notification_icon)
+                .setContentTitle("Capturing volume key presses")
+                .setContentIntent(pendingIntent)
+                .setPriority(NotificationCompat.PRIORITY_LOW)
+                .build();
+
+        service.startForeground(NOTIFICATION_ID, notification);
     }
 }

@@ -1,20 +1,27 @@
 package com.masel.almightyvolumekeys;
 
 import android.content.ComponentName;
+import android.media.AudioManager;
+import android.media.AudioPlaybackConfiguration;
+import android.os.Build;
+import android.os.Handler;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 
+import androidx.annotation.RequiresApi;
 import androidx.media.VolumeProviderCompat;
 import androidx.media.session.MediaButtonReceiver;
 
 import com.masel.rec_utils.RecUtils;
+
+import java.util.List;
 
 /**
  * Key press goes here when not caught by AccessibilityService. This happens when screen off, or service fail.
  * Key press not caught if media-session used is being overshadowed (likely when music).
  * Disable media session when camera is active.
  */
-class VolumeKeyCaptureWhenScreenOff {
+class VolumeKeyCapture {
     private MyContext myContext;
     private VolumeKeyInputController volumeKeyInputController;
     private MediaSessionCompat mediaSession;
@@ -24,11 +31,31 @@ class VolumeKeyCaptureWhenScreenOff {
     private VolumeProviderCompat volumeProvider;
     private int mirroredAudioStream = -1;
 
-    VolumeKeyCaptureWhenScreenOff(MyContext myContext, VolumeKeyInputController volumeKeyInputController) {
+    VolumeKeyCapture(MyContext myContext, VolumeKeyInputController volumeKeyInputController) {
         this.myContext = myContext;
         this.volumeKeyInputController = volumeKeyInputController;
+        init();
 
-        mediaSession = new MediaSessionCompat(myContext.context, "AVK MEDIA SESSION", new ComponentName(myContext.context, MediaButtonReceiver.class), null);
+        myContext.cameraState.setCallbacks(() -> mediaSession.setActive(false), () -> mediaSession.setActive(true));
+        setupResetWhenMusicStarted();
+    }
+
+    void destroy() {
+        try {
+            mediaSession.setActive(false);
+            mediaSession.release();
+            if ( Build.VERSION.SDK_INT >= 26) myContext.audioManager.unregisterAudioPlaybackCallback(audioPlaybackCallback);
+        } catch (Exception e) {}
+    }
+
+    private void init() {
+        if (mediaSession != null) {
+            mediaSession.setActive(false);
+            mediaSession.release();
+        }
+
+        double rand = Math.random();
+        mediaSession = new MediaSessionCompat(myContext.context, "AVK MEDIA SESSION"+rand, new ComponentName(myContext.context, MediaButtonReceiver.class), null);
         mediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
 
         PlaybackStateCompat.Builder stateBuilder = new PlaybackStateCompat.Builder();
@@ -37,16 +64,34 @@ class VolumeKeyCaptureWhenScreenOff {
         mediaSession.setPlaybackState(stateBuilder.build());
         updateVolumeProvider();
         mediaSession.setActive(true);
-        myContext.cameraState.setCallbacks(() -> mediaSession.setActive(false), () -> mediaSession.setActive(true));
     }
 
-    void setResetActionForVolumeKeyCaptureWhenScreenOffAndMusic(Runnable resetVolumeKeyCaptureWhenScreenOffAndMusic) {
-        this.resetVolumeKeyCaptureWhenScreenOffAndMusic = resetVolumeKeyCaptureWhenScreenOffAndMusic;
+    private AudioManager.AudioPlaybackCallback audioPlaybackCallback;
+
+    private void setupResetWhenMusicStarted() {
+        if (Build.VERSION.SDK_INT >= 26) {
+            setupResetWhenMusicStarted_method1();
+        }
+        else {
+            setupResetWhenMusicStarted_method2();
+        }
     }
 
-    void destroy() {
-        mediaSession.setActive(false);
-        mediaSession.release();
+    private Handler handler = new Handler();
+    @RequiresApi(api = 26)
+    private void setupResetWhenMusicStarted_method1() {
+        audioPlaybackCallback = new AudioManager.AudioPlaybackCallback() {
+            @Override
+            public void onPlaybackConfigChanged(List<AudioPlaybackConfiguration> configs) {
+                handler.removeCallbacksAndMessages(null);
+                handler.postDelayed(() -> reset(), 5000);
+            }
+        };
+        myContext.audioManager.registerAudioPlaybackCallback(audioPlaybackCallback, null);
+    }
+
+    private void setupResetWhenMusicStarted_method2() {
+        // todo
     }
 
     private void updateVolumeProvider() {
@@ -109,20 +154,8 @@ class VolumeKeyCaptureWhenScreenOff {
         prevDirection = direction;
     };
 
-    void reset() {
-        RecUtils.log("reset media session");
-
-        mediaSession.setActive(false);
-        mediaSession.release();
-
-        mediaSession = new MediaSessionCompat(myContext.context, "AVK MEDIA SESSIONNNN", new ComponentName(myContext.context, MediaButtonReceiver.class), null);
-        mediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
-
-        PlaybackStateCompat.Builder stateBuilder = new PlaybackStateCompat.Builder();
-        stateBuilder.setActions(PlaybackStateCompat.ACTION_PLAY | PlaybackStateCompat.ACTION_PLAY_PAUSE | PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID | PlaybackStateCompat.ACTION_PAUSE | PlaybackStateCompat.ACTION_SKIP_TO_NEXT | PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS);
-        stateBuilder.setState(PlaybackStateCompat.STATE_PLAYING, 0, 1);
-        mediaSession.setPlaybackState(stateBuilder.build());
-        updateVolumeProvider();
-        mediaSession.setActive(true);
+    private void reset() {
+        RecUtils.log("Reset media session");
+        init();
     }
 }

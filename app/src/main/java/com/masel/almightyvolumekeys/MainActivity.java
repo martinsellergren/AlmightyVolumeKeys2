@@ -176,14 +176,16 @@ public class MainActivity extends AppCompatActivity {
         String toastText = "Find the Almighty Volume Keys-service";
         if (MonitorService.isEnabled(MainActivity.this)) {
             RecUtils.toast(this, toastText);
-            openAccessibilitySettings();
+            //openAccessibilitySettings();
+            openNotificationListenerSettings();
         }
         else {
             RecUtils.showHeadsUpDialog(MainActivity.this,
                     "In the following screen, <b>find</b> the Almighty Volume Keys' accessibility <b>service</b> and activate it.",
                     () -> {
                         RecUtils.toast(MainActivity.this, toastText);
-                        openAccessibilitySettings();
+                        openNotificationListenerSettings();
+                        //openAccessibilitySettings();
                     });
         }
     }
@@ -206,8 +208,13 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void openAccessibilitySettings() {
-        Intent intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
+//    private void openAccessibilitySettings() {
+//        Intent intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
+//        startActivity(intent);
+//    }
+
+    private void openNotificationListenerSettings() {
+        Intent intent = new Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS);
         startActivity(intent);
     }
 
