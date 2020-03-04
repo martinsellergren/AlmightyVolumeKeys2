@@ -26,36 +26,20 @@ class VolumeKeyCapture {
     private VolumeKeyInputController volumeKeyInputController;
     private MediaSessionCompat mediaSession;
 
-    private Runnable resetVolumeKeyCaptureWhenScreenOffAndMusic = null;
-
     private VolumeProviderCompat volumeProvider;
     private int mirroredAudioStream = -1;
 
-    VolumeKeyCapture(MyContext myContext, VolumeKeyInputController volumeKeyInputController) {
+    private Runnable resetAction;
+
+    VolumeKeyCapture(MyContext myContext, VolumeKeyInputController volumeKeyInputController, Runnable resetAction) {
         this.myContext = myContext;
         this.volumeKeyInputController = volumeKeyInputController;
+        this.resetAction = resetAction;
         init();
-
-        myContext.cameraState.setCallbacks(() -> mediaSession.setActive(false), () -> mediaSession.setActive(true));
-        setupResetWhenMusicStarted();
-    }
-
-    void destroy() {
-        try {
-            mediaSession.setActive(false);
-            mediaSession.release();
-            if ( Build.VERSION.SDK_INT >= 26) myContext.audioManager.unregisterAudioPlaybackCallback(audioPlaybackCallback);
-        } catch (Exception e) {}
     }
 
     private void init() {
-        if (mediaSession != null) {
-            mediaSession.setActive(false);
-            mediaSession.release();
-        }
-
-        double rand = Math.random();
-        mediaSession = new MediaSessionCompat(myContext.context, "AVK MEDIA SESSION"+rand, new ComponentName(myContext.context, MediaButtonReceiver.class), null);
+        mediaSession = new MediaSessionCompat(myContext.context, "AVK MEDIA SESSION", new ComponentName(myContext.context, MediaButtonReceiver.class), null);
         mediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
 
         PlaybackStateCompat.Builder stateBuilder = new PlaybackStateCompat.Builder();
@@ -64,6 +48,25 @@ class VolumeKeyCapture {
         mediaSession.setPlaybackState(stateBuilder.build());
         updateVolumeProvider();
         mediaSession.setActive(true);
+
+        myContext.cameraState.setCallbacks(() -> mediaSession.setActive(false), () -> mediaSession.setActive(true));
+        setupResetWhenMusicStarted();
+    }
+
+    private void reset() {
+        destroy();
+        init();
+    }
+
+    void destroy() {
+        if (mediaSession != null) {
+            mediaSession.setActive(false);
+            mediaSession.release();
+        }
+
+        try {
+            if ( Build.VERSION.SDK_INT >= 26) myContext.audioManager.unregisterAudioPlaybackCallback(audioPlaybackCallback);
+        } catch (Exception e) {}
     }
 
     private AudioManager.AudioPlaybackCallback audioPlaybackCallback;
@@ -84,7 +87,7 @@ class VolumeKeyCapture {
             @Override
             public void onPlaybackConfigChanged(List<AudioPlaybackConfiguration> configs) {
                 handler.removeCallbacksAndMessages(null);
-                handler.postDelayed(() -> reset(), 5000);
+                handler.postDelayed(() -> resetAction.run(), 100);
             }
         };
         myContext.audioManager.registerAudioPlaybackCallback(audioPlaybackCallback, null);
@@ -92,15 +95,6 @@ class VolumeKeyCapture {
 
     private void setupResetWhenMusicStarted_method2() {
         // todo
-    }
-
-    private void updateVolumeProvider() {
-        int audioStreamToMirror = Utils.getRelevantAudioStream(myContext);
-        if (mirroredAudioStream != audioStreamToMirror) {
-            volumeProvider = createRelevantVolumeProvider();
-            mirroredAudioStream = audioStreamToMirror;
-            mediaSession.setPlaybackToRemote(volumeProvider);
-        }
     }
 
     private VolumeProviderCompat createRelevantVolumeProvider() {
@@ -118,14 +112,21 @@ class VolumeKeyCapture {
                 if (screenIsOn || myContext.audioManager.isMusicActive()) {
                     updateVolume(direction);
                     Utils.setVolume_withFallback(myContext, mirroredAudioStream, getCurrentVolume(), false);
-                    if (resetVolumeKeyCaptureWhenScreenOffAndMusic != null)
-                        resetVolumeKeyCaptureWhenScreenOffAndMusic.run();
                 }
                 if (screenIsOn) {
                     myContext.accessibilityServiceFailing = true;
                 }
             }
         };
+    }
+
+    private void updateVolumeProvider() {
+        int audioStreamToMirror = Utils.getRelevantAudioStream(myContext);
+        if (mirroredAudioStream != audioStreamToMirror) {
+            volumeProvider = createRelevantVolumeProvider();
+            mirroredAudioStream = audioStreamToMirror;
+            mediaSession.setPlaybackToRemote(volumeProvider);
+        }
     }
 
     private void updateVolume(int direction) {
@@ -153,9 +154,4 @@ class VolumeKeyCapture {
 
         prevDirection = direction;
     };
-
-    private void reset() {
-        RecUtils.log("Reset media session");
-        init();
-    }
 }
