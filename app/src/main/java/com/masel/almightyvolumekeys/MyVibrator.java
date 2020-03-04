@@ -58,6 +58,7 @@ public class MyVibrator {
 
     void vibrate() {
         cancel();
+
         try {
             notificationManager.notify(NOTIFICATION_ID, notification);
         }

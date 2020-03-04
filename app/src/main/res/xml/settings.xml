@@ -11,10 +11,12 @@
             app:key="ListPreference_VolumeKeysChange"
             app:title="Volume keys change"
             app:singleLineTitle="false"
-            app:entries="@array/media_or_ringtone_volume_with_after_5_clicks"
-            app:entryValues="@array/media_or_ringtone_volume_with_after_5_clicks"
+            app:entries="@array/media_or_ringtone_volume"
+            app:entryValues="@array/media_or_ringtone_volume"
             app:defaultValue="Media volume"
             app:useSimpleSummaryProvider="true" />
+<!--            app:entries="@array/media_or_ringtone_volume_with_after_5_clicks"-->
+<!--            app:entryValues="@array/media_or_ringtone_volume_with_after_5_clicks"-->
 
 <!--        <ListPreference-->
 <!--            app:key="ListPreference_LongVolumePressChanges"-->

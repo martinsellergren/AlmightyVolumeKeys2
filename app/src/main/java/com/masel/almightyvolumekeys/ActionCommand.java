@@ -30,9 +30,10 @@ class ActionCommand {
 
     private MyContext myContext;
 
-    private VolumeKeyCaptureWhenScreenOffAndMusic.ManualMusicVolumeChanger manualMusicVolumeChanger = null;
+    private Runnable resetVolumeKeyCaptureWhenScreenOffAndMusic = null;
 
     private DeviceState deviceStateOnCommandStart;
+    private boolean screenOnOnCommandStart;
 
     private AudioStreamState resetAudioStreamState = null;
 
@@ -54,15 +55,9 @@ class ActionCommand {
         handler.removeCallbacksAndMessages(null);
 
         if (command.length() == 0) {
-
-            deviceStateOnCommandStart = DeviceState.getCurrent(myContext);
+            this.deviceStateOnCommandStart = DeviceState.getCurrent(myContext);
+            this.screenOnOnCommandStart = RecUtils.isScreenOn(myContext.powerManager);
             this.resetAudioStreamState = resetAudioStreamState;
-//            relevantAudioStreamOnCommandStart = getRelevantAudioStream(deviceStateOnCommandStart);
-//            relevantAudioStreamVolumeOnCommandStart = myContext.audioManager.getStreamVolume(relevantAudioStreamOnCommandStart);
-//
-//            if (VolumeKeyCaptureWhenScreenOffAndMusic.screenOffAndMusic(myContext)) {
-//                relevantAudioStreamVolumeOnCommandStart += up ? -1 : 1;
-//            }
         }
         command += volumePress;
         handler.postDelayed(this::executeCommand, DELTA_PRESS_TIME);
@@ -85,7 +80,7 @@ class ActionCommand {
      * Discards any volume changes during command input if valid command.
      */
     private void executeCommand() {
-        if (DeviceState.getCurrent(myContext) != deviceStateOnCommandStart) {
+        if (DeviceState.getCurrent(myContext) != deviceStateOnCommandStart || RecUtils.isScreenOn(myContext.powerManager) != screenOnOnCommandStart) {
             reset();
             return;
         }
@@ -137,8 +132,8 @@ class ActionCommand {
         return command.length();
     }
 
-    void setManualMusicVolumeChanger(VolumeKeyCaptureWhenScreenOffAndMusic.ManualMusicVolumeChanger manualMusicVolumeChanger) {
-        this.manualMusicVolumeChanger = manualMusicVolumeChanger;
+    void setResetActionForVolumeKeyCaptureWhenScreenOffAndMusic(Runnable resetVolumeKeyCaptureWhenScreenOffAndMusic) {
+        this.resetVolumeKeyCaptureWhenScreenOffAndMusic = resetVolumeKeyCaptureWhenScreenOffAndMusic;
     }
 
     private Action getMappedAction(String command) {
@@ -159,11 +154,9 @@ class ActionCommand {
     private void discardAnyVolumeChanges() {
         if (resetAudioStreamState == null) return;
 
-        if (deviceStateOnCommandStart == DeviceState.MUSIC && manualMusicVolumeChanger != null) {
-            manualMusicVolumeChanger.setVolume(resetAudioStreamState.getVolume());
-        }
-        else {
-            resetAudioStreamState.commit_noUi(myContext);
+        resetAudioStreamState.commit_noUi(myContext);
+        if (resetVolumeKeyCaptureWhenScreenOffAndMusic != null) {
+            resetVolumeKeyCaptureWhenScreenOffAndMusic.run();
         }
     }
 
@@ -183,15 +176,5 @@ class ActionCommand {
         intent.putExtra(MainActivity.EXTRA_PERMISSION_REQUEST, permissions);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         myContext.context.startActivity(intent);
-    }
-
-    private int getRelevantAudioStream(DeviceState state) {
-        int activeStream = RecUtils.getActiveAudioStream(myContext.audioManager);
-        if (activeStream != AudioManager.USE_DEFAULT_STREAM_TYPE) {
-            return activeStream;
-        }
-        else {
-            return Utils.loadVolumeKeysAudioStream(myContext);
-        }
     }
 }

@@ -20,7 +20,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         volumeKeysChange = findPreference("ListPreference_VolumeKeysChange");
         requestDoNotDisturbPermissionIfRingtoneSet(volumeKeysChange);
 
-
         SeekBarPreference preventSleepTimeout = findPreference("SeekBarPreference_preventSleepTimeout");
         preventSleepTimeout.setMin(0);
         preventSleepTimeout.setMax(180);

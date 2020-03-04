@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/AlmightyVolumeKeys.iml" filepath="$PROJECT_DIR$/.idea/AlmightyVolumeKeys.iml" />
-      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/AlmightyVolumeKeys.iml" filepath="$PROJECT_DIR$/.idea/AlmightyVolumeKeys.iml" group="AlmightyVolumeKeys" />
+      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" group="AlmightyVolumeKeys/app" />
     </modules>
   </component>
 </project>

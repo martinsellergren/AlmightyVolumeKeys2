@@ -9,7 +9,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
-import android.os.Handler;
 import android.view.KeyEvent;
 import android.view.accessibility.AccessibilityEvent;
 
@@ -48,10 +47,14 @@ public class MonitorService extends AccessibilityService {
         cleanUpAfterCrashDuringRecording();
 
         myContext = new MyContext(this);
+
         volumeKeyInputController = new VolumeKeyInputController(myContext);
-        volumeKeyCaptureWhenScreenOffAndMusic = new VolumeKeyCaptureWhenScreenOffAndMusic(myContext, volumeKeyInputController);
-        volumeKeyCaptureWhenScreenOff = new VolumeKeyCaptureWhenScreenOff(myContext, volumeKeyInputController, volumeKeyCaptureWhenScreenOffAndMusic);
-        volumeKeyInputController.setManualMusicVolumeChanger(volumeKeyCaptureWhenScreenOffAndMusic.getManualMusicVolumeChanger());
+        volumeKeyCaptureWhenScreenOff = new VolumeKeyCaptureWhenScreenOff(myContext, volumeKeyInputController);
+        //volumeKeyCaptureWhenScreenOffAndMusic = new VolumeKeyCaptureWhenScreenOffAndMusic(myContext, volumeKeyInputController);
+
+//        volumeKeyInputController.setResetActionForVolumeKeyCaptureWhenScreenOffAndMusic(volumeKeyCaptureWhenScreenOffAndMusic.getResetAction());
+//        volumeKeyCaptureWhenScreenOff.setResetActionForVolumeKeyCaptureWhenScreenOffAndMusic(volumeKeyCaptureWhenScreenOffAndMusic.getResetAction());
+
         preventSleepOnScreenOff = new PreventSleepOnScreenOff(myContext);
     }
 
@@ -75,8 +78,6 @@ public class MonitorService extends AccessibilityService {
 
     private AudioStreamState resetAudioStreamState;
 
-
-    long prevTime = System.currentTimeMillis();
     /**
      * Fired only when screen is on. Consumes volume key presses and pass them along for processing.
      * When camera active, pass volume press through (take photo with volume keys is default on many devices).
@@ -84,36 +85,35 @@ public class MonitorService extends AccessibilityService {
      * @param event
      * @return True to consume event
      */
-    @Override
-    protected boolean onKeyEvent(KeyEvent event) {
-        RecUtils.log("onKeyEvent()");
-
-        if (event.getKeyCode() != KeyEvent.KEYCODE_VOLUME_UP && event.getKeyCode() != KeyEvent.KEYCODE_VOLUME_DOWN) {
-            return super.onKeyEvent(event);
-        }
-        if (Utils.loadDefaultVolumeKeyActionWhenCameraActive(myContext) && myContext.cameraState.isCameraActive()) {
-            return super.onKeyEvent(event);
-        }
-
-        boolean volumeUp = event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_UP;
-        int relevantAudioStream = Utils.getRelevantAudioStream(myContext);
-
-        if (event.getAction() == KeyEvent.ACTION_DOWN) {
-            volumeKeyInputController.keyDown(() -> myContext.volumeMovement.start(relevantAudioStream, volumeUp));
-            resetAudioStreamState = new AudioStreamState(myContext.audioManager, relevantAudioStream);
-
-//            long time = System.currentTimeMillis();
-//            RecUtils.log(time-prevTime + "");
-//            prevTime = time;
-        }
-        else {
-            volumeKeyInputController.keyUp(volumeUp, resetAudioStreamState);
-            myContext.volumeMovement.stop();
-            volumeKeyInputController.adjustVolumeIfAppropriate(relevantAudioStream, volumeUp);
-        }
-
-        return true;
-    }
+//    @Override
+//    protected boolean onKeyEvent(KeyEvent event) {
+//        myContext.accessibilityServiceFailing = false;
+//
+//        if (event.getKeyCode() != KeyEvent.KEYCODE_VOLUME_UP && event.getKeyCode() != KeyEvent.KEYCODE_VOLUME_DOWN) {
+//            return super.onKeyEvent(event);
+//        }
+//        if (Utils.loadDefaultVolumeKeyActionWhenCameraActive(myContext) && myContext.cameraState.isCameraActive()) {
+//            return super.onKeyEvent(event);
+//        }
+//
+//        boolean volumeUp = event.getKeyCode() == KeyEvent.KEYCODE_VOLUME_UP;
+//        int relevantAudioStream = Utils.getRelevantAudioStream(myContext);
+//
+//        if (event.getAction() == KeyEvent.ACTION_DOWN) {
+//            RecUtils.log("Accessibility service caught press");
+//            volumeKeyInputController.keyDown(() -> myContext.volumeMovement.start(relevantAudioStream, volumeUp, true));
+//            resetAudioStreamState = new AudioStreamState(myContext.audioManager, relevantAudioStream);
+//        }
+//        else {
+//            volumeKeyInputController.keyUp(volumeUp, resetAudioStreamState);
+//            myContext.volumeMovement.stop();
+//            volumeKeyInputController.adjustVolumeIfAppropriate(relevantAudioStream, volumeUp, true);
+//
+//            //volumeKeyCaptureWhenScreenOff.reset();
+//        }
+//
+//        return true;
+//    }
 
     /**
      * Good for stability. Skip for older devices (API <26) (no notification-channels, can't hide notification).

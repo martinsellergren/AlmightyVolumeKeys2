@@ -6,15 +6,26 @@ import com.masel.rec_utils.RecUtils;
 
 class Utils {
 
-    static void adjustVolume_withFallback(AudioManager audioManager, int stream, boolean volumeUp, boolean showUi) {
+    static void adjustVolume_withFallback(MyContext myContext, int stream, boolean volumeUp, boolean showUi) {
         int dir = volumeUp ? AudioManager.ADJUST_RAISE : AudioManager.ADJUST_LOWER;
         int volumeChangeFlag = showUi ? AudioManager.FLAG_SHOW_UI : AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE;
 
         try {
-            audioManager.adjustStreamVolume(stream, dir, volumeChangeFlag);
+            myContext.audioManager.adjustStreamVolume(stream, dir, volumeChangeFlag);
         }
         catch (SecurityException e) {
-            audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, dir, volumeChangeFlag);
+            RecUtils.requestPermissionToSilenceDevice(myContext.context);
+        }
+    }
+
+    static void setVolume_withFallback(MyContext myContext, int stream, int volume, boolean showUi) {
+        int volumeChangeFlag = showUi ? AudioManager.FLAG_SHOW_UI : AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE;
+
+        try {
+            myContext.audioManager.setStreamVolume(stream, volume, volumeChangeFlag);
+        }
+        catch (SecurityException e) {
+            RecUtils.requestPermissionToSilenceDevice(myContext.context);
         }
     }
 

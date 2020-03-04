@@ -16,12 +16,11 @@ class VolumeKeyInputController {
 
     VolumeKeyInputController(MyContext myContext) {
         this.myContext = myContext;
-
         actionCommand = new ActionCommand(myContext);
     }
 
-    void setManualMusicVolumeChanger(VolumeKeyCaptureWhenScreenOffAndMusic.ManualMusicVolumeChanger manualMusicVolumeChanger) {
-        actionCommand.setManualMusicVolumeChanger(manualMusicVolumeChanger);
+    void setResetActionForVolumeKeyCaptureWhenScreenOffAndMusic(Runnable resetVolumeKeyCaptureWhenScreenOffAndMusic) {
+        actionCommand.setResetActionForVolumeKeyCaptureWhenScreenOffAndMusic(resetVolumeKeyCaptureWhenScreenOffAndMusic);
     }
 
     void destroy() {
@@ -62,6 +61,7 @@ class VolumeKeyInputController {
     }
 
     void longPressDetected() {
+        if (currentLongPress) return;
         actionCommand.halt();
         currentLongPress = true;
         myContext.vibrator.vibrate();
@@ -71,7 +71,7 @@ class VolumeKeyInputController {
         for (int i = 0; i < count; i++) actionCommand.removeLastBit();
     }
 
-    void adjustVolumeIfAppropriate(int audioStream, boolean volumeUp) {
+    void adjustVolumeIfAppropriate(int audioStream, boolean volumeUp, boolean showUi) {
         DeviceState state = DeviceState.getCurrent(myContext);
         boolean appropriate = false;
 
@@ -85,7 +85,7 @@ class VolumeKeyInputController {
         }
 
         if (appropriate) {
-            Utils.adjustVolume_withFallback(myContext.audioManager, audioStream, volumeUp, true);
+            Utils.adjustVolume_withFallback(myContext, audioStream, volumeUp, showUi);
         }
     }
 }

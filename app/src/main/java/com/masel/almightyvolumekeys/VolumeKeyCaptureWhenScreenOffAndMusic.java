@@ -37,7 +37,7 @@ class VolumeKeyCaptureWhenScreenOffAndMusic {
     private int prevMusicVolume;
     private Handler pollingHandler = new Handler();
 
-    private boolean disabled = false;
+    private boolean isPollingMusicVolume = false;
 
     VolumeKeyCaptureWhenScreenOffAndMusic(MyContext myContext, VolumeKeyInputController volumeKeyInputController) {
         this.myContext = myContext;
@@ -51,7 +51,8 @@ class VolumeKeyCaptureWhenScreenOffAndMusic {
 
     void destroy(MyContext myContext) {
         pollingHandler.removeCallbacksAndMessages(null);
-        startPollingMethod2Handler.removeCallbacksAndMessages(null);
+        startPollingAttemptsHandler.removeCallbacksAndMessages(null);
+        stopPollingAttemptsHandler.removeCallbacksAndMessages(null);
 
         try {
             if (Build.VERSION.SDK_INT >= 26 && audioPlaybackCallback != null) myContext.audioManager.unregisterAudioPlaybackCallback(audioPlaybackCallback);
@@ -66,16 +67,11 @@ class VolumeKeyCaptureWhenScreenOffAndMusic {
         } catch (Exception e) {}
     }
 
-    void setDisabled(boolean disabled) {
-        this.disabled = disabled;
-        if (!disabled) startPolling();
-    }
-
     private void setupStartPollingWhenScreenOff() {
         screenOffReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                startPolling();
+                startPollingAttemptsForAWhile();
             }
         };
         myContext.context.registerReceiver(screenOffReceiver, new IntentFilter(Intent.ACTION_SCREEN_OFF));
@@ -84,12 +80,16 @@ class VolumeKeyCaptureWhenScreenOffAndMusic {
     // region Setup start polling when music started
 
     private void setupStartPollingWhenMusicStarted() {
-        if (Build.VERSION.SDK_INT >= 26) {
+        if (useDefaultMethodForStartPollingOnMusicStart()) {
             setupStartPollingWhenMusicStarted_method1();
         }
         else {
             setupStartPollingWhenMusicStarted_method2();
         }
+    }
+
+    private boolean useDefaultMethodForStartPollingOnMusicStart() {
+        return Build.VERSION.SDK_INT >= 26;
     }
 
     private AudioManager.AudioPlaybackCallback audioPlaybackCallback = null;
@@ -98,18 +98,13 @@ class VolumeKeyCaptureWhenScreenOffAndMusic {
         audioPlaybackCallback = new AudioManager.AudioPlaybackCallback() {
                 @Override
                 public void onPlaybackConfigChanged(List<AudioPlaybackConfiguration> configs) {
-                    startPolling();
+                    startPollingAttemptsForAWhile();
                 }
         };
         myContext.audioManager.registerAudioPlaybackCallback(audioPlaybackCallback, null);
     }
 
-    /**
-     * Attempt to start polling, at a fixed rate. (Polling only starts if conditions met).
-     */
-    private static final long ATTEMPT_RATE = 750;
     private BroadcastReceiver startPollingMethod2BroadcastReceiver = null;
-    private Handler startPollingMethod2Handler = new Handler();
     private void setupStartPollingWhenMusicStarted_method2() {
         startPollingMethod2BroadcastReceiver = new BroadcastReceiver() {
             @Override
@@ -120,48 +115,67 @@ class VolumeKeyCaptureWhenScreenOffAndMusic {
         myContext.context.registerReceiver(startPollingMethod2BroadcastReceiver, new IntentFilter(Intent.ACTION_SCREEN_OFF));
     }
 
-    private void startPollingAttempts() {
-        startPollingMethod2Handler.removeCallbacksAndMessages(null);
-        startPolling();
-
-        if (RecUtils.isScreenOn(myContext.powerManager)) return;
-        try {
-            if (myContext.wakeLock.isHeld()) startPollingMethod2Handler.postDelayed(this::startPollingAttempts, ATTEMPT_RATE);
-        }
-        catch (Exception e) {}
-    }
-
     // endregion
 
 
-    private void startPolling() {
+    private static final long ATTEMPT_RATE = 750;
+    private Handler startPollingAttemptsHandler = new Handler();
+    /**
+     * Attempt to start polling, at a fixed rate.
+     * Stop attempting if already polling or if screen on.
+     */
+    private void startPollingAttempts() {
+        startPollingAttemptsHandler.removeCallbacksAndMessages(null);
+        if (isPollingMusicVolume) return;
+        if (RecUtils.isScreenOn(myContext.powerManager) && !myContext.accessibilityServiceFailing) return;
+
+        initOrContinuePolling();
+        startPollingAttemptsHandler.postDelayed(this::startPollingAttempts, ATTEMPT_RATE);
+    }
+
+    private void stopPollingAttempts() {
+        startPollingAttemptsHandler.removeCallbacksAndMessages(null);
+    }
+
+    private static final long STOP_POLLING_ATTEMPTS_TIME = 3000;
+    private Handler stopPollingAttemptsHandler = new Handler();
+    private void startPollingAttemptsForAWhile() {
+        startPollingAttempts();
+
+        if (useDefaultMethodForStartPollingOnMusicStart()) {
+            stopPollingAttemptsHandler.removeCallbacksAndMessages(null);
+            stopPollingAttemptsHandler.postDelayed(this::stopPollingAttempts, STOP_POLLING_ATTEMPTS_TIME);
+        }
+    }
+
+    /**
+     * Start polling if appropriate.
+     * If already polling, discards any uncaught volume changes and restarts.
+     */
+    private void initPolling() {
+        if (!deviceStateOkForPolling()) {
+            return;
+        }
+
         RecUtils.log("Start polling music volume");
+        isPollingMusicVolume = true;
         prevMusicVolume = myContext.audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
-        timeWithoutMusic = 0;
         pollMusicVolume();
     }
 
-    private static final long CONTINUE_POLLING_AFTER_MUSIC_STOP_TIME = 1000;
-    private long timeWithoutMusic = 0;
+    private void initOrContinuePolling() {
+        if (!isPollingMusicVolume) initPolling();
+    }
 
     /**
      * Continues only if music is playing (or just recently stopped) AND screen is off.
+     * Way in through initPolling(), way out through stopPolling().
      */
     private void pollMusicVolume() {
         pollingHandler.removeCallbacksAndMessages(null);
 
-        if (DeviceState.getCurrent(myContext) == DeviceState.MUSIC) {
-            timeWithoutMusic = 0;
-        }
-        else {
-            timeWithoutMusic += MUSIC_VOLUME_POLLING_DELTA;
-        }
-
-        if (RecUtils.isScreenOn(myContext.powerManager) || timeWithoutMusic > CONTINUE_POLLING_AFTER_MUSIC_STOP_TIME) {
-            RecUtils.log("Stop polling music volume");
-            return;
-        }
-        if (disabled) {
+        if (!deviceStateOkForPolling()) {
+            stopPolling();
             return;
         }
 
@@ -170,7 +184,7 @@ class VolumeKeyCaptureWhenScreenOffAndMusic {
         boolean volumeUp = diff > 0;
 
         for (int i = 0; i < Math.abs(diff); i++) {
-            volumeChange(volumeUp, currentMusicVolume, prevMusicVolume);
+            volumeChange(volumeUp, prevMusicVolume);
         }
 
         prevMusicVolume = currentMusicVolume;
@@ -182,7 +196,24 @@ class VolumeKeyCaptureWhenScreenOffAndMusic {
         pollingHandler.postDelayed(this::pollMusicVolume, MUSIC_VOLUME_POLLING_DELTA);
     }
 
-    // region Long press
+
+    /**
+     * Attempt to start polling for a while. Track skips means short period with music not playing, still might miss
+     * music start since such a short break.
+     */
+    private void stopPolling() {
+        RecUtils.log("Stop polling music volume");
+        isPollingMusicVolume = false;
+
+        if (useDefaultMethodForStartPollingOnMusicStart()) {
+            startPollingAttemptsForAWhile();
+        }
+        else {
+            startPollingAttempts();
+        }
+    }
+
+    // region Interpret press
 
     private final int NO_HISTORY_ENTRIES = 2;
     private List<Boolean> volumeChangesHistory = new LinkedList<>();
@@ -193,26 +224,24 @@ class VolumeKeyCaptureWhenScreenOffAndMusic {
     private Handler longPressKeyReleaseHandler = new Handler();
     private static final long TIME_INACTIVE_BEFORE_KEY_RELEASE_ASSUMED = Math.max(MAX_DELTA_PRESS_TIME_FOR_LONG_PRESS, MUSIC_VOLUME_POLLING_DELTA * 2);
 
-    /**
-     *
-     * @param volumeUp
-     */
-    private void volumeChange(boolean volumeUp, int currentMusicVolume, int prevMusicVolume) {
+    private void volumeChange(boolean volumeUp, int prevMusicVolume) {
         if (waitingForKeyRelease) {
             resetLongPressKeyReleaseHandler();
-            preventVolumeExtremes(currentMusicVolume);
+            preventVolumeExtremes();
             return;
         }
 
         updateHistory(volumeUp, prevMusicVolume);
 
         if (detectLongPress()) {
+            RecUtils.log("Music volume polling caught long-press");
             volumeKeyInputController.longPressDetected();
             volumeKeyInputController.undoPresses(NO_HISTORY_ENTRIES);
             waitingForKeyRelease = true;
             resetLongPressKeyReleaseHandler();
         }
-        else if (prevMusicVolume != currentMusicVolume) {
+        else {
+            RecUtils.log("Music volume polling caught click");
             AudioStreamState resetAudioStreamState = new AudioStreamState(AudioManager.STREAM_MUSIC, prevMusicVolume);
             volumeKeyInputController.keyUp(volumeUp, resetAudioStreamState);
         }
@@ -246,13 +275,13 @@ class VolumeKeyCaptureWhenScreenOffAndMusic {
         prevVolumesHistory.add(prevMusicVolume);
     }
 
-    private void preventVolumeExtremes(int currentMusicVolume) {
-        if (currentMusicVolume == maxMusicVolume) {
-            Utils.adjustVolume_withFallback(myContext.audioManager, AudioManager.STREAM_MUSIC, false, false);
+    private void preventVolumeExtremes() {
+        int volume = myContext.audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+        if (volume == maxMusicVolume) {
+            Utils.adjustVolume_withFallback(myContext, AudioManager.STREAM_MUSIC, false, false);
         }
-        else if (currentMusicVolume == minMusicVolume) {
-            Utils.adjustVolume_withFallback(myContext.audioManager, AudioManager.STREAM_MUSIC, true, false);
-            //myContext.audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, maxMusicVolume, AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE);
+        else if (volume == minMusicVolume) {
+            Utils.adjustVolume_withFallback(myContext, AudioManager.STREAM_MUSIC, true, false);
         }
     }
 
@@ -266,24 +295,17 @@ class VolumeKeyCaptureWhenScreenOffAndMusic {
         waitingForKeyRelease = false;
         AudioStreamState resetAudioStreamState = new AudioStreamState(AudioManager.STREAM_MUSIC, prevVolumesHistory.get(0));
         volumeKeyInputController.keyUp(volumeChangesHistory.get(0), resetAudioStreamState);
-        preventVolumeExtremes(myContext.audioManager.getStreamVolume(AudioManager.STREAM_MUSIC));
+        preventVolumeExtremes();
     }
 
     // endregion
 
-
-    interface ManualMusicVolumeChanger {
-        void setVolume(int volume);
-    }
-    ManualMusicVolumeChanger getManualMusicVolumeChanger() {
-        return volume -> {
-            pollingHandler.removeCallbacksAndMessages(null);
-            myContext.audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, volume, AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE);
-            startPolling();
-        };
+    Runnable getResetAction() {
+        return this::initPolling;
     }
 
-    static boolean screenOffAndMusic(MyContext myContext) {
-        return !RecUtils.isScreenOn(myContext.powerManager) && DeviceState.getCurrent(myContext) == DeviceState.MUSIC;
+    private boolean deviceStateOkForPolling() {
+        return DeviceState.getCurrent(myContext) == DeviceState.MUSIC &&
+                (!RecUtils.isScreenOn(myContext.powerManager) || myContext.accessibilityServiceFailing);
     }
 }

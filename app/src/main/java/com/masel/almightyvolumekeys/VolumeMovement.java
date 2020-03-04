@@ -9,29 +9,28 @@ class VolumeMovement {
 
     private static final long LONG_PRESS_VOLUME_CHANGE_TIME = 50;
 
-    private AudioManager audioManager;
-
+    private MyContext myContext;
     private Handler handler = new Handler();
 
-    VolumeMovement(AudioManager audioManager) {
-        this.audioManager = audioManager;
+    VolumeMovement(MyContext myContext) {
+        this.myContext = myContext;
     }
 
-    void start(int audioStream, boolean volumeUp) {
+    void start(int audioStream, boolean volumeUp, boolean showUi) {
         handler.removeCallbacksAndMessages(null);
-        handler.postDelayed(() -> stepVolume(audioStream, volumeUp), 0);
+        handler.postDelayed(() -> stepVolume(audioStream, volumeUp, showUi), 0);
     }
 
-    private void stepVolume(int audioStream, boolean volumeUp) {
+    private void stepVolume(int audioStream, boolean volumeUp, boolean showUi) {
         handler.removeCallbacksAndMessages(null);
 
-        int volumePercentage = RecUtils.getStreamVolumePercentage(audioManager, audioStream);
+        int volumePercentage = RecUtils.getStreamVolumePercentage(myContext.audioManager, audioStream);
         if ((volumePercentage == 100 && volumeUp) || (volumePercentage == 0 && !volumeUp)) {
             return;
         }
 
-        Utils.adjustVolume_withFallback(audioManager, audioStream, volumeUp, true);
-        handler.postDelayed(() -> stepVolume(audioStream, volumeUp), LONG_PRESS_VOLUME_CHANGE_TIME);
+        Utils.adjustVolume_withFallback(myContext, audioStream, volumeUp, showUi);
+        handler.postDelayed(() -> stepVolume(audioStream, volumeUp, showUi), LONG_PRESS_VOLUME_CHANGE_TIME);
     }
 
     void stop() {

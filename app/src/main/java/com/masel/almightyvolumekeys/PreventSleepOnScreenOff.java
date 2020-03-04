@@ -54,4 +54,14 @@ class PreventSleepOnScreenOff {
     private int hourInterval(int from, int to) {
         return from <= to ? to - from : (to + 24) - from;
     }
+
+
+    static boolean sleepCurrentlyPrevented(MyContext myContext) {
+        try {
+            return myContext.wakeLock.isHeld();
+        }
+        catch (Exception e) {
+            return false;
+        }
+    }
 }
