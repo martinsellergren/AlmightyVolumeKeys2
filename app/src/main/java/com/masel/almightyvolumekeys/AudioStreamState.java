@@ -4,29 +4,23 @@ import android.media.AudioManager;
 
 class AudioStreamState {
 
+    private VolumeUtils volumeUtils;
     private int stream;
     private int volume;
 
-    AudioStreamState(int stream, int index) {
+    AudioStreamState(VolumeUtils volumeUtils, int stream, int volume) {
+        this.volumeUtils = volumeUtils;
         this.stream = stream;
-        this.volume = index;
+        this.volume = volume;
     }
 
-    AudioStreamState(AudioManager audioManager, int stream) {
-        this(stream, audioManager.getStreamVolume(stream));
+    AudioStreamState(VolumeUtils volumeUtils, int stream) {
+        this(volumeUtils, stream, volumeUtils.get(stream));
     }
 
-
-    private void commit(MyContext myContext, int flag) {
-        myContext.audioManager.setStreamVolume(stream, volume, flag);
-    }
-
-    void commit_noUi(MyContext myContext) {
-        commit(myContext, AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE);
-    }
-
-    void commit_Ui(MyContext myContext) {
-        commit(myContext, AudioManager.FLAG_SHOW_UI);
+    void commit(boolean showUi) {
+        int flag = showUi ? AudioManager.FLAG_SHOW_UI : AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE;
+        volumeUtils.set(stream, volume, showUi);
     }
 
     int getStream() {

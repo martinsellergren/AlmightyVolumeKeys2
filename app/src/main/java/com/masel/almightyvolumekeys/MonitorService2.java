@@ -2,25 +2,18 @@ package com.masel.almightyvolumekeys;
 
 import android.app.ActivityManager;
 import android.content.Context;
-import android.media.AudioManager;
-import android.media.AudioPlaybackConfiguration;
-import android.os.Build;
-import android.os.Handler;
 import android.service.notification.NotificationListenerService;
-
-import androidx.annotation.RequiresApi;
 
 import com.masel.rec_utils.AudioRecorder;
 import com.masel.rec_utils.KeyValueStore;
 import com.masel.rec_utils.RecUtils;
-
-import java.util.List;
 
 public class MonitorService2 extends NotificationListenerService {
 
     private MyContext myContext;
     private VolumeKeyInputController volumeKeyInputController;
     private VolumeKeyCapture volumeKeyCapture;
+    private VolumeKeyCaptureWhenMusic volumeKeyCaptureWhenMusic;
     private PreventSleepOnScreenOff preventSleepOnScreenOff;
 
     @Override
@@ -31,13 +24,12 @@ public class MonitorService2 extends NotificationListenerService {
         cleanUpAfterCrashDuringRecording();
         myContext = new MyContext(this);
         volumeKeyInputController = new VolumeKeyInputController(myContext);
-        volumeKeyCapture = new VolumeKeyCapture(myContext, volumeKeyInputController, this::resetVolumeKeyCapture);
+        volumeKeyCapture = new VolumeKeyCapture(myContext, volumeKeyInputController);
+        volumeKeyCaptureWhenMusic = new VolumeKeyCaptureWhenMusic(myContext, volumeKeyInputController);
         preventSleepOnScreenOff = new PreventSleepOnScreenOff(myContext);
-    }
 
-    private void resetVolumeKeyCapture() {
-        volumeKeyCapture.destroy();
-        volumeKeyCapture = new VolumeKeyCapture(myContext, volumeKeyInputController, this::resetVolumeKeyCapture);
+        volumeKeyInputController.setResetActionForVolumeKeyCaptureWhenMusic(volumeKeyCaptureWhenMusic.getResetAction());
+        volumeKeyCapture.setResetVolumeKeyCaptureWhenMusicAndScreenOff(volumeKeyCaptureWhenMusic.getResetAction());
     }
 
     private void cleanUpAfterCrashDuringRecording() {
@@ -51,6 +43,7 @@ public class MonitorService2 extends NotificationListenerService {
         RecUtils.log("Monitor service stopped");
 
         volumeKeyCapture.destroy();
+        volumeKeyCaptureWhenMusic.destroy();
         volumeKeyInputController.destroy();
         preventSleepOnScreenOff.destroy();
         myContext.destroy();

@@ -9,15 +9,15 @@
         <item>Do not disturb: off</item>
         <item>Do not disturb: on/off</item>
         <item>Sound mode: sound</item>
-        <item>Sound mode: sound (volume 100%)</item>
+        <item>Sound mode: sound (volumeUtils 100%)</item>
         <item>Sound mode: vibrate</item>
         <item>Sound mode: silent</item>
         <item>Sound mode: sound/vibrate</item>
         <item>Sound mode: sound/silent</item>
         <item>Sound mode: vibrate/silent</item>
-        <item>Tell time (volume 100%)</item>
-        <item>Tell time (volume 75%)</item>
-        <item>Tell time (volume 50%)</item>
+        <item>Tell time (volumeUtils 100%)</item>
+        <item>Tell time (volumeUtils 75%)</item>
+        <item>Tell time (volumeUtils 50%)</item>
         <item>Bluetooth: on</item>
         <item>Bluetooth: off</item>
         <item>Bluetooth: on/off</item>
@@ -38,15 +38,15 @@
     </string-array>
 
     <string-array name="media_or_ringtone_volume">
-        <item>Media volume</item>
-        <item>Ringtone volume</item>
+        <item>Media volumeUtils</item>
+        <item>Ringtone volumeUtils</item>
     </string-array>
 
     <string-array name="media_or_ringtone_volume_with_after_5_clicks">
-        <item>Media volume</item>
-        <item>Ringtone volume</item>
-        <item>Media volume after 5 clicks</item>
-        <item>Ringtone volume after 5 clicks</item>
+        <item>Media volumeUtils</item>
+        <item>Ringtone volumeUtils</item>
+        <item>Media volumeUtils after 5 clicks</item>
+        <item>Ringtone volumeUtils after 5 clicks</item>
     </string-array>
 
 </resources>

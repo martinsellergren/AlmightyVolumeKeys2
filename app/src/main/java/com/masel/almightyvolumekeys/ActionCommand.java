@@ -1,7 +1,6 @@
 package com.masel.almightyvolumekeys;
 
 import android.content.Intent;
-import android.media.AudioManager;
 import android.os.Handler;
 
 import com.masel.rec_utils.RecUtils;
@@ -30,7 +29,7 @@ class ActionCommand {
 
     private MyContext myContext;
 
-    private Runnable resetVolumeKeyCaptureWhenScreenOffAndMusic = null;
+    private Runnable resetVolumeKeyCaptureWhenMusic = null;
 
     private DeviceState deviceStateOnCommandStart;
     private boolean screenOnOnCommandStart;
@@ -132,8 +131,8 @@ class ActionCommand {
         return command.length();
     }
 
-    void setResetActionForVolumeKeyCaptureWhenScreenOffAndMusic(Runnable resetVolumeKeyCaptureWhenScreenOffAndMusic) {
-        this.resetVolumeKeyCaptureWhenScreenOffAndMusic = resetVolumeKeyCaptureWhenScreenOffAndMusic;
+    void setResetActionForVolumeKeyCaptureWhenMusic(Runnable resetVolumeKeyCaptureWhenMusic) {
+        this.resetVolumeKeyCaptureWhenMusic = resetVolumeKeyCaptureWhenMusic;
     }
 
     private Action getMappedAction(String command) {
@@ -154,9 +153,9 @@ class ActionCommand {
     private void discardAnyVolumeChanges() {
         if (resetAudioStreamState == null) return;
 
-        resetAudioStreamState.commit_noUi(myContext);
-        if (resetVolumeKeyCaptureWhenScreenOffAndMusic != null) {
-            resetVolumeKeyCaptureWhenScreenOffAndMusic.run();
+        resetAudioStreamState.commit(false);
+        if (resetVolumeKeyCaptureWhenMusic != null) {
+            resetVolumeKeyCaptureWhenMusic.run();
         }
     }
 

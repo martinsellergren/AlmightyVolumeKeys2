@@ -43,7 +43,7 @@
     <PreferenceCategory>
 
         <Preference
-            app:summary="The following commands are easily mixed up with volume changes. You might accidentally trigger it when you just want to change volume. I'd recommend the commands above instead."/>
+            app:summary="The following commands are easily mixed up with volumeUtils changes. You might accidentally trigger it when you just want to change volumeUtils. I'd recommend the commands above instead."/>
 
         <com.masel.almightyvolumekeys.MappingListPreference
             app:key="mappingListPreference_music_command_1"/>

@@ -19,8 +19,8 @@ class VolumeKeyInputController {
         actionCommand = new ActionCommand(myContext);
     }
 
-    void setResetActionForVolumeKeyCaptureWhenScreenOffAndMusic(Runnable resetVolumeKeyCaptureWhenScreenOffAndMusic) {
-        actionCommand.setResetActionForVolumeKeyCaptureWhenScreenOffAndMusic(resetVolumeKeyCaptureWhenScreenOffAndMusic);
+    void setResetActionForVolumeKeyCaptureWhenMusic(Runnable resetVolumeKeyCaptureWhenMusic) {
+        actionCommand.setResetActionForVolumeKeyCaptureWhenMusic(resetVolumeKeyCaptureWhenMusic);
     }
 
     void destroy() {
@@ -85,7 +85,7 @@ class VolumeKeyInputController {
         }
 
         if (appropriate) {
-            Utils.adjustVolume_withFallback(myContext, audioStream, volumeUp, showUi);
+            myContext.volumeUtils.adjust(audioStream, volumeUp, showUi);
         }
     }
 }

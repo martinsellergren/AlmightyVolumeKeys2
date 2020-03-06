@@ -20,8 +20,8 @@ class MyContext {
     final Voice voice;
     final SharedPreferences sharedPreferences;
     final MyFlashlight flashlight;
-    final CameraState cameraState;
-    final VolumeMovement volumeMovement;
+    final DeviceStateCallbacks deviceStateCallbacks;
+    final VolumeUtils volumeUtils;
     final WakeLock wakeLock;
 
     MyContext(Context c) {
@@ -32,11 +32,11 @@ class MyContext {
         notifier = new Notifier(context);
         vibrator = new MyVibrator(context);
         audioRecorder = new AudioRecorderDeligator(context);
-        voice = new Voice(context);
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         flashlight = new MyFlashlight(context);
-        cameraState = new CameraState(context);
-        volumeMovement = new VolumeMovement(this);
+        deviceStateCallbacks = new DeviceStateCallbacks(context);
+        volumeUtils = new VolumeUtils(this);
+        voice = new Voice(context, volumeUtils);
 
         PowerManager powerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
         this.wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,"com.masel.almightyvolumekeys::WakeLock");
@@ -48,14 +48,8 @@ class MyContext {
         vibrator.cancel();
         voice.destroy();
         flashlight.destroy();
-        cameraState.destroy();
-        volumeMovement.stop();
+        deviceStateCallbacks.destroy();
+        //volume.stopMovement();
         if (wakeLock.isHeld()) wakeLock.release();
     }
-
-    // region global variables
-
-    boolean accessibilityServiceFailing = false;
-
-    // endregion
 }

@@ -13,25 +13,25 @@
             app:singleLineTitle="false"
             app:entries="@array/media_or_ringtone_volume"
             app:entryValues="@array/media_or_ringtone_volume"
-            app:defaultValue="Media volume"
+            app:defaultValue="Media volumeUtils"
             app:useSimpleSummaryProvider="true" />
 <!--            app:entries="@array/media_or_ringtone_volume_with_after_5_clicks"-->
 <!--            app:entryValues="@array/media_or_ringtone_volume_with_after_5_clicks"-->
 
 <!--        <ListPreference-->
 <!--            app:key="ListPreference_LongVolumePressChanges"-->
-<!--            app:title="Long volume press changes"-->
+<!--            app:title="Long volumeUtils press changes"-->
 <!--            app:singleLineTitle="false"-->
 <!--            app:entries="@array/media_or_ringtone_volume"-->
 <!--            app:entryValues="@array/media_or_ringtone_volume"-->
-<!--            app:defaultValue="Media volume"-->
+<!--            app:defaultValue="Media volumeUtils"-->
 <!--            app:useSimpleSummaryProvider="true" />-->
 
         <SwitchPreferenceCompat
             app:key="SwitchPreferenceCompat_defaultVolumeKeyActionWhenCameraActive"
-            app:title="Default volume key camera-action"
+            app:title="Default volumeUtils key camera-action"
             app:singleLineTitle="false"
-            app:summary="When camera is active a photo is usually taken when pressing a volume key (a system feature on many Android devices). Set this to True to execute this default camera-action instead of any mapped Almighty Volume Keys-action."
+            app:summary="When camera is active a photo is usually taken when pressing a volumeUtils key (a system feature on many Android devices). Set this to True to execute this default camera-action instead of any mapped Almighty Volume Keys-action."
             app:defaultValue="true"/>
 
     </PreferenceCategory>
@@ -53,7 +53,7 @@
         app:singleLineTitle="false">
 
         <Preference
-            app:summary="If nothing significant is going on (no music, no phone call, not charging etc) your device might fall asleep. (Only happens when the screen is off). When this happens, the volume keys won't work until the screen is turned on and the device wakes up." />
+            app:summary="If nothing significant is going on (no music, no phone call, not charging etc) your device might fall asleep. (Only happens when the screen is off). When this happens, the volumeUtils keys won't work until the screen is turned on and the device wakes up." />
 
         <SeekBarPreference
             app:key="SeekBarPreference_preventSleepTimeout"

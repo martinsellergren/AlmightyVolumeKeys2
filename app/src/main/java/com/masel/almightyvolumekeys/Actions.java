@@ -306,8 +306,8 @@ class Actions {
 
         @Override
         void run(MyContext myContext) throws ExecutionException {
-            RecUtils.setStreamVolumePercentage(myContext.audioManager, AudioManager.STREAM_RING, 100);
-            RecUtils.setStreamVolumePercentage(myContext.audioManager, AudioManager.STREAM_NOTIFICATION, 100);
+            myContext.volumeUtils.setPercentage(AudioManager.STREAM_RING, 100, true);
+            myContext.volumeUtils.setPercentage(AudioManager.STREAM_NOTIFICATION, 100, true);
             myContext.audioManager.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
         }
 
