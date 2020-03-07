@@ -24,41 +24,49 @@ import java.util.Set;
 
 class Utils {
 
-    static int loadVolumeKeysAudioStream(MyContext myContext) {
-        String value = myContext.sharedPreferences.getString("ListPreference_VolumeKeysChange", null);
-        int backupStream = AudioManager.STREAM_MUSIC;
-        if (value == null) return backupStream;
+//    static int loadVolumeKeysAudioStream(SharedPreferences sharedPreferences) {
+//        String value = sharedPreferences.getString("ListPreference_VolumeKeysChange", null);
+//        int backupStream = AudioManager.STREAM_MUSIC;
+//        if (value == null) return backupStream;
+//
+//        if (value.equals("Ringtone volume")) return AudioManager.STREAM_RING;
+//        if (value.equals("Media volume after 5 clicks")) return AudioManager.STREAM_MUSIC;
+//        if (value.equals("Ringtone volume after 5 clicks")) return AudioManager.STREAM_RING;
+//        else return AudioManager.STREAM_MUSIC;
+//    }
 
-        if (value.equals("Ringtone volume")) return AudioManager.STREAM_RING;
-        if (value.equals("Media volume after 5 clicks")) return AudioManager.STREAM_MUSIC;
-        if (value.equals("Ringtone volume after 5 clicks")) return AudioManager.STREAM_RING;
-        else return AudioManager.STREAM_MUSIC;
+    static boolean loadPreventMaxAndMinVolume(SharedPreferences sharedPreferences) {
+        return sharedPreferences.getBoolean("SwitchPreferenceCompat_preventMaxAndMinVolume", true);
     }
 
 
-    static boolean loadFiveClicksBeforeVolumeChange(MyContext myContext) {
-        String value = myContext.sharedPreferences.getString("ListPreference_VolumeKeysChange", null);
-        if (value == null) return false;
-        return value.equals("Media volume after 5 clicks") ||
-                value.equals("Ringtone volume after 5 clicks");
-    }
+//    static boolean loadFiveClicksBeforeVolumeChange(MyContext myContext) {
+//        String value = myContext.sharedPreferences.getString("ListPreference_VolumeKeysChange", null);
+//        if (value == null) return false;
+//        return value.equals("Media volume after 5 clicks") ||
+//                value.equals("Ringtone volume after 5 clicks");
+//    }
 
-    static boolean loadDefaultVolumeKeyActionWhenCameraActive(MyContext myContext) {
-        return myContext.sharedPreferences.getBoolean("SwitchPreferenceCompat_defaultVolumeKeyActionWhenCameraActive", true);
-    }
 
-    /**
-     * @return Audio stream to be adjusted on a volume changing key-event.
-     */
-    static int getRelevantAudioStream(MyContext myContext) {
-        int activeStream = RecUtils.getActiveAudioStream(myContext.audioManager);
-        if (activeStream != AudioManager.USE_DEFAULT_STREAM_TYPE) {
-            return activeStream;
-        }
-        else {
-            return Utils.loadVolumeKeysAudioStream(myContext);
-        }
-    }
+
+//    static boolean loadDefaultVolumeKeyActionWhenCameraActive(MyContext myContext) {
+//        return myContext.sharedPreferences.getBoolean("SwitchPreferenceCompat_defaultVolumeKeyActionWhenCameraActive", true);
+//    }
+
+//    /**
+//     * @return Audio stream to be adjusted on a volume changing key-event.
+//     */
+//    static int getRelevantAudioStream(MyContext myContext) {
+//        int activeStream = RecUtils.getActiveAudioStream(myContext.audioManager);
+//        if (activeStream != AudioManager.USE_DEFAULT_STREAM_TYPE) {
+//            return activeStream;
+//        }
+//        else {
+//            return Utils.loadVolumeKeysAudioStream(myContext.sharedPreferences);
+//        }
+//    }
+
+
 
     /**
      * Good for stability of a service. Skip for older devices (API <26) (no notification-channels, can't hide notification).

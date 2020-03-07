@@ -115,7 +115,7 @@ class VolumeKeyCaptureWhenMusic {
             holdVolume.commit(true);
             currentMusicVolume = holdVolume.getVolume();
         }
-        else if (!allowExtremeVolume(currentMusicVolume)) {
+        else if (!allowExtremeVolume(currentMusicVolume) && Utils.loadPreventMaxAndMinVolume(myContext.sharedPreferences)) {
             currentMusicVolume = preventVolumeExtremes(currentMusicVolume);
         }
 

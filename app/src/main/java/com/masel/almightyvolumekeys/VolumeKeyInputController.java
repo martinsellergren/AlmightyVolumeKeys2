@@ -77,21 +77,21 @@ class VolumeKeyInputController {
         for (int i = 0; i < count; i++) actionCommand.removeLastBit();
     }
 
-    void adjustVolumeIfAppropriate(int audioStream, boolean volumeUp, boolean showUi) {
-        int state = myContext.deviceState.getCurrent();
-        boolean appropriate = false;
-
-        if (state == DeviceState.IDLE || state == DeviceState.SOUNDREC) {
-            if (myContext.deviceState.isScreenOn() && (!Utils.loadFiveClicksBeforeVolumeChange(myContext) || actionCommand.getLength() >= 5)) {
-                appropriate = true;
-            }
-        }
-        else {
-            appropriate = true;
-        }
-
-        if (appropriate) {
-            myContext.volumeUtils.adjust(audioStream, volumeUp, showUi);
-        }
-    }
+//    void adjustVolumeIfAppropriate(int audioStream, boolean volumeUp, boolean showUi) {
+//        int state = myContext.deviceState.getCurrent();
+//        boolean appropriate = false;
+//
+//        if (state == DeviceState.IDLE || state == DeviceState.SOUNDREC) {
+//            if (myContext.deviceState.isScreenOn() && (!Utils.loadFiveClicksBeforeVolumeChange(myContext) || actionCommand.getLength() >= 5)) {
+//                appropriate = true;
+//            }
+//        }
+//        else {
+//            appropriate = true;
+//        }
+//
+//        if (appropriate) {
+//            myContext.volumeUtils.adjust(audioStream, volumeUp, showUi);
+//        }
+//    }
 }

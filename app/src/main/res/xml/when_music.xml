@@ -9,102 +9,114 @@
     <PreferenceCategory>
 
         <com.masel.almightyvolumekeys.MappingListPreference
+            app:key="mappingListPreference_music_command_3"/>
+
+        <com.masel.almightyvolumekeys.MappingListPreference
+            app:key="mappingListPreference_music_command_2"/>
+
+        <com.masel.almightyvolumekeys.MappingListPreference
+            app:key="mappingListPreference_music_command_13"/>
+
+        <com.masel.almightyvolumekeys.MappingListPreference
+            app:key="mappingListPreference_music_command_02"/>
+
+        <com.masel.almightyvolumekeys.MappingListPreference
             app:key="mappingListPreference_music_command_10"/>
 
         <com.masel.almightyvolumekeys.MappingListPreference
             app:key="mappingListPreference_music_command_01"/>
 
-        <com.masel.almightyvolumekeys.MappingListPreference
-            app:key="mappingListPreference_music_command_110"/>
+<!--        <com.masel.almightyvolumekeys.MappingListPreference-->
+<!--            app:key="mappingListPreference_music_command_110"/>-->
 
-        <com.masel.almightyvolumekeys.MappingListPreference
-            app:key="mappingListPreference_music_command_001"/>
+<!--        <com.masel.almightyvolumekeys.MappingListPreference-->
+<!--            app:key="mappingListPreference_music_command_001"/>-->
 
-        <com.masel.almightyvolumekeys.MappingListPreference
-            app:key="mappingListPreference_music_command_100"/>
+<!--        <com.masel.almightyvolumekeys.MappingListPreference-->
+<!--            app:key="mappingListPreference_music_command_100"/>-->
 
-        <com.masel.almightyvolumekeys.MappingListPreference
-            app:key="mappingListPreference_music_command_011"/>
+<!--        <com.masel.almightyvolumekeys.MappingListPreference-->
+<!--            app:key="mappingListPreference_music_command_011"/>-->
 
-        <com.masel.almightyvolumekeys.MappingListPreference
-            app:key="mappingListPreference_music_command_1110"/>
+<!--        <com.masel.almightyvolumekeys.MappingListPreference-->
+<!--            app:key="mappingListPreference_music_command_1110"/>-->
 
-        <com.masel.almightyvolumekeys.MappingListPreference
-            app:key="mappingListPreference_music_command_0001"/>
+<!--        <com.masel.almightyvolumekeys.MappingListPreference-->
+<!--            app:key="mappingListPreference_music_command_0001"/>-->
 
-        <com.masel.almightyvolumekeys.MappingListPreference
-            app:key="mappingListPreference_music_command_1000"/>
+<!--        <com.masel.almightyvolumekeys.MappingListPreference-->
+<!--            app:key="mappingListPreference_music_command_1000"/>-->
 
-        <com.masel.almightyvolumekeys.MappingListPreference
-            app:key="mappingListPreference_music_command_0111"/>
-
-    </PreferenceCategory>
-
-    <PreferenceCategory>
-
-        <Preference
-            app:summary="The following commands are easily mixed up with volumeUtils changes. You might accidentally trigger it when you just want to change volumeUtils. I'd recommend the commands above instead."/>
-
-        <com.masel.almightyvolumekeys.MappingListPreference
-            app:key="mappingListPreference_music_command_1"/>
-
-        <com.masel.almightyvolumekeys.MappingListPreference
-            app:key="mappingListPreference_music_command_0"/>
-
-        <com.masel.almightyvolumekeys.MappingListPreference
-            app:key="mappingListPreference_music_command_11"/>
-
-        <com.masel.almightyvolumekeys.MappingListPreference
-            app:key="mappingListPreference_music_command_00"/>
-
-        <com.masel.almightyvolumekeys.MappingListPreference
-            app:key="mappingListPreference_music_command_111"/>
-
-        <com.masel.almightyvolumekeys.MappingListPreference
-            app:key="mappingListPreference_music_command_000"/>
-
-        <com.masel.almightyvolumekeys.MappingListPreference
-            app:key="mappingListPreference_music_command_1111"/>
-
-        <com.masel.almightyvolumekeys.MappingListPreference
-            app:key="mappingListPreference_music_command_0000"/>
-
-
-
-<!--long clicks-->
-
-        <com.masel.almightyvolumekeys.MappingListPreference
-            app:key="mappingListPreference_music_command_3" />
-
-        <com.masel.almightyvolumekeys.MappingListPreference
-            app:key="mappingListPreference_music_command_2" />
-
-        <com.masel.almightyvolumekeys.MappingListPreference
-            app:key="mappingListPreference_music_command_33" />
-
-        <com.masel.almightyvolumekeys.MappingListPreference
-            app:key="mappingListPreference_music_command_22" />
-
-        <com.masel.almightyvolumekeys.MappingListPreference
-            app:key="mappingListPreference_music_command_32" />
-
-        <com.masel.almightyvolumekeys.MappingListPreference
-            app:key="mappingListPreference_music_command_23" />
-
-        <com.masel.almightyvolumekeys.MappingListPreference
-            app:key="mappingListPreference_music_command_31" />
-
-        <com.masel.almightyvolumekeys.MappingListPreference
-            app:key="mappingListPreference_music_command_20" />
-
-        <com.masel.almightyvolumekeys.MappingListPreference
-            app:key="mappingListPreference_music_command_13" />
-
-        <com.masel.almightyvolumekeys.MappingListPreference
-            app:key="mappingListPreference_music_command_02" />
-
+<!--        <com.masel.almightyvolumekeys.MappingListPreference-->
+<!--            app:key="mappingListPreference_music_command_0111"/>-->
 
     </PreferenceCategory>
+
+<!--    <PreferenceCategory>-->
+
+<!--        <Preference-->
+<!--            app:summary="The following commands are easily mixed up with volume changes. You might accidentally trigger it when you just want to change volume. I'd recommend the commands above instead."/>-->
+
+<!--        <com.masel.almightyvolumekeys.MappingListPreference-->
+<!--            app:key="mappingListPreference_music_command_1"/>-->
+
+<!--        <com.masel.almightyvolumekeys.MappingListPreference-->
+<!--            app:key="mappingListPreference_music_command_0"/>-->
+
+<!--        <com.masel.almightyvolumekeys.MappingListPreference-->
+<!--            app:key="mappingListPreference_music_command_11"/>-->
+
+<!--        <com.masel.almightyvolumekeys.MappingListPreference-->
+<!--            app:key="mappingListPreference_music_command_00"/>-->
+
+<!--        <com.masel.almightyvolumekeys.MappingListPreference-->
+<!--            app:key="mappingListPreference_music_command_111"/>-->
+
+<!--        <com.masel.almightyvolumekeys.MappingListPreference-->
+<!--            app:key="mappingListPreference_music_command_000"/>-->
+
+<!--        <com.masel.almightyvolumekeys.MappingListPreference-->
+<!--            app:key="mappingListPreference_music_command_1111"/>-->
+
+<!--        <com.masel.almightyvolumekeys.MappingListPreference-->
+<!--            app:key="mappingListPreference_music_command_0000"/>-->
+
+
+
+<!--&lt;!&ndash;long clicks&ndash;&gt;-->
+
+<!--        <com.masel.almightyvolumekeys.MappingListPreference-->
+<!--            app:key="mappingListPreference_music_command_3" />-->
+
+<!--        <com.masel.almightyvolumekeys.MappingListPreference-->
+<!--            app:key="mappingListPreference_music_command_2" />-->
+
+<!--        <com.masel.almightyvolumekeys.MappingListPreference-->
+<!--            app:key="mappingListPreference_music_command_33" />-->
+
+<!--        <com.masel.almightyvolumekeys.MappingListPreference-->
+<!--            app:key="mappingListPreference_music_command_22" />-->
+
+<!--        <com.masel.almightyvolumekeys.MappingListPreference-->
+<!--            app:key="mappingListPreference_music_command_32" />-->
+
+<!--        <com.masel.almightyvolumekeys.MappingListPreference-->
+<!--            app:key="mappingListPreference_music_command_23" />-->
+
+<!--        <com.masel.almightyvolumekeys.MappingListPreference-->
+<!--            app:key="mappingListPreference_music_command_31" />-->
+
+<!--        <com.masel.almightyvolumekeys.MappingListPreference-->
+<!--            app:key="mappingListPreference_music_command_20" />-->
+
+<!--        <com.masel.almightyvolumekeys.MappingListPreference-->
+<!--            app:key="mappingListPreference_music_command_13" />-->
+
+<!--        <com.masel.almightyvolumekeys.MappingListPreference-->
+<!--            app:key="mappingListPreference_music_command_02" />-->
+
+
+<!--    </PreferenceCategory>-->
 
     <PreferenceCategory>
         <com.masel.almightyvolumekeys.ClearMappingsPreference app:key="preference_music_clear"/>

@@ -42,7 +42,7 @@ class VolumeKeyCapture {
         stateBuilder.setActions(PlaybackStateCompat.ACTION_PLAY | PlaybackStateCompat.ACTION_PLAY_PAUSE | PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID | PlaybackStateCompat.ACTION_PAUSE | PlaybackStateCompat.ACTION_SKIP_TO_NEXT | PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS);
         stateBuilder.setState(PlaybackStateCompat.STATE_PLAYING, 0, 1);
         mediaSession.setPlaybackState(stateBuilder.build());
-        updateVolumeProvider();
+        mediaSession.setPlaybackToRemote(createVolumeProvider());
         updateActiveStatus();
 
         //myContext.deviceStateCallbacks.setCameraStateCallbacks(() -> mediaSession.setActive(false), () -> mediaSession.setActive(true));
@@ -65,25 +65,25 @@ class VolumeKeyCapture {
         }
     }
 
-    private void updateVolumeProvider() {
-        int audioStreamToMirror = Utils.getRelevantAudioStream(myContext);
-        if (mirroredAudioStream != audioStreamToMirror) {
-            volumeProvider = createRelevantVolumeProvider();
-            mirroredAudioStream = audioStreamToMirror;
-            mediaSession.setPlaybackToRemote(volumeProvider);
-        }
-    }
+//    private void updateVolumeProvider() {
+//        int audioStreamToMirror = Utils.getRelevantAudioStream(myContext);
+//        if (mirroredAudioStream != audioStreamToMirror) {
+//            volumeProvider = createRelevantVolumeProvider();
+//            mirroredAudioStream = audioStreamToMirror;
+//            mediaSession.setPlaybackToRemote(volumeProvider);
+//        }
+//    }
 
-    private VolumeProviderCompat createRelevantVolumeProvider() {
-        int stream = Utils.getRelevantAudioStream(myContext);
-        int steps = RecUtils.getAudioStreamSteps(myContext.audioManager, stream);
-        int volume = myContext.volumeUtils.get(stream);
+    private VolumeProviderCompat createVolumeProvider() {
+//        int stream = Utils.getRelevantAudioStream(myContext);
+//        int steps = RecUtils.getAudioStreamSteps(myContext.audioManager, stream);
+//        int volume = myContext.volumeUtils.get(stream);
 
         return new VolumeProviderCompat(VolumeProviderCompat.VOLUME_CONTROL_RELATIVE, 0, 0) {
             @Override
             public void onAdjustVolume(int direction) {
                 handleVolumeKeyPress(direction);
-                updateVolumeProvider();
+                //updateVolumeProvider();
 
                 boolean screenIsOn = myContext.deviceState.isScreenOn();
                 if (screenIsOn || myContext.deviceState.isMediaPlaying()) {
