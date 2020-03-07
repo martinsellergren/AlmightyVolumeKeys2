@@ -43,11 +43,19 @@ class VolumeKeyCapture {
         stateBuilder.setState(PlaybackStateCompat.STATE_PLAYING, 0, 1);
         mediaSession.setPlaybackState(stateBuilder.build());
         updateVolumeProvider();
-        mediaSession.setActive(true);
+        updateActiveStatus();
 
-        myContext.deviceStateCallbacks.setCameraStateCallbacks(() -> mediaSession.setActive(false), () -> mediaSession.setActive(true));
-        myContext.deviceStateCallbacks.addMediaStartCallback(() -> mediaSession.setActive(false));
-        myContext.deviceStateCallbacks.addMediaStopCallback(() -> mediaSession.setActive(true));
+        //myContext.deviceStateCallbacks.setCameraStateCallbacks(() -> mediaSession.setActive(false), () -> mediaSession.setActive(true));
+        myContext.deviceStateCallbacks.addMediaStartCallback(this::updateActiveStatus);
+        myContext.deviceStateCallbacks.addMediaStopCallback(this::updateActiveStatus);
+        myContext.deviceStateCallbacks.addDeviceUnlockedCallback(this::updateActiveStatus);
+        myContext.deviceStateCallbacks.addScreenOffCallback(this::updateActiveStatus);
+    }
+
+    private void updateActiveStatus() {
+        boolean active = !myContext.deviceState.isDeviceUnlocked() && !myContext.deviceState.isMediaPlaying();
+        mediaSession.setActive(active);
+        RecUtils.log("Media session active: " + active);
     }
 
     void destroy() {
@@ -77,11 +85,11 @@ class VolumeKeyCapture {
                 handleVolumeKeyPress(direction);
                 updateVolumeProvider();
 
-                boolean screenIsOn = RecUtils.isScreenOn(myContext.powerManager);
-                if (screenIsOn || myContext.audioManager.isMusicActive()) {
+                boolean screenIsOn = myContext.deviceState.isScreenOn();
+                if (screenIsOn || myContext.deviceState.isMediaPlaying()) {
                     updateVolume(direction);
-                    myContext.volumeUtils.set(mirroredAudioStream, getCurrentVolume(), false);
-                    if (resetVolumeKeyCaptureWhenMusicAndScreenOff != null) resetVolumeKeyCaptureWhenMusicAndScreenOff.run();
+                    //myContext.volumeUtils.set(mirroredAudioStream, getCurrentVolume(), false);
+                    //if (resetVolumeKeyCaptureWhenMusicAndScreenOff != null) resetVolumeKeyCaptureWhenMusicAndScreenOff.run();
                 }
             }
         };

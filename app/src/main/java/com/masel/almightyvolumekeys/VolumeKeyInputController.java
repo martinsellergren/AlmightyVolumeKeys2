@@ -2,8 +2,6 @@ package com.masel.almightyvolumekeys;
 
 import android.os.Handler;
 
-import com.masel.rec_utils.RecUtils;
-
 class VolumeKeyInputController {
 
     private static final long LONG_PRESS_TIME = 400;
@@ -51,7 +49,7 @@ class VolumeKeyInputController {
         int press = volumeUp ? ActionCommand.VOLUME_PRESS_UP : ActionCommand.VOLUME_PRESS_DOWN;
         if (currentLongPress) press = volumeUp ? ActionCommand.VOLUME_PRESS_LONG_UP : ActionCommand.VOLUME_PRESS_LONG_DOWN;
 
-        DeviceState state = DeviceState.getCurrent(myContext);
+        int state = myContext.deviceState.getCurrent();
         if (state == DeviceState.IDLE || state == DeviceState.MUSIC || state == DeviceState.SOUNDREC) {
             actionCommand.addBit(press, resetAudioStreamState);
         }
@@ -72,11 +70,11 @@ class VolumeKeyInputController {
     }
 
     void adjustVolumeIfAppropriate(int audioStream, boolean volumeUp, boolean showUi) {
-        DeviceState state = DeviceState.getCurrent(myContext);
+        int state = myContext.deviceState.getCurrent();
         boolean appropriate = false;
 
-        if (state.equals(DeviceState.IDLE) || state.equals(DeviceState.SOUNDREC)) {
-            if (RecUtils.isScreenOn(myContext.powerManager) && (!Utils.loadFiveClicksBeforeVolumeChange(myContext) || actionCommand.getLength() >= 5)) {
+        if (state == DeviceState.IDLE || state == DeviceState.SOUNDREC) {
+            if (myContext.deviceState.isScreenOn() && (!Utils.loadFiveClicksBeforeVolumeChange(myContext) || actionCommand.getLength() >= 5)) {
                 appropriate = true;
             }
         }

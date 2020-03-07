@@ -1,15 +1,7 @@
 package com.masel.almightyvolumekeys;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.media.AudioManager;
-import android.media.AudioPlaybackConfiguration;
-import android.os.Build;
 import android.os.Handler;
-
-import androidx.annotation.RequiresApi;
 
 import com.masel.rec_utils.RecUtils;
 
@@ -32,13 +24,17 @@ class VolumeKeyCaptureWhenMusic {
         this.minMusicVolume = myContext.volumeUtils.getMin(AudioManager.STREAM_MUSIC);
         this.maxMusicVolume = myContext.volumeUtils.getMax(AudioManager.STREAM_MUSIC);
 
-        myContext.deviceStateCallbacks.addMediaStartCallback(this::startPollingAttemptsForAWhile);
+        //myContext.deviceStateCallbacks.addMediaStartCallback(this::startPollingAttemptsForAWhile);
+        startPolling();
+
+        myContext.deviceStateCallbacks.addMediaStartCallback(this::startOrContinuePolling);
+        myContext.deviceStateCallbacks.addDeviceUnlockedCallback(this::startOrContinuePolling);
     }
 
     void destroy() {
         pollingHandler.removeCallbacksAndMessages(null);
-        startPollingAttemptsHandler.removeCallbacksAndMessages(null);
-        stopPollingAttemptsHandler.removeCallbacksAndMessages(null);
+//        startPollingAttemptsHandler.removeCallbacksAndMessages(null);
+//        stopPollingAttemptsHandler.removeCallbacksAndMessages(null);
     }
 
     // endregion
@@ -52,9 +48,9 @@ class VolumeKeyCaptureWhenMusic {
      */
     private void startPollingAttempts() {
         startPollingAttemptsHandler.removeCallbacksAndMessages(null);
-        if (isPollingMusicVolume) return;
+        if (isPolling) return;
 
-        initOrContinuePolling();
+        startOrContinuePolling();
         startPollingAttemptsHandler.postDelayed(this::startPollingAttempts, ATTEMPT_RATE);
     }
 
@@ -72,37 +68,36 @@ class VolumeKeyCaptureWhenMusic {
     }
 
     /**
-     * Start polling music volume if music is playing.
      * If already polling, discards any uncaught volume changes and restarts.
      */
-    private void initPolling() {
-        if (!myContext.audioManager.isMusicActive()) {
+    private void startPolling() {
+        if (!deviceStateOkForPolling()) {
             return;
         }
 
         RecUtils.log("Start polling music volume");
-        isPollingMusicVolume = true;
+        isPolling = true;
         prevMusicVolume = myContext.volumeUtils.get(AudioManager.STREAM_MUSIC);
         pollMusicVolume();
     }
 
-    private void initOrContinuePolling() {
-        if (!isPollingMusicVolume) initPolling();
+    private void startOrContinuePolling() {
+        if (!isPolling) startPolling();
     }
 
     private static final int MUSIC_VOLUME_POLLING_DELTA = 100;
-    private boolean isPollingMusicVolume = false;
+    private boolean isPolling = false;
     private int prevMusicVolume;
     private Handler pollingHandler = new Handler();
 
     /**
      * Continues only if music is playing.
-     * Way in through initPolling(), way out through stopPolling().
+     * Way in through startPolling().
      */
     private void pollMusicVolume() {
         pollingHandler.removeCallbacksAndMessages(null);
 
-        if (!myContext.audioManager.isMusicActive()) {
+        if (!deviceStateOkForPolling()) {
             stopPolling();
             return;
         }
@@ -121,6 +116,9 @@ class VolumeKeyCaptureWhenMusic {
         pollingHandler.postDelayed(this::pollMusicVolume, MUSIC_VOLUME_POLLING_DELTA);
     }
 
+    private boolean deviceStateOkForPolling() {
+        return myContext.deviceState.isDeviceUnlocked() || myContext.deviceState.isMediaPlaying();
+    }
 
     private int preventVolumeExtremes(int currentVolume) {
 //        if (currentVolume == maxMusicVolume || currentVolume == minMusicVolume) {
@@ -150,7 +148,7 @@ class VolumeKeyCaptureWhenMusic {
      */
     private void stopPolling() {
         RecUtils.log("Stop polling music volume");
-        isPollingMusicVolume = false;
+        isPolling = false;
         startPollingAttemptsForAWhile();
     }
 
@@ -233,6 +231,6 @@ class VolumeKeyCaptureWhenMusic {
     // endregion
 
     Runnable getResetAction() {
-        return this::initPolling;
+        return this::startPolling;
     }
 }

@@ -1,9 +1,11 @@
 package com.masel.almightyvolumekeys;
 
+import android.app.KeyguardManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.drawable.AnimationDrawable;
 import android.hardware.camera2.CameraManager;
 import android.media.AudioManager;
 import android.media.AudioPlaybackConfiguration;
@@ -24,33 +26,29 @@ class DeviceStateCallbacks {
     private Context context;
     private CameraManager cameraManager;
     private AudioManager audioManager;
-    private boolean cameraIsActive;
+
     private boolean mediaIsPlaying;
-    private boolean screenIsOn;
 
     DeviceStateCallbacks(Context context) {
         this.context = context;
         cameraManager = (CameraManager) context.getSystemService(Context.CAMERA_SERVICE);
-        cameraIsActive = false;
-        setupCameraStateCallbacks();
-
         audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         mediaIsPlaying = audioManager.isMusicActive();
-        setupMediaStateCallbacks();
 
-        PowerManager powerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
-        screenIsOn = RecUtils.isScreenOn(powerManager);
+        setupCameraStateCallbacks();
+        setupMediaStateCallbacks();
         setupScreenStateCallbacks();
+        setupDeviceUnlockedCallback();
     }
 
     // region Camera
 
-    private Runnable onCameraActive;
-    private Runnable onCameraNotActive;
+    private List<Runnable> onCameraActiveList = new ArrayList<>();
+    private List<Runnable> onCameraNotActiveList = new ArrayList<>();
 
-    void setCameraStateCallbacks(Runnable onCameraActive, Runnable onCameraNotActive) {
-        this.onCameraActive = onCameraActive;
-        this.onCameraNotActive = onCameraNotActive;
+    void addCameraStateCallbacks(Runnable onCameraActive, Runnable onCameraNotActive) {
+        onCameraActiveList.add(onCameraActive);
+        onCameraNotActiveList.add(onCameraNotActive);
     }
 
     private void setupCameraStateCallbacks() {
@@ -61,20 +59,13 @@ class DeviceStateCallbacks {
         @Override
         public void onCameraAvailable(@NonNull String cameraId) {
             super.onCameraAvailable(cameraId);
-            if (cameraIsActive) {
-                cameraIsActive = false;
-                if (onCameraNotActive != null) onCameraNotActive.run();
-            }
+            for (Runnable onCameraActive : onCameraActiveList) onCameraActive.run();
         }
 
         @Override
         public void onCameraUnavailable(@NonNull String cameraId) {
             super.onCameraUnavailable(cameraId);
-
-            if (!cameraIsActive) {
-                cameraIsActive = true;
-                if (onCameraActive != null) onCameraActive.run();
-            }
+            for (Runnable onCameraNotActive : onCameraNotActiveList) onCameraNotActive.run();
         }
     };
 
@@ -93,27 +84,9 @@ class DeviceStateCallbacks {
         onMediaStopList.add(onMediaStop);
     }
 
-    void removeMediaCallbacks(Runnable onMediaStart, Runnable onMediaStop) {
-        onMediaStartList.remove(onMediaStart);
-        onMediaStopList.remove(onMediaStop);
-    }
-
     private void setupMediaStateCallbacks() {
-//        if (false && Build.VERSION.SDK_INT >= 26) {
-//            audioManager.registerAudioPlaybackCallback(audioPlaybackCallback, null);
-//        }
-//        else {
         pollMediaState();
-        //}
     }
-
-//    @RequiresApi(api = 26)
-//    private AudioManager.AudioPlaybackCallback audioPlaybackCallback = new AudioManager.AudioPlaybackCallback() {
-//        @Override
-//        public void onPlaybackConfigChanged(List<AudioPlaybackConfiguration> configs) {
-//            updateMediaState();
-//        }
-//    };
 
     private static final int MEDIA_STATE_POLLING_DELTA = 350;
     private Handler pollMediaStateHandler = new Handler();
@@ -154,20 +127,35 @@ class DeviceStateCallbacks {
     private BroadcastReceiver screenOffReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (screenIsOn) {
-                screenIsOn = false;
-                for (Runnable onScreenOff : onScreenOffList) onScreenOff.run();
-            }
+            for (Runnable onScreenOff : onScreenOffList) onScreenOff.run();
         }
     };
 
     private BroadcastReceiver screenOnReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (!screenIsOn) {
-                screenIsOn = true;
-                for (Runnable onScreenOn : onScreenOnList) onScreenOn.run();
-            }
+            for (Runnable onScreenOn : onScreenOnList) onScreenOn.run();
+        }
+    };
+
+    // endregion
+
+    // region Device unlocked
+
+    private List<Runnable> onDeviceUnlockedList = new ArrayList<>();
+
+    void addDeviceUnlockedCallback(Runnable onDeviceUnlocked) {
+        onDeviceUnlockedList.add(onDeviceUnlocked);
+    }
+
+    private void setupDeviceUnlockedCallback() {
+        context.registerReceiver(deviceUnlockedReceiver, new IntentFilter(Intent.ACTION_USER_PRESENT));
+    }
+
+    private BroadcastReceiver deviceUnlockedReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            for (Runnable onDeviceUnlocked : onDeviceUnlockedList) onDeviceUnlocked.run();
         }
     };
 
@@ -176,9 +164,8 @@ class DeviceStateCallbacks {
     void destroy() {
         cameraManager.unregisterAvailabilityCallback(cameraCallback);
         pollMediaStateHandler.removeCallbacksAndMessages(null);
-        //if (Build.VERSION.SDK_INT >= 26) audioManager.unregisterAudioPlaybackCallback(audioPlaybackCallback);
-
         context.unregisterReceiver(screenOffReceiver);
         context.unregisterReceiver(screenOnReceiver);
+        context.unregisterReceiver(deviceUnlockedReceiver);
     }
 }

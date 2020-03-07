@@ -31,7 +31,7 @@ class ActionCommand {
 
     private Runnable resetVolumeKeyCaptureWhenMusic = null;
 
-    private DeviceState deviceStateOnCommandStart;
+    private int deviceStateOnCommandStart;
     private boolean screenOnOnCommandStart;
 
     private AudioStreamState resetAudioStreamState = null;
@@ -54,8 +54,8 @@ class ActionCommand {
         handler.removeCallbacksAndMessages(null);
 
         if (command.length() == 0) {
-            this.deviceStateOnCommandStart = DeviceState.getCurrent(myContext);
-            this.screenOnOnCommandStart = RecUtils.isScreenOn(myContext.powerManager);
+            this.deviceStateOnCommandStart = myContext.deviceState.getCurrent();
+            this.screenOnOnCommandStart = myContext.deviceState.isScreenOn();
             this.resetAudioStreamState = resetAudioStreamState;
         }
         command += volumePress;
@@ -79,7 +79,7 @@ class ActionCommand {
      * Discards any volume changes during command input if valid command.
      */
     private void executeCommand() {
-        if (DeviceState.getCurrent(myContext) != deviceStateOnCommandStart || RecUtils.isScreenOn(myContext.powerManager) != screenOnOnCommandStart) {
+        if (myContext.deviceState.getCurrent() != deviceStateOnCommandStart || myContext.deviceState.isScreenOn() != screenOnOnCommandStart) {
             reset();
             return;
         }
@@ -87,12 +87,12 @@ class ActionCommand {
         Action action = getMappedAction(command);
 
         if (action == null || action.getName().equals((new Actions.No_action().getName()))) {
-            RecUtils.log(String.format("Non-mapped command: %s (state:%s)", command, DeviceState.getCurrent(myContext)));
+            RecUtils.log(String.format("Non-mapped command: %s (state:%s)", command, myContext.deviceState.getCurrent()));
             reset();
             return;
         }
 
-        RecUtils.log(String.format("Execute %s -> %s (state:%s)", command, action.getName(), DeviceState.getCurrent(myContext)));
+        RecUtils.log(String.format("Execute %s -> %s (state:%s)", command, action.getName(), myContext.deviceState.getCurrent()));
 
         try {
             if (!RecUtils.hasPermissions(myContext.context, action.getNeededPermissions(myContext.context))) {
@@ -136,8 +136,8 @@ class ActionCommand {
     }
 
     private Action getMappedAction(String command) {
-        DeviceState state = DeviceState.getCurrent(myContext);
-        String key = String.format("mappingListPreference_%s_command_%s", state.toString().toLowerCase(), command);
+        int state = myContext.deviceState.getCurrent();
+        String key = String.format("mappingListPreference_%s_command_%s", DeviceState.str(state).toLowerCase(), command);
 
         String actionName = myContext.sharedPreferences.getString(key, null);
         if (actionName == null) return null;
