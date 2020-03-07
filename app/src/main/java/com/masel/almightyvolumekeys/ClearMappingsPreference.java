@@ -21,7 +21,7 @@ public class ClearMappingsPreference extends Preference {
                 PreferenceScreen screen = topParent();
                 if (screen == null) return true;
 
-                for (Map.Entry<String, ?> entry : PreferenceManager.getDefaultSharedPreferences(context).getAll().entrySet()) {
+                for (Map.Entry<String, ?> entry : Utils.getMappings(getContext())) {
                     if (entry.getKey().matches(String.format("mappingListPreference_%s_command_.*", state))) {
                         MappingListPreference mappingListPreference = screen.findPreference(entry.getKey());
                         if (mappingListPreference != null) mappingListPreference.setValue(new Actions.No_action().getName());

@@ -6,13 +6,21 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.media.AudioManager;
 import android.os.Build;
 
 import androidx.core.app.NotificationCompat;
+import androidx.preference.PreferenceManager;
 
 import com.masel.rec_utils.RecUtils;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 class Utils {
 
@@ -82,5 +90,24 @@ class Utils {
                 .build();
 
         service.startForeground(NOTIFICATION_ID, notification);
+    }
+
+
+    /**
+     * @return Current mappings specified by user. Key=command, value=action
+     */
+    static Set<Map.Entry<String, String>> getMappings(SharedPreferences sharedPreferences) {
+        Map<String, String> mappings = new HashMap<>();
+
+        for (Map.Entry<String, ?> entry : sharedPreferences.getAll().entrySet()) {
+            if (entry.getKey().matches("mappingListPreference_.+_command_.+")) {
+                mappings.put(entry.getKey(), entry.getValue().toString());
+            }
+        }
+        return mappings.entrySet();
+    }
+
+    static Set<Map.Entry<String, String>> getMappings(Context context) {
+        return getMappings(PreferenceManager.getDefaultSharedPreferences(context));
     }
 }

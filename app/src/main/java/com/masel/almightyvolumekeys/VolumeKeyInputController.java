@@ -26,19 +26,19 @@ class VolumeKeyInputController {
         actionCommand.reset();
     }
 
-    /**
-     * On volume key down.
-     * @param onLongPress Additional action when long-press detected.
-     */
-    void keyDown(Runnable onLongPress) {
-        actionCommand.halt();
-
-        longPressHandler.removeCallbacksAndMessages(null);
-        longPressHandler.postDelayed(() -> {
-            onLongPress.run();
-            longPressDetected();
-        }, LONG_PRESS_TIME);
-    }
+//    /**
+//     * On volume key down.
+//     * @param onLongPress Additional action when long-press detected.
+//     */
+//    void keyDown(Runnable onLongPress) {
+//        actionCommand.halt();
+//
+//        longPressHandler.removeCallbacksAndMessages(null);
+//        longPressHandler.postDelayed(() -> {
+//            onLongPress.run();
+//            longPressDetected();
+//        }, LONG_PRESS_TIME);
+//    }
 
     /**
      * On volume key up.
@@ -58,11 +58,19 @@ class VolumeKeyInputController {
         currentLongPress = false;
     }
 
-    void longPressDetected() {
-        if (currentLongPress) return;
+    boolean longPressDetected(boolean volumeUp) {
+        actionCommand.addBit(volumeUp ? ActionCommand.VOLUME_PRESS_LONG_UP : ActionCommand.VOLUME_PRESS_LONG_DOWN, null);
+        boolean expected = actionCommand.isMappedCommandStart();
+        actionCommand.removeLastBit();
+
+        if (expected && !currentLongPress) {
+            myContext.vibrator.vibrate();
+        }
+
         actionCommand.halt();
         currentLongPress = true;
-        myContext.vibrator.vibrate();
+
+        return expected;
     }
 
     void undoPresses(int count) {

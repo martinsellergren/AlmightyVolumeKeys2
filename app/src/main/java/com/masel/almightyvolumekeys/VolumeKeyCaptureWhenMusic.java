@@ -27,8 +27,8 @@ class VolumeKeyCaptureWhenMusic {
         //myContext.deviceStateCallbacks.addMediaStartCallback(this::startPollingAttemptsForAWhile);
         startPolling();
 
-        myContext.deviceStateCallbacks.addMediaStartCallback(this::startOrContinuePolling);
-        myContext.deviceStateCallbacks.addDeviceUnlockedCallback(this::startOrContinuePolling);
+        myContext.deviceStateCallbacks.addMediaStartCallback(this::startPollingAttemptsForAWhile);
+        myContext.deviceStateCallbacks.addDeviceUnlockedCallback(this::startPollingAttemptsForAWhile);
     }
 
     void destroy() {
@@ -89,6 +89,7 @@ class VolumeKeyCaptureWhenMusic {
     private boolean isPolling = false;
     private int prevMusicVolume;
     private Handler pollingHandler = new Handler();
+    private AudioStreamState holdVolume = null;
 
     /**
      * Continues only if music is playing.
@@ -110,14 +111,38 @@ class VolumeKeyCaptureWhenMusic {
             volumeChange(volumeUp, prevMusicVolume);
         }
 
-        currentMusicVolume = preventVolumeExtremes(currentMusicVolume);
-        prevMusicVolume = currentMusicVolume;
+        if (holdVolume != null) {
+            holdVolume.commit(true);
+            currentMusicVolume = holdVolume.getVolume();
+        }
+        else if (!allowExtremeVolume(currentMusicVolume)) {
+            currentMusicVolume = preventVolumeExtremes(currentMusicVolume);
+        }
 
+        prevMusicVolume = currentMusicVolume;
         pollingHandler.postDelayed(this::pollMusicVolume, MUSIC_VOLUME_POLLING_DELTA);
     }
 
     private boolean deviceStateOkForPolling() {
         return myContext.deviceState.isDeviceUnlocked() || myContext.deviceState.isMediaPlaying();
+    }
+
+    /**
+     * Allow min/max volume only if on or one step away for three presses, and three same, individual presses within 3 seconds, and
+     * not currently a long press.
+     */
+    private boolean allowExtremeVolume(int currentVolume) {
+        if (waitingForKeyRelease) return false;
+        if (volumeChangesHistory.size() < 3) return false;
+        if (volumeChangesHistory.get(0) != volumeChangesHistory.get(1) || volumeChangesHistory.get(0) != volumeChangesHistory.get(2)) return false;
+        if (currentVolume > minMusicVolume + 1 && currentVolume < maxMusicVolume - 1) return false;
+        if (prevVolumesHistory.get(0) > minMusicVolume + 1 && prevVolumesHistory.get(0) < maxMusicVolume - 1) return false;
+        if (prevVolumesHistory.get(1) > minMusicVolume + 1 && prevVolumesHistory.get(1) < maxMusicVolume - 1) return false;
+        if (prevVolumesHistory.get(2) > minMusicVolume + 1 && prevVolumesHistory.get(2) < maxMusicVolume - 1) return false;
+        if (volumeChangeTimesHistory.get(2) - volumeChangeTimesHistory.get(0) > 3000) return false;
+        if (volumeChangeTimesHistory.get(1) - volumeChangeTimesHistory.get(0) < MAX_DELTA_PRESS_TIME_FOR_LONG_PRESS) return false;
+        if (volumeChangeTimesHistory.get(2) - volumeChangeTimesHistory.get(1) < MAX_DELTA_PRESS_TIME_FOR_LONG_PRESS) return false;
+        return true;
     }
 
     private int preventVolumeExtremes(int currentVolume) {
@@ -131,12 +156,12 @@ class VolumeKeyCaptureWhenMusic {
 //        }
 
         if (currentVolume == maxMusicVolume) {
-            myContext.volumeUtils.adjust(AudioManager.STREAM_MUSIC, false, true);
-            return currentVolume - 1;
+            myContext.volumeUtils.set(AudioManager.STREAM_MUSIC, maxMusicVolume - 1, true);
+            return maxMusicVolume - 1;
         }
         else if (currentVolume == minMusicVolume) {
-            myContext.volumeUtils.adjust(AudioManager.STREAM_MUSIC, true, true);
-            return currentVolume + 1;
+            myContext.volumeUtils.set(AudioManager.STREAM_MUSIC, minMusicVolume + 1, true);
+            return minMusicVolume + 1;
         }
 
         return currentVolume;
@@ -170,10 +195,14 @@ class VolumeKeyCaptureWhenMusic {
 
         if (detectLongPress(volumeUp, prevMusicVolume)) {
             RecUtils.log("Music volume polling caught long-press");
-            volumeKeyInputController.longPressDetected();
             volumeKeyInputController.undoPresses(2);
             waitingForKeyRelease = true;
             resetLongPressKeyReleaseHandler();
+
+            boolean expected = volumeKeyInputController.longPressDetected(volumeUp);
+            if (expected) {
+                holdVolume = new AudioStreamState(myContext.volumeUtils, AudioManager.STREAM_MUSIC, prevVolumesHistory.get(0));
+            }
         }
         else {
             RecUtils.log("Music volume polling caught click");
@@ -224,6 +253,7 @@ class VolumeKeyCaptureWhenMusic {
     private void completeLongPressDetected() {
         longPressKeyReleaseHandler.removeCallbacksAndMessages(null);
         waitingForKeyRelease = false;
+        holdVolume = null;
         AudioStreamState resetAudioStreamState = new AudioStreamState(myContext.volumeUtils, AudioManager.STREAM_MUSIC, prevVolumesHistory.get(0));
         volumeKeyInputController.keyUp(volumeChangesHistory.get(0), resetAudioStreamState);
     }

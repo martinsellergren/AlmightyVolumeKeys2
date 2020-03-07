@@ -283,8 +283,8 @@ public class MappingListPreference extends ListPreference {
 
     private int getNumberOfSetActionsWhenIdle() {
         int count = 0;
-        for (Map.Entry<String, ?> entry : PreferenceManager.getDefaultSharedPreferences(getContext()).getAll().entrySet()) {
-            if (entry.getKey().matches(String.format("mappingListPreference_%s_command_.*", "idle"))) {
+        for (Map.Entry<String, ?> entry : Utils.getMappings(getContext())) {
+            if (entry.getKey().matches("mappingListPreference_idle_command_.*")) {
                 if (!entry.getValue().equals(new Actions.No_action().getName())) count++;
             }
         }

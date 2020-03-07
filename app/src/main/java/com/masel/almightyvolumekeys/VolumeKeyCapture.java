@@ -79,7 +79,7 @@ class VolumeKeyCapture {
         int steps = RecUtils.getAudioStreamSteps(myContext.audioManager, stream);
         int volume = myContext.volumeUtils.get(stream);
 
-        return new VolumeProviderCompat(VolumeProviderCompat.VOLUME_CONTROL_RELATIVE, steps, volume) {
+        return new VolumeProviderCompat(VolumeProviderCompat.VOLUME_CONTROL_RELATIVE, 0, 0) {
             @Override
             public void onAdjustVolume(int direction) {
                 handleVolumeKeyPress(direction);
@@ -112,7 +112,7 @@ class VolumeKeyCapture {
             resetAudioStreamState = new AudioStreamState(myContext.volumeUtils, mirroredAudioStream);
         }
         else if (direction != 0 && direction == prevDirection) {
-            volumeKeyInputController.longPressDetected();
+            volumeKeyInputController.longPressDetected(direction > 0);
         }
         else if (direction == 0 && prevDirection != 0) {
             volumeKeyInputController.keyUp(prevDirection > 0, resetAudioStreamState);

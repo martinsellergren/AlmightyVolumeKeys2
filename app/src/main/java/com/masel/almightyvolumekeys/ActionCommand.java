@@ -163,8 +163,8 @@ class ActionCommand {
      * Remove all mappings of action
      */
     private void unmapAction(Action action) {
-        for (Map.Entry<String, ?> entry : myContext.sharedPreferences.getAll().entrySet()) {
-            if (entry.getValue().toString().equals(action.getName())) {
+        for (Map.Entry<String, String> entry : Utils.getMappings(myContext.sharedPreferences)) {
+            if (entry.getValue().equals(action.getName())) {
                 myContext.sharedPreferences.edit().putString(entry.getKey(), new Actions.No_action().getName()).apply();
             }
         }
@@ -175,5 +175,19 @@ class ActionCommand {
         intent.putExtra(MainActivity.EXTRA_PERMISSION_REQUEST, permissions);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         myContext.context.startActivity(intent);
+    }
+
+    /**
+     * @return True if any mapped command starts with current command.
+     */
+    boolean isMappedCommandStart() {
+        for (Map.Entry<String, String> mapping : Utils.getMappings(myContext.sharedPreferences)) {
+            if (!mapping.getValue().equals(new Actions.No_action().getName())) {
+                String completeKey = mapping.getKey();
+                String prefixKey = String.format("mappingListPreference_%s_command_%s", DeviceState.str(deviceStateOnCommandStart).toLowerCase(), command);
+                if (completeKey.startsWith(prefixKey)) return true;
+            }
+        }
+        return false;
     }
 }
