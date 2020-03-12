@@ -25,12 +25,12 @@ class Voice {
 
                     @Override
                     public void onDone(String utteranceId) {
-                        beforeSpeechVolume.commit(false);
+                        volumeUtils.set(beforeSpeechVolume.getStream(), beforeSpeechVolume.getVolume(), false);
                     }
 
                     @Override
                     public void onError(String utteranceId) {
-                        beforeSpeechVolume.commit(false);
+                        volumeUtils.set(beforeSpeechVolume.getStream(), beforeSpeechVolume.getVolume(), false);
                     }
                 });
             }

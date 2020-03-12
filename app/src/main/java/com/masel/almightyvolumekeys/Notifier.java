@@ -62,16 +62,12 @@ class Notifier {
      */
     private void createChannel(VibrationPattern vibrationPattern) {
         if (Build.VERSION.SDK_INT >= 26) {
+            String NOTIFICATION_CHANNEL_GROUP_ID = "Heads ups";
+            notificationManager.createNotificationChannelGroup(new NotificationChannelGroup(NOTIFICATION_CHANNEL_GROUP_ID, NOTIFICATION_CHANNEL_GROUP_ID));
+
             String notificationChannelId = getNotificationChannelId(vibrationPattern);
             long[] vibrationPatternArray = getVibrationPatternArray(vibrationPattern);
-
-            String NOTIFICATION_CHANNEL_GROUP_ID = "Heads ups";
-            String notificationChannelGroupName = NOTIFICATION_CHANNEL_GROUP_ID;
-            //NotificationManager notificationManager = context.getSystemService(NotificationManager.class);
-            notificationManager.createNotificationChannelGroup(new NotificationChannelGroup(NOTIFICATION_CHANNEL_GROUP_ID, notificationChannelGroupName));
-
-            String notificationChannelName = notificationChannelId;
-            NotificationChannel channel = new NotificationChannel(notificationChannelId, notificationChannelName, NotificationManager.IMPORTANCE_HIGH);
+            NotificationChannel channel = new NotificationChannel(notificationChannelId, notificationChannelId, NotificationManager.IMPORTANCE_HIGH);
             //channel.setDescription("whatever");
             channel.setVibrationPattern(vibrationPatternArray);
             channel.setSound(null, null);

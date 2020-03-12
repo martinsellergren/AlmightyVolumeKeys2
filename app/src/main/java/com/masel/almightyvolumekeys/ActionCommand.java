@@ -1,6 +1,7 @@
 package com.masel.almightyvolumekeys;
 
 import android.content.Intent;
+import android.media.AudioManager;
 import android.os.Handler;
 
 import com.masel.rec_utils.RecUtils;
@@ -28,20 +29,9 @@ class ActionCommand {
     private Handler handler = new Handler();
 
     private MyContext myContext;
-
-    private Runnable resetVolumeKeyCaptureWhenMusic = null;
-
     private int deviceStateOnCommandStart;
-    private boolean screenOnOnCommandStart;
 
     private AudioStreamState resetAudioStreamState = null;
-
-//
-//    private int relevantAudioStreamOnCommandStart;
-//
-//    private int relevantAudioStreamVolumeOnCommandStart;
-
-//    private int musicVolumeOnCommandStart;
 
     ActionCommand(MyContext myContext) {
         this.myContext = myContext;
@@ -55,7 +45,6 @@ class ActionCommand {
 
         if (command.length() == 0) {
             this.deviceStateOnCommandStart = myContext.deviceState.getCurrent();
-            this.screenOnOnCommandStart = myContext.deviceState.isScreenOn();
             this.resetAudioStreamState = resetAudioStreamState;
         }
         command += volumePress;
@@ -79,12 +68,13 @@ class ActionCommand {
      * Discards any volume changes during command input if valid command.
      */
     private void executeCommand() {
-        if (myContext.deviceState.getCurrent() != deviceStateOnCommandStart || myContext.deviceState.isScreenOn() != screenOnOnCommandStart) {
+        if (myContext.deviceState.getCurrent() != deviceStateOnCommandStart) {
             reset();
             return;
         }
 
-        Action action = getMappedAction(command);
+        Action action = getGlobalAction(command);
+        if (action == null) action = getMappedAction(command);
 
         if (action == null || action.getName().equals((new Actions.No_action().getName()))) {
             RecUtils.log(String.format("Non-mapped command: %s (state:%s)", command, myContext.deviceState.getCurrent()));
@@ -131,8 +121,20 @@ class ActionCommand {
         return command.length();
     }
 
-    void setResetActionForVolumeKeyCaptureWhenMusic(Runnable resetVolumeKeyCaptureWhenMusic) {
-        this.resetVolumeKeyCaptureWhenMusic = resetVolumeKeyCaptureWhenMusic;
+    private Action getGlobalAction(String command) {
+        if (resetAudioStreamState == null) return null;
+        int minVolume = myContext.volumeUtils.getMin(resetAudioStreamState.getStream());
+        int maxVolume = myContext.volumeUtils.getMax(resetAudioStreamState.getStream());
+        int startVolume = resetAudioStreamState.getVolume();
+
+        if (command.equals("111") && startVolume == maxVolume - 1) {
+            return resetAudioStreamState.getStream() == AudioManager.STREAM_MUSIC ? new Actions.Media_volume_100() : new Actions.Ringtone_volume_100();
+        }
+        if (command.equals("000") && startVolume == minVolume + 1) {
+            return resetAudioStreamState.getStream() == AudioManager.STREAM_MUSIC ? new Actions.Media_volume_0() : new Actions.Ringtone_volume_0();
+        }
+
+        return null;
     }
 
     private Action getMappedAction(String command) {
@@ -151,12 +153,8 @@ class ActionCommand {
     }
 
     private void discardAnyVolumeChanges() {
-        if (resetAudioStreamState == null) return;
-
-        resetAudioStreamState.commit(false);
-        if (resetVolumeKeyCaptureWhenMusic != null) {
-            resetVolumeKeyCaptureWhenMusic.run();
-        }
+        if (resetAudioStreamState != null)
+            myContext.volumeUtils.set(resetAudioStreamState.getStream(), resetAudioStreamState.getVolume(), false);
     }
 
     /**

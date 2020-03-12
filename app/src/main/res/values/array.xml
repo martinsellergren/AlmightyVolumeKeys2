@@ -21,6 +21,8 @@
         <item>Bluetooth: on</item>
         <item>Bluetooth: off</item>
         <item>Bluetooth: on/off</item>
+        <item>Media volume: 100%</item>
+        <item>Media volume: 0%</item>
     </string-array>
 
     <string-array name="music_actions">
@@ -29,6 +31,8 @@
         <item>Media: next</item>
         <item>Media: previous</item>
         <item>Media: previous x2</item>
+        <item>Media volume: 100%</item>
+        <item>Media volume: 0%</item>
     </string-array>
 
     <string-array name="soundrec_actions">

@@ -6,7 +6,6 @@ import android.content.Context;
 import android.media.AudioManager;
 import android.media.ToneGenerator;
 import android.os.Build;
-import android.os.Bundle;
 import android.view.KeyEvent;
 
 import androidx.annotation.NonNull;
@@ -54,6 +53,7 @@ class Actions {
             }
             else {
                 RecUtils.openAppOnPlayStore(myContext.context, "com.masel.thesoundrecorder2");
+                throw new ExecutionException("You need to install The Sound Recorder");
             }
         }
 
@@ -743,6 +743,58 @@ class Actions {
         @Override
         boolean isAvailable(Context context) {
             return MyBluetooth.isAvailable();
+        }
+    }
+
+    // endregion
+
+    // region Volumes
+
+    static class Media_volume_100 extends Action {
+        @Override
+        String getName() {
+            return "Media volume: 100%";
+        }
+
+        @Override
+        void run(MyContext myContext) throws ExecutionException {
+            myContext.volumeUtils.setPercentage(AudioManager.STREAM_MUSIC, 100, true);
+        }
+    }
+
+    static class Media_volume_0 extends Action {
+        @Override
+        String getName() {
+            return "Media volume: 0%";
+        }
+
+        @Override
+        void run(MyContext myContext) throws ExecutionException {
+            myContext.volumeUtils.setPercentage(AudioManager.STREAM_MUSIC, 0, true);
+        }
+    }
+
+    static class Ringtone_volume_100 extends Action {
+        @Override
+        String getName() {
+            return "Ringtone volume: 100%";
+        }
+
+        @Override
+        void run(MyContext myContext) throws ExecutionException {
+            myContext.volumeUtils.setPercentage(AudioManager.STREAM_RING, 100, true);
+        }
+    }
+
+    static class Ringtone_volume_0 extends Action {
+        @Override
+        String getName() {
+            return "Ringtone volume: 0%";
+        }
+
+        @Override
+        void run(MyContext myContext) throws ExecutionException {
+            myContext.volumeUtils.setPercentage(AudioManager.STREAM_RING, 0, true);
         }
     }
 

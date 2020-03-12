@@ -14,11 +14,8 @@ import java.util.Calendar;
  */
 class PreventSleepOnScreenOff {
 
-    private MyContext myContext;
-
-    private BroadcastReceiver preventSleepBroadcastReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
+    static void init(MyContext myContext) {
+        myContext.deviceState.addScreenOffCallback(() -> {
             int preventSleepMinutes = myContext.sharedPreferences.getInt("SeekBarPreference_preventSleepTimeout", 60);
             boolean allowSleepSwitch = myContext.sharedPreferences.getBoolean("SwitchPreferenceCompat_allowSleep", false);
             int allowSleepStartHour = myContext.sharedPreferences.getInt("SeekBarPreference_allowSleepStart", 0);
@@ -34,24 +31,15 @@ class PreventSleepOnScreenOff {
             else {
                 RecUtils.log("Wake lock not acquired (prevention bypassed by user settings)");
             }
-        }
-    };
-
-    PreventSleepOnScreenOff(MyContext myContext) {
-        this.myContext = myContext;
-        myContext.context.registerReceiver(preventSleepBroadcastReceiver, new IntentFilter(Intent.ACTION_SCREEN_OFF));
+        });
     }
 
-    void destroy() {
-        myContext.context.unregisterReceiver(preventSleepBroadcastReceiver);
-    }
-
-    private boolean currentlyAllowSleep(int allowStartHour, int allowStopHour) {
+    private static boolean currentlyAllowSleep(int allowStartHour, int allowStopHour) {
         int currentHour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
         return hourInterval(allowStartHour, allowStopHour) > hourInterval(allowStartHour, currentHour);
     }
 
-    private int hourInterval(int from, int to) {
+    private static int hourInterval(int from, int to) {
         return from <= to ? to - from : (to + 24) - from;
     }
 

@@ -22,7 +22,6 @@ class MyContext {
     final Voice voice;
     final SharedPreferences sharedPreferences;
     final MyFlashlight flashlight;
-    final DeviceStateCallbacks deviceStateCallbacks;
     final VolumeUtils volumeUtils;
     final WakeLock wakeLock;
     final DeviceState deviceState;
@@ -39,7 +38,6 @@ class MyContext {
         vibrator = new MyVibrator(context);
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         flashlight = new MyFlashlight(context);
-        deviceStateCallbacks = new DeviceStateCallbacks(context);
         wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,"com.masel.almightyvolumekeys::WakeLock");
 
         deviceState = new DeviceState(this);
@@ -53,8 +51,7 @@ class MyContext {
         vibrator.cancel();
         voice.destroy();
         flashlight.destroy();
-        deviceStateCallbacks.destroy();
-        //volume.stopMovement();
+        deviceState.destroy();
         if (wakeLock.isHeld()) wakeLock.release();
     }
 }

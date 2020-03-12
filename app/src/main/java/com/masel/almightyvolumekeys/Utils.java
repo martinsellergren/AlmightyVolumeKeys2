@@ -11,6 +11,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.AudioManager;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 
 import androidx.core.app.NotificationCompat;
 import androidx.preference.PreferenceManager;
@@ -69,7 +71,7 @@ class Utils {
 
 
     /**
-     * Good for stability of a service. Skip for older devices (API <26) (no notification-channels, can't hide notification).
+     * Good for stability of a service.
      */
     static void requestForeground(Service service) {
         final String MONITOR_SERVICE_NOTIFICATION_CHANNEL_ID = "MONITOR_SERVICE_NOTIFICATION_CHANNEL_ID";
@@ -117,5 +119,9 @@ class Utils {
 
     static Set<Map.Entry<String, String>> getMappings(Context context) {
         return getMappings(PreferenceManager.getDefaultSharedPreferences(context));
+    }
+
+    static void runOnMainThread(Runnable runnable) {
+        new Handler(Looper.getMainLooper()).post(runnable);
     }
 }
