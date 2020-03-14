@@ -3,6 +3,7 @@
     package="com.masel.almightyvolumekeys">
 
     <permission android:name="com.masel.thesoundrecorder2.permission.ACCESS_AUDIO_RECORDING_SETTINGS"/>
+    <permission android:name="com.masel.almightyvolumekeys.permission.ACCESS_MONITOR_SERVICE_STATUS"/>
 
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
@@ -51,6 +52,12 @@
                 <action android:name="android.service.notification.NotificationListenerService" />
             </intent-filter>
         </service>
+
+        <provider
+            android:name="com.masel.almightyvolumekeys.StatusContentProvider"
+            android:authorities="com.masel.almightyvolumekeys.StatusContentProvider"
+            android:permission="com.masel.almightyvolumekeys.permission.ACCESS_MONITOR_SERVICE_STATUS"
+            android:exported="true" />
 
     </application>
 

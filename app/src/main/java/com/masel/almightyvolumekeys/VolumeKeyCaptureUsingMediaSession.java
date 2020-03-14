@@ -20,10 +20,7 @@ class VolumeKeyCaptureUsingMediaSession {
     VolumeKeyCaptureUsingMediaSession(MyContext myContext, VolumeKeyInputController volumeKeyInputController) {
         this.myContext = myContext;
         this.volumeKeyInputController = volumeKeyInputController;
-        init();
-    }
 
-    private void init() {
         mediaSession = new MediaSessionCompat(myContext.context, "AVK MEDIA SESSION", new ComponentName(myContext.context, MediaButtonReceiver.class), null);
         mediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
 
@@ -37,18 +34,27 @@ class VolumeKeyCaptureUsingMediaSession {
                 handleVolumeKeyPress(direction);
             }
         });
-        updateActiveStatus();
 
-        myContext.deviceState.addMediaStartCallback(this::updateActiveStatus);
-        myContext.deviceState.addMediaStopCallback(this::updateActiveStatus);
-        myContext.deviceState.addDeviceUnlockedCallback(this::updateActiveStatus);
-        myContext.deviceState.addScreenOffCallback(this::updateActiveStatus);
+
+//        myContext.deviceState.addMediaStartCallback(this::enableOrDisable);
+//        myContext.deviceState.addMediaStopCallback(this::enableOrDisable);
+//        myContext.deviceState.addDeviceUnlockedCallback(this::updateActiveStatus);
+//        myContext.deviceState.addScreenOffCallback(this::updateActiveStatus);
+
+        //enableOrDisable();
+        mediaSession.setActive(true);
     }
 
-    private void updateActiveStatus() {
-        boolean active = !myContext.deviceState.isDeviceUnlocked() && !myContext.deviceState.isMediaPlaying();
-        mediaSession.setActive(active);
+    private void enableOrDisable() {
+        boolean active = deviceStateOkForCapture();
         RecUtils.log("Media session active: " + active);
+
+        mediaSession.setActive(active);
+    }
+
+    private boolean deviceStateOkForCapture() {
+        //return !myContext.deviceState.isDeviceUnlocked() && !myContext.deviceState.isMediaPlaying();
+        return !myContext.deviceState.isMediaPlaying();
     }
 
     void destroy() {

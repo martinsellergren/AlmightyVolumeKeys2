@@ -13,20 +13,24 @@ public class MonitorService extends NotificationListenerService {
     private MyContext myContext;
     private VolumeKeyInputController volumeKeyInputController;
     private VolumeKeyCaptureUsingMediaSession volumeKeyCaptureUsingMediaSession;
-    private VolumePollingKeyCapture volumePollingKeyCapture;
+    private VolumeKeyCaptureUsingPolling volumeKeyCaptureUsingPolling;
+
+    private static boolean isEnabled = false;
 
     @Override
     public void onListenerConnected() {
         Utils.runOnMainThread(() -> {
             RecUtils.log("Monitor service started");
+            isEnabled = true;
             Utils.requestForeground(this);
 
             cleanUpAfterCrashDuringRecording();
             myContext = new MyContext(this);
             volumeKeyInputController = new VolumeKeyInputController(myContext);
-            volumePollingKeyCapture = new VolumePollingKeyCapture(myContext, volumeKeyInputController);
             volumeKeyCaptureUsingMediaSession = new VolumeKeyCaptureUsingMediaSession(myContext, volumeKeyInputController);
-            myContext.volumeUtils.setOnVolumeSet(volumePollingKeyCapture.getResetAction());
+            volumeKeyCaptureUsingPolling = new VolumeKeyCaptureUsingPolling(myContext, volumeKeyInputController);
+
+            myContext.volumeUtils.setOnVolumeSet(volumeKeyCaptureUsingPolling.getResetAction());
 
             PreventSleepOnScreenOff.init(myContext);
         });
@@ -41,16 +45,23 @@ public class MonitorService extends NotificationListenerService {
     public void onListenerDisconnected() {
         Utils.runOnMainThread(() -> {
             RecUtils.log("Monitor service stopped");
+            isEnabled = false;
 
             volumeKeyCaptureUsingMediaSession.destroy();
-            volumePollingKeyCapture.destroy();
+            volumeKeyCaptureUsingPolling.destroy();
             volumeKeyInputController.destroy();
             myContext.destroy();
         });
     }
 
-    static boolean isEnabled(Context context) {
-        return RecUtils.almightyVolumeKeysEnabled(context);
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        isEnabled = false;
+    }
+
+    static boolean isEnabled() {
+        return isEnabled;
     }
 
     static boolean isAvailable(Context context) {

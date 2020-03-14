@@ -1,6 +1,7 @@
 package com.masel.almightyvolumekeys;
 
 import android.content.Intent;
+import android.media.AudioManager;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.view.MenuItem;
@@ -174,7 +175,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void onEnableDisableClick() {
         String toastText = "Find the Almighty Volume Keys-service";
-        if (MonitorService.isEnabled(MainActivity.this)) {
+        if (MonitorService.isEnabled()) {
             RecUtils.toast(this, toastText);
             //openAccessibilitySettings();
             openNotificationListenerSettings();
@@ -223,7 +224,7 @@ public class MainActivity extends AppCompatActivity {
     private void updateEnableServiceText() {
         TextView textView_enableAVK = findViewById(R.id.textView_enableAVK);
 
-        if (MonitorService.isEnabled(this)) {
+        if (MonitorService.isEnabled()) {
             textView_enableAVK.setVisibility(View.GONE);
         }
         else {
@@ -232,7 +233,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showEnableServicePopupIfNotEnabled() {
-        if (!MonitorService.isEnabled(this)) {
+        if (!MonitorService.isEnabled()) {
             RecUtils.showHeadsUpDialog(this, "This app needs to be activated!\nOpen side menu and activate.", null);
         }
     }

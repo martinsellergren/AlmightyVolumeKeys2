@@ -45,8 +45,12 @@ class AudioRecorderDeligator {
     /**
      * @return True if local rec or(/and) TheSoundRecorder.
      */
-    boolean isRecording()  {
+    boolean isRecording() {
         return (localRecorder != null && localRecorder.isRecording()) || theSoundRecorder.isRecording();
+    }
+
+    boolean isRecordingLocally() {
+        return (localRecorder != null && localRecorder.isRecording());
     }
 
     /**
@@ -57,15 +61,18 @@ class AudioRecorderDeligator {
      * Send broadcast: local rec stopped.
      */
     void stopAndSave() {
+        stopAndSaveLocalRecorder();
+        theSoundRecorder.stopAndSave();
+        AudioRecorder.removeNotification(context);
+    }
+
+    void stopAndSaveLocalRecorder() {
         if (localRecorder != null) {
             localRecorder.coldStopAndSave(context);
             localRecorder = null;
             KeyValueStore.setAlmightyVolumeKeysIsRecording(context, false);
             TheSoundRecorderConnection.broadcastLocalRecStop(context);
         }
-
-        theSoundRecorder.stopAndSave();
-        AudioRecorder.removeNotification(context);
     }
 
 
@@ -111,8 +118,8 @@ class AudioRecorderDeligator {
     }
 
     void destroy() {
-        if (isRecording()) {
-            stopAndSave();
+        if (isRecordingLocally()) {
+            stopAndSaveLocalRecorder();
             RecUtils.toast(context, "Recording stopped unexpectedly");
         }
 

@@ -2,9 +2,12 @@ package com.masel.almightyvolumekeys;
 
 import android.Manifest;
 import android.app.NotificationManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.media.AudioManager;
 import android.media.ToneGenerator;
+import android.media.session.MediaController;
+import android.media.session.MediaSessionManager;
 import android.os.Build;
 import android.view.KeyEvent;
 

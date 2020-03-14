@@ -1,5 +1,6 @@
 package com.masel.almightyvolumekeys;
 
+import android.content.ContentProvider;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.os.Handler;
@@ -77,12 +78,15 @@ class ActionCommand {
         if (action == null) action = getMappedAction(command);
 
         if (action == null || action.getName().equals((new Actions.No_action().getName()))) {
-            RecUtils.log(String.format("Non-mapped command: %s (state:%s)", command, myContext.deviceState.getCurrent()));
+            RecUtils.log(String.format("Non-mapped command: %s (state:%s)", command, DeviceState.str(myContext.deviceState.getCurrent())));
             reset();
             return;
         }
 
-        RecUtils.log(String.format("Execute %s -> %s (state:%s)", command, action.getName(), myContext.deviceState.getCurrent()));
+        RecUtils.log(String.format("Execute %s -> %s (state:%s)", command, action.getName(), DeviceState.str(myContext.deviceState.getCurrent())));
+
+        Utils.logMediaSessions(myContext.context); // todo
+
 
         try {
             if (!RecUtils.hasPermissions(myContext.context, action.getNeededPermissions(myContext.context))) {

@@ -1,5 +1,6 @@
 package com.masel.almightyvolumekeys;
 
+import android.app.ActivityManager;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -10,6 +11,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.AudioManager;
+import android.media.session.MediaController;
+import android.media.session.MediaSessionManager;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
@@ -19,6 +22,7 @@ import androidx.preference.PreferenceManager;
 
 import com.masel.rec_utils.RecUtils;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -123,5 +127,19 @@ class Utils {
 
     static void runOnMainThread(Runnable runnable) {
         new Handler(Looper.getMainLooper()).post(runnable);
+    }
+
+    static void logMediaSessions(Context context) {
+        MediaSessionManager manager = (MediaSessionManager) context.getSystemService(Context.MEDIA_SESSION_SERVICE);
+        List<MediaController> controllers = manager.getActiveSessions(new ComponentName(context, MonitorService.class));
+
+        RecUtils.log(" ");
+        RecUtils.log("Media sessions:");
+        for (MediaController controller : controllers) {
+            //String info = String.format("%s:\n%s\n%s", controller.getPackageName(), controller.getPlaybackInfo(), controller.getPlaybackState());
+            String info = controller.getPackageName() + ": " + controller.getPlaybackState().getState();
+            RecUtils.log(info);
+        }
+        RecUtils.log(" ");
     }
 }
