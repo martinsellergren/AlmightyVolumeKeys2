@@ -36,8 +36,8 @@ class VolumeKeyCaptureUsingMediaSession {
         });
 
 
-//        myContext.deviceState.addMediaStartCallback(this::enableOrDisable);
-//        myContext.deviceState.addMediaStopCallback(this::enableOrDisable);
+        myContext.deviceState.addMediaStartCallback(this::enableOrDisable);
+        myContext.deviceState.addMediaStopCallback(this::enableOrDisable);
 //        myContext.deviceState.addDeviceUnlockedCallback(this::updateActiveStatus);
 //        myContext.deviceState.addScreenOffCallback(this::updateActiveStatus);
 

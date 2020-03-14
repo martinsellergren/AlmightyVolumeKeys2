@@ -5,12 +5,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.AudioManager;
-import android.media.session.MediaSessionManager;
 import android.os.Handler;
 
 import com.masel.rec_utils.RecUtils;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -24,35 +24,32 @@ class DeviceState {
 
     private MyContext myContext;
     //private CameraManager cameraManager;
-    private MediaSessionManager mediaSessionManager;
 
     private boolean isMediaPlaying;
 
     DeviceState(MyContext myContext) {
         this.myContext = myContext;
         //cameraManager = (CameraManager) myContext.context.getSystemService(Context.CAMERA_SERVICE);
-        mediaSessionManager = (MediaSessionManager) myContext.context.getSystemService(Context.MEDIA_SESSION_SERVICE);
 
         //setupCameraStateCallbacks();
         setupMediaStateCallbacks();
         setupScreenStateCallbacks();
-        setupDeviceUnlockedCallback();
-
-        isMediaPlaying = isMediaPlaying();
+        setupDeviceUnlockedCallbacks();
     }
 
     /**
      * @return Current device state. If API<26, may return IDLE when should return OTHER (e.g when timer sounding).
      */
     int getCurrent() {
-        AudioManager manager = myContext.audioManager;
-        int activeAudioStream = RecUtils.getActiveAudioStream(manager);
-
         if (isMediaPlaying()) return MUSIC;
         if (myContext.audioRecorder.isRecording()) return SOUNDREC;
+
+        AudioManager manager = myContext.audioManager;
         if (manager.getMode() == AudioManager.MODE_RINGTONE) return OTHER;
         if (manager.getMode() == AudioManager.MODE_IN_CALL) return OTHER;
         if (manager.getMode() == AudioManager.MODE_IN_COMMUNICATION) return OTHER;
+
+        int activeAudioStream = RecUtils.getActiveAudioStream(manager);
         if (activeAudioStream == AudioManager.STREAM_MUSIC) return IDLE;
         if (activeAudioStream != AudioManager.USE_DEFAULT_STREAM_TYPE) return OTHER;
         else return IDLE;
@@ -118,9 +115,6 @@ class DeviceState {
     private List<Runnable> onMediaStartList = new ArrayList<>();
     private List<Runnable> onMediaStopList = new ArrayList<>();
 
-    /**
-     * Note: these callbacks might be called even when state not changed.
-     */
     void addMediaStartCallback(Runnable onMediaStart) {
         onMediaStartList.add(onMediaStart);
     }
@@ -129,126 +123,46 @@ class DeviceState {
         onMediaStopList.add(onMediaStop);
     }
 
-
     private long MEDIA_STATE_POLLING_RATE = 1000;
     private Handler mediaStatePollingHandler = new Handler();
+    private boolean isPollingMediaState = false;
 
     private void setupMediaStateCallbacks() {
-        pollMediaState();
+        addAllowSleepCallback(this::stopPollingMediaState);
+        addScreenOnCallback(this::startPollingMediaState);
+        startPollingMediaState();
+    }
 
-        //mediaSessionManager.addOnActiveSessionsChangedListener(onActiveSessionsChangedListener, new ComponentName(myContext.context, MonitorService.class));
+    private void startPollingMediaState() {
+        if (!isPollingMediaState) {
+            isPollingMediaState = true;
+            isMediaPlaying = myContext.audioManager.isMusicActive();
+            pollMediaState();
+        }
+    }
+
+    private void stopPollingMediaState() {
+        isPollingMediaState = false;
+        mediaStatePollingHandler.removeCallbacksAndMessages(null);
     }
 
     private void pollMediaState() {
         boolean isMediaCurrentlyPlaying = myContext.audioManager.isMusicActive();
 
         if (isMediaCurrentlyPlaying && !isMediaPlaying) {
+            RecUtils.log("Media state change: on");
+            isMediaPlaying = true;
             for (Runnable onMediaStart : onMediaStartList) onMediaStart.run();
         }
         else if (!isMediaCurrentlyPlaying && isMediaPlaying) {
+            RecUtils.log("Media state change: off");
+            isMediaPlaying = false;
             for (Runnable onMediaStop : onMediaStopList) onMediaStop.run();
         }
-
-        isMediaPlaying = isMediaCurrentlyPlaying;
 
         mediaStatePollingHandler.removeCallbacksAndMessages(null);
         mediaStatePollingHandler.postDelayed(this::pollMediaState, MEDIA_STATE_POLLING_RATE);
     }
-
-    private void stopPollingMediaState() {
-        mediaStatePollingHandler.removeCallbacksAndMessages(null);
-    }
-
-
-
-//
-//
-//    private Map<MediaSession.Token, MediaControllerCallback> mediaSessionCallbacks = new HashMap<>();
-//    private Map<MediaSession.Token, Boolean> mediaSessionIsPlayingStates = new HashMap<>();
-//
-//    private MediaSessionManager.OnActiveSessionsChangedListener onActiveSessionsChangedListener = new MediaSessionManager.OnActiveSessionsChangedListener() {
-//        @Override
-//        public void onActiveSessionsChanged(@Nullable List<MediaController> controllers) {
-//            executeMediaActions_withDelay();
-//
-//            if (controllers == null) return;
-//            for (MediaController controller : controllers) {
-//                if (controller.getPackageName().equals(myContext.context.getPackageName())) continue;
-//                if (controller.getPlaybackState() == null) continue;
-//                if (mediaSessionCallbacks.containsKey(controller.getSessionToken())) continue;
-//
-//                MediaControllerCallback callback = new MediaControllerCallback(controller.getSessionToken());
-//                controller.registerCallback(callback);
-//                mediaSessionCallbacks.put(controller.getSessionToken(), callback);
-//                mediaSessionIsPlayingStates.put(controller.getSessionToken(), controller.getPlaybackState().getState() == PlaybackState.STATE_PLAYING);
-//            }
-//            executeMediaActions_withDelay();
-//        }
-//    };
-//
-//    private class MediaControllerCallback extends MediaController.Callback {
-//        private MediaSession.Token token;
-//
-//        private MediaControllerCallback(MediaSession.Token token) {
-//            this.token = token;
-//        }
-//
-//        @Override
-//        public void onPlaybackStateChanged(@Nullable PlaybackState state) {
-//            if (state == null) return;
-//            mediaSessionIsPlayingStates.put(token, state.getState() == PlaybackState.STATE_PLAYING);
-//            executeMediaActions_withDelay();
-//        }
-//
-//        @Override
-//        public void onSessionDestroyed() {
-//            mediaSessionCallbacks.remove(token);
-//            executeMediaActions_withDelay();
-//        }
-//    }
-//
-//    private static final int MEDIA_CHANGE_DELAY = 500;
-//    private Handler mediaChangeDelayHandler = new Handler();
-//
-//    private void executeMediaActions_withDelay() {
-//        mediaChangeDelayHandler.removeCallbacksAndMessages(null);
-//        mediaChangeDelayHandler.postDelayed(this::executeMediaActions, MEDIA_CHANGE_DELAY);
-//    }
-//
-//    private void executeMediaActions() {
-//        if (isMediaPlaying()) {
-//            for (Runnable onMediaStart : onMediaStartList) onMediaStart.run();
-//            RecUtils.log("Execute media start actions");
-//        }
-//        else {
-//            for (Runnable onMediaStop : onMediaStopList) onMediaStop.run();
-//            RecUtils.log("Execute media stop actions");
-//        }
-//    }
-//
-//    boolean isMediaPlaying() {
-//        for (Boolean isPlaying : mediaSessionIsPlayingStates.values()) {
-//            if (isPlaying) return true;
-//        }
-//        return false;
-//    }
-
-//    private boolean isAnyonePlaying(List<MediaController> controllers) {
-//        for (MediaController controller : controllers) {
-//            if (controller.getPackageName().equals(myContext.context.getPackageName())) continue;
-//
-//            PlaybackState state = controller.getPlaybackState();
-//            if (state != null && state.getState() == PlaybackState.STATE_PLAYING && state.getState() != PlaybackState.STATE_PAUSED) {
-//                return true;
-//            }
-//        }
-//
-//        return false;
-//    }
-
-//    private List<MediaController> getMediaControllers() {
-//        return mediaSessionManager.getActiveSessions(new ComponentName(myContext.context, MonitorService.class));
-//    }
 
     // endregion
 
@@ -302,7 +216,7 @@ class DeviceState {
         onDeviceUnlockedList.remove(callback);
     }
 
-    private void setupDeviceUnlockedCallback() {
+    private void setupDeviceUnlockedCallbacks() {
         myContext.context.registerReceiver(deviceUnlockedReceiver, new IntentFilter(Intent.ACTION_USER_PRESENT));
     }
 
@@ -315,19 +229,50 @@ class DeviceState {
 
     // endregion
 
+    // region Allow sleep callback
+
+    private List<Runnable> onAllowSleepList = new ArrayList<>();
+
+    void addAllowSleepCallback(Runnable onAllowSleep) {
+        onAllowSleepList.add(onAllowSleep);
+    }
+
+    private Handler onAllowSleepHandler = new Handler();
+
+    private void setupOnAllowSleepCallbacks() {
+        addScreenOffCallback(() -> {
+            int preventSleepMinutes = myContext.sharedPreferences.getInt("SeekBarPreference_preventSleepTimeout", 60);
+            boolean allowSleepSwitch = myContext.sharedPreferences.getBoolean("SwitchPreferenceCompat_allowSleep", false);
+            int allowSleepStartHour = myContext.sharedPreferences.getInt("SeekBarPreference_allowSleepStart", 0);
+            int allowSleepEndHour = myContext.sharedPreferences.getInt("SeekBarPreference_allowSleepEnd", 0);
+
+            long timeout = preventSleepMinutes * 60000;
+            boolean allowSleep = allowSleepSwitch && currentlyAllowSleep(allowSleepStartHour, allowSleepEndHour);
+            if (allowSleep) timeout = 0;
+
+            onAllowSleepHandler.postDelayed(() -> {
+                for (Runnable onAllowSleep : onAllowSleepList) onAllowSleep.run();
+            }, timeout);
+        });
+    }
+
+    private static boolean currentlyAllowSleep(int allowStartHour, int allowStopHour) {
+        int currentHour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
+        return hourInterval(allowStartHour, allowStopHour) > hourInterval(allowStartHour, currentHour);
+    }
+
+    private static int hourInterval(int from, int to) {
+        return from <= to ? to - from : (to + 24) - from;
+    }
+
+    // endregion
+
     void destroy() {
         //cameraManager.unregisterAvailabilityCallback(cameraCallback);
         myContext.context.unregisterReceiver(screenOffReceiver);
         myContext.context.unregisterReceiver(screenOnReceiver);
         myContext.context.unregisterReceiver(deviceUnlockedReceiver);
-
         stopPollingMediaState();
-
-//        mediaChangeDelayHandler.removeCallbacksAndMessages(null);
-//        mediaSessionManager.removeOnActiveSessionsChangedListener(onActiveSessionsChangedListener);
-//        for (MediaController mediaController : getMediaControllers()) {
-//            MediaControllerCallback callback = mediaSessionCallbacks.get(mediaController.getSessionToken());
-//            if (callback != null) mediaController.unregisterCallback(callback);
-//        }
+        onAllowSleepHandler.removeCallbacksAndMessages(null);
     }
 }

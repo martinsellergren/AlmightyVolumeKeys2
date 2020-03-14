@@ -85,9 +85,6 @@ class ActionCommand {
 
         RecUtils.log(String.format("Execute %s -> %s (state:%s)", command, action.getName(), DeviceState.str(myContext.deviceState.getCurrent())));
 
-        Utils.logMediaSessions(myContext.context); // todo
-
-
         try {
             if (!RecUtils.hasPermissions(myContext.context, action.getNeededPermissions(myContext.context))) {
                 throw new Action.ExecutionException("Missing permission");
