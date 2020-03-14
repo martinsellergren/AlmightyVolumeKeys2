@@ -27,6 +27,8 @@ class VolumeKeyCaptureUsingPolling {
 
         myContext.deviceState.addMediaStartCallback(this::enableOrDisable);
         myContext.deviceState.addMediaStopCallback(this::enableOrDisable);
+        myContext.deviceState.addOnAllowSleepCallback(this::stopPolling);
+        myContext.deviceState.addScreenOnCallback(this::enableOrDisable);
         //myContext.deviceState.addDeviceUnlockedCallback(this::startPollingAttemptsForAWhile);
         
         if (deviceStateOkForCapture()) startPolling();
@@ -92,7 +94,6 @@ class VolumeKeyCaptureUsingPolling {
 //            return;
 //        }
 
-        RecUtils.log("Start polling music volume");
         isPolling = true;
         prevMusicVolume = myContext.volumeUtils.get(AudioManager.STREAM_MUSIC);
         currentlyAllowVolumeExtremes = prevMusicVolume == maxMusicVolume || prevMusicVolume == minMusicVolume;
@@ -140,8 +141,8 @@ class VolumeKeyCaptureUsingPolling {
      * music start since such a short break.
      */
     private void stopPolling() {
-        RecUtils.log("Stop polling music volume");
         isPolling = false;
+        pollingHandler.removeCallbacksAndMessages(null);
     }
 
     /**

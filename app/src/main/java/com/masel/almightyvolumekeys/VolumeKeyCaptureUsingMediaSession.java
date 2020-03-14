@@ -35,19 +35,19 @@ class VolumeKeyCaptureUsingMediaSession {
             }
         });
 
-
         myContext.deviceState.addMediaStartCallback(this::enableOrDisable);
         myContext.deviceState.addMediaStopCallback(this::enableOrDisable);
+        myContext.deviceState.addOnAllowSleepCallback(() -> mediaSession.setActive(false));
+        myContext.deviceState.addScreenOnCallback(this::enableOrDisable);
 //        myContext.deviceState.addDeviceUnlockedCallback(this::updateActiveStatus);
 //        myContext.deviceState.addScreenOffCallback(this::updateActiveStatus);
 
-        //enableOrDisable();
-        mediaSession.setActive(true);
+        enableOrDisable();
     }
 
     private void enableOrDisable() {
         boolean active = deviceStateOkForCapture();
-        RecUtils.log("Media session active: " + active);
+        RecUtils.log("Volume key capture: media session: " + active);
 
         mediaSession.setActive(active);
     }

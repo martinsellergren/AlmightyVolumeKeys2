@@ -26,6 +26,7 @@ class DeviceState {
     //private CameraManager cameraManager;
 
     private boolean isMediaPlaying;
+    private boolean currentlyAllowSleep;
 
     DeviceState(MyContext myContext) {
         this.myContext = myContext;
@@ -35,6 +36,7 @@ class DeviceState {
         setupMediaStateCallbacks();
         setupScreenStateCallbacks();
         setupDeviceUnlockedCallbacks();
+        setupOnAllowSleepCallbacks();
     }
 
     /**
@@ -128,13 +130,14 @@ class DeviceState {
     private boolean isPollingMediaState = false;
 
     private void setupMediaStateCallbacks() {
-        addAllowSleepCallback(this::stopPollingMediaState);
+        addOnAllowSleepCallback(this::stopPollingMediaState);
         addScreenOnCallback(this::startPollingMediaState);
         startPollingMediaState();
     }
 
     private void startPollingMediaState() {
         if (!isPollingMediaState) {
+            RecUtils.log("Start polling media state");
             isPollingMediaState = true;
             isMediaPlaying = myContext.audioManager.isMusicActive();
             pollMediaState();
@@ -142,6 +145,7 @@ class DeviceState {
     }
 
     private void stopPollingMediaState() {
+        RecUtils.log("Stop polling media state");
         isPollingMediaState = false;
         mediaStatePollingHandler.removeCallbacksAndMessages(null);
     }
@@ -233,27 +237,40 @@ class DeviceState {
 
     private List<Runnable> onAllowSleepList = new ArrayList<>();
 
-    void addAllowSleepCallback(Runnable onAllowSleep) {
+    /**
+     * Executed 'user defined delay' after screen AND music off.
+     */
+    void addOnAllowSleepCallback(Runnable onAllowSleep) {
         onAllowSleepList.add(onAllowSleep);
+    }
+
+    private void setupOnAllowSleepCallbacks() {
+        addScreenOffCallback(() -> {
+            if (!isMediaPlaying()) allowSleepAfterDelay();
+        });
+
+        addMediaStopCallback(() -> {
+            if (!isScreenOn()) allowSleepAfterDelay();
+        });
     }
 
     private Handler onAllowSleepHandler = new Handler();
 
-    private void setupOnAllowSleepCallbacks() {
-        addScreenOffCallback(() -> {
-            int preventSleepMinutes = myContext.sharedPreferences.getInt("SeekBarPreference_preventSleepTimeout", 60);
-            boolean allowSleepSwitch = myContext.sharedPreferences.getBoolean("SwitchPreferenceCompat_allowSleep", false);
-            int allowSleepStartHour = myContext.sharedPreferences.getInt("SeekBarPreference_allowSleepStart", 0);
-            int allowSleepEndHour = myContext.sharedPreferences.getInt("SeekBarPreference_allowSleepEnd", 0);
+    private void allowSleepAfterDelay() {
+        int preventSleepMinutes = myContext.sharedPreferences.getInt("SeekBarPreference_preventSleepTimeout", 60);
+        boolean allowSleepSwitch = myContext.sharedPreferences.getBoolean("SwitchPreferenceCompat_allowSleep", false);
+        int allowSleepStartHour = myContext.sharedPreferences.getInt("SeekBarPreference_allowSleepStart", 0);
+        int allowSleepEndHour = myContext.sharedPreferences.getInt("SeekBarPreference_allowSleepEnd", 0);
 
-            long timeout = preventSleepMinutes * 60000;
-            boolean allowSleep = allowSleepSwitch && currentlyAllowSleep(allowSleepStartHour, allowSleepEndHour);
-            if (allowSleep) timeout = 0;
+        boolean allowSleep = allowSleepSwitch && currentlyAllowSleep(allowSleepStartHour, allowSleepEndHour);
+        //if (preventSleepMinutes == 0 || allowSleep) preventSleepMinutes = 1;
+        long timeout = preventSleepMinutes * 60000;
 
-            onAllowSleepHandler.postDelayed(() -> {
-                for (Runnable onAllowSleep : onAllowSleepList) onAllowSleep.run();
-            }, timeout);
-        });
+        onAllowSleepHandler.removeCallbacksAndMessages(null);
+        onAllowSleepHandler.postDelayed(() -> {
+            for (Runnable onAllowSleep : onAllowSleepList) onAllowSleep.run();
+
+        }, timeout);
     }
 
     private static boolean currentlyAllowSleep(int allowStartHour, int allowStopHour) {

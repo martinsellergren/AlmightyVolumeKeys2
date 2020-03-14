@@ -25,6 +25,7 @@ class MyContext {
     final MyFlashlight flashlight;
     final VolumeUtils volumeUtils;
     final WakeLock wakeLock;
+
     final DeviceState deviceState;
 
     MyContext(Context c) {
