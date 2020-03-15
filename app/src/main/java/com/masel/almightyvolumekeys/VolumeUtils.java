@@ -5,19 +5,17 @@ import android.os.Build;
 
 import com.masel.rec_utils.RecUtils;
 
+import java.util.ArrayList;
+import java.util.List;
+
 class VolumeUtils {
     private MyContext myContext;
-    private Runnable onVolumeSet = null;
 
     VolumeUtils(MyContext myContext) {
         this.myContext = myContext;
     }
 
-    void setOnVolumeSet(Runnable onVolumeSet) {
-        this.onVolumeSet = onVolumeSet;
-    }
-
-    void set(int stream, int volume, boolean showUi, boolean runOnVolumeSetAction) {
+    void setVolume(int stream, int volume, boolean showUi, boolean executeCallbacks) {
         int volumeChangeFlag = showUi ? AudioManager.FLAG_SHOW_UI : AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE;
 
         try {
@@ -27,13 +25,15 @@ class VolumeUtils {
             RecUtils.requestPermissionToSilenceDevice(myContext.context);
         }
 
-        if (runOnVolumeSetAction && onVolumeSet != null) onVolumeSet.run();
+        if (executeCallbacks) {
+            for (OnVolumeSetCallback onVolumeSetCallback : onVolumeSetCallbackList) onVolumeSetCallback.onVolumeSet(stream, volume);
+        }
     }
-    void set(int stream, int volume, boolean showUi) {
-        set(stream, volume, showUi, true);
+    void setVolume(int stream, int volume, boolean showUi) {
+        setVolume(stream, volume, showUi, true);
     }
 
-    int get(int stream) {
+    int getVolume(int stream) {
         return myContext.audioManager.getStreamVolume(stream);
     }
 
@@ -43,13 +43,13 @@ class VolumeUtils {
         int targetVolume = (int)Math.round(minVolume + (maxVolume - minVolume) * ((double)volumePercentage / 100d));
         targetVolume = Math.min(targetVolume, maxVolume);
         targetVolume = Math.max(targetVolume, minVolume);
-        set(stream, targetVolume, showUi);
+        setVolume(stream, targetVolume, showUi);
     }
 
     int getPercentage(int stream) {
         float minVolume = getMin(stream);
         float maxVolume = getMax(stream);
-        int percentage = Math.round((get(stream) - minVolume) / (maxVolume - minVolume) * 100);
+        int percentage = Math.round((getVolume(stream) - minVolume) / (maxVolume - minVolume) * 100);
         percentage = Math.min(percentage, 100);
         percentage = Math.max(percentage, 0);
         return percentage;
@@ -66,4 +66,20 @@ class VolumeUtils {
     int getMax(int stream) {
         return myContext.audioManager.getStreamMaxVolume(stream);
     }
+
+    // region Callbacks on volume set
+
+    interface OnVolumeSetCallback { void onVolumeSet(int stream, int volume); }
+
+    private List<OnVolumeSetCallback> onVolumeSetCallbackList = new ArrayList<>();
+
+    void addOnVolumeSetCallback(OnVolumeSetCallback onVolumeSet) {
+        onVolumeSetCallbackList.add(onVolumeSet);
+    }
+
+    void removeOnVolumeSetCallback(OnVolumeSetCallback onVolumeSet) {
+        onVolumeSetCallbackList.remove(onVolumeSet);
+    }
+
+    // endregion
 }

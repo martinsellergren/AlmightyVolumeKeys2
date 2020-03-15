@@ -19,6 +19,8 @@ class VolumeKeyCaptureUsingPolling {
     private final int minMusicVolume;
     private final int maxMusicVolume;
 
+    private boolean isActive = false;
+
     VolumeKeyCaptureUsingPolling(MyContext myContext, VolumeKeyInputController volumeKeyInputController) {
         this.myContext = myContext;
         this.volumeKeyInputController = volumeKeyInputController;
@@ -45,6 +47,10 @@ class VolumeKeyCaptureUsingPolling {
     private boolean deviceStateOkForCapture() {
         //return myContext.deviceState.isDeviceUnlocked() || myContext.deviceState.isMediaPlaying();
         return myContext.deviceState.isMediaPlaying();
+    }
+
+    boolean isActive() {
+        return isActive;
     }
 
     void destroy() {
@@ -94,18 +100,17 @@ class VolumeKeyCaptureUsingPolling {
 //            return;
 //        }
 
-        isPolling = true;
-        prevMusicVolume = myContext.volumeUtils.get(AudioManager.STREAM_MUSIC);
+        isActive = true;
+        prevMusicVolume = myContext.volumeUtils.getVolume(AudioManager.STREAM_MUSIC);
         currentlyAllowVolumeExtremes = prevMusicVolume == maxMusicVolume || prevMusicVolume == minMusicVolume;
         pollMusicVolume();
     }
 
     private void startOrContinuePolling() {
-        if (!isPolling) startPolling();
+        if (!isActive) startPolling();
     }
 
     private static final int MUSIC_VOLUME_POLLING_DELTA = 100;
-    private boolean isPolling = false;
     private int prevMusicVolume;
     private Handler pollingHandler = new Handler();
     private AudioStreamState holdVolume = null;
@@ -122,7 +127,7 @@ class VolumeKeyCaptureUsingPolling {
 //            return;
 //        }
 
-        int currentMusicVolume = myContext.volumeUtils.get(AudioManager.STREAM_MUSIC);
+        int currentMusicVolume = myContext.volumeUtils.getVolume(AudioManager.STREAM_MUSIC);
         int diff = currentMusicVolume - prevMusicVolume;
         boolean volumeUp = diff > 0;
 
@@ -141,7 +146,7 @@ class VolumeKeyCaptureUsingPolling {
      * music start since such a short break.
      */
     private void stopPolling() {
-        isPolling = false;
+        isActive = false;
         pollingHandler.removeCallbacksAndMessages(null);
     }
 
@@ -151,7 +156,7 @@ class VolumeKeyCaptureUsingPolling {
      */
     private int modifyVolume(int currentMusicVolume) {
         if (holdVolume != null) {
-            myContext.volumeUtils.set(holdVolume.getStream(), holdVolume.getVolume(), true, false);
+            myContext.volumeUtils.setVolume(holdVolume.getStream(), holdVolume.getVolume(), true, false);
             return holdVolume.getVolume();
         }
 
@@ -170,21 +175,12 @@ class VolumeKeyCaptureUsingPolling {
     }
 
     private int preventVolumeExtremes(int currentVolume) {
-//        if (currentVolume == maxMusicVolume || currentVolume == minMusicVolume) {
-//            new Handler().postDelayed(() -> {
-//                int vol = myContext.volumeUtils.get(AudioManager.STREAM_MUSIC);
-//                if (vol == maxMusicVolume - 1 || vol == minMusicVolume + 1) {
-//                    myContext.volumeUtils.set(AudioManager.STREAM_MUSIC, vol, true);
-//                }
-//            }, 500);
-//        }
-
         if (currentVolume == maxMusicVolume) {
-            myContext.volumeUtils.set(AudioManager.STREAM_MUSIC, maxMusicVolume - 1, true, false);
+            myContext.volumeUtils.setVolume(AudioManager.STREAM_MUSIC, maxMusicVolume - 1, true, false);
             return maxMusicVolume - 1;
         }
         else if (currentVolume == minMusicVolume) {
-            myContext.volumeUtils.set(AudioManager.STREAM_MUSIC, minMusicVolume + 1, true, false);
+            myContext.volumeUtils.setVolume(AudioManager.STREAM_MUSIC, minMusicVolume + 1, true, false);
             return minMusicVolume + 1;
         }
 

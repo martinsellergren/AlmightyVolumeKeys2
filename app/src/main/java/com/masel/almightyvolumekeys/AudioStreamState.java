@@ -10,7 +10,7 @@ class AudioStreamState {
     }
 
     AudioStreamState(VolumeUtils volumeUtils, int stream) {
-        this(stream, volumeUtils.get(stream));
+        this(stream, volumeUtils.getVolume(stream));
     }
 
     int getStream() {

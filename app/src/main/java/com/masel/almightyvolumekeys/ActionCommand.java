@@ -1,6 +1,5 @@
 package com.masel.almightyvolumekeys;
 
-import android.content.ContentProvider;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.os.Handler;
@@ -155,7 +154,7 @@ class ActionCommand {
 
     private void discardAnyVolumeChanges() {
         if (resetAudioStreamState != null)
-            myContext.volumeUtils.set(resetAudioStreamState.getStream(), resetAudioStreamState.getVolume(), false);
+            myContext.volumeUtils.setVolume(resetAudioStreamState.getStream(), resetAudioStreamState.getVolume(), false);
     }
 
     /**

@@ -9,6 +9,7 @@ class PreventSleepOnScreenOff {
 
     static void init(MyContext myContext) {
         myContext.deviceState.addScreenOnCallback(() -> acquireWakeLock(myContext));
+        myContext.deviceState.addMediaStartCallback(() -> acquireWakeLock(myContext));
         myContext.deviceState.addOnAllowSleepCallback(() -> releaseWakeLock(myContext));
 
         acquireWakeLock(myContext);

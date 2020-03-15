@@ -1,7 +1,6 @@
 package com.masel.almightyvolumekeys;
 
 import android.content.Intent;
-import android.media.AudioManager;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.view.MenuItem;
@@ -221,6 +220,11 @@ public class MainActivity extends AppCompatActivity {
 
     // endregion
 
+    private void updateEnableServiceHeadsUp() {
+        showEnableServicePopupIfNotEnabled();
+        updateEnableServiceText();
+    }
+
     private void updateEnableServiceText() {
         TextView textView_enableAVK = findViewById(R.id.textView_enableAVK);
 
@@ -243,8 +247,7 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
 
         proManager = setupUnlockPro();
-        showEnableServicePopupIfNotEnabled();
-        updateEnableServiceText();
+        updateEnableServiceHeadsUp();
         requestPermissions();
     }
 

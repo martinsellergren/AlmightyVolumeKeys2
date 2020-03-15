@@ -30,16 +30,16 @@ import java.util.Set;
 
 class Utils {
 
-//    static int loadVolumeKeysAudioStream(SharedPreferences sharedPreferences) {
-//        String value = sharedPreferences.getString("ListPreference_VolumeKeysChange", null);
-//        int backupStream = AudioManager.STREAM_MUSIC;
-//        if (value == null) return backupStream;
-//
-//        if (value.equals("Ringtone volume")) return AudioManager.STREAM_RING;
-//        if (value.equals("Media volume after 5 clicks")) return AudioManager.STREAM_MUSIC;
-//        if (value.equals("Ringtone volume after 5 clicks")) return AudioManager.STREAM_RING;
-//        else return AudioManager.STREAM_MUSIC;
-//    }
+    static int loadVolumeKeysAudioStream(SharedPreferences sharedPreferences) {
+        String value = sharedPreferences.getString("ListPreference_VolumeKeysChange", null);
+        int backupStream = AudioManager.STREAM_MUSIC;
+        if (value == null) return backupStream;
+
+        if (value.equals("Ringtone volume")) return AudioManager.STREAM_RING;
+        if (value.equals("Media volume after 5 clicks")) return AudioManager.STREAM_MUSIC;
+        if (value.equals("Ringtone volume after 5 clicks")) return AudioManager.STREAM_RING;
+        else return AudioManager.STREAM_MUSIC;
+    }
 
     static boolean loadPreventMaxAndMinVolume(SharedPreferences sharedPreferences) {
         return sharedPreferences.getBoolean("SwitchPreferenceCompat_preventMaxAndMinVolume", true);

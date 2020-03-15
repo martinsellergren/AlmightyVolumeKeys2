@@ -2,6 +2,7 @@ package com.masel.almightyvolumekeys;
 
 import android.app.ActivityManager;
 import android.content.Context;
+import android.media.AudioManager;
 import android.service.notification.NotificationListenerService;
 
 import com.masel.rec_utils.AudioRecorder;
@@ -30,7 +31,9 @@ public class MonitorService extends NotificationListenerService {
             volumeKeyCaptureUsingMediaSession = new VolumeKeyCaptureUsingMediaSession(myContext, volumeKeyInputController);
             volumeKeyCaptureUsingPolling = new VolumeKeyCaptureUsingPolling(myContext, volumeKeyInputController);
 
-            myContext.volumeUtils.setOnVolumeSet(volumeKeyCaptureUsingPolling.getResetAction());
+            myContext.volumeUtils.addOnVolumeSetCallback((stream, volume) -> {
+                if (stream == AudioManager.STREAM_MUSIC && volumeKeyCaptureUsingPolling.isActive()) volumeKeyCaptureUsingPolling.getResetAction().run();
+            });
 
             PreventSleepOnScreenOff.init(myContext);
         });

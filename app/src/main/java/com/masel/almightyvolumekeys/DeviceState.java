@@ -5,7 +5,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.AudioManager;
+import android.media.AudioPlaybackConfiguration;
+import android.os.Build;
 import android.os.Handler;
+
+import androidx.annotation.RequiresApi;
 
 import com.masel.rec_utils.RecUtils;
 
@@ -26,7 +30,6 @@ class DeviceState {
     //private CameraManager cameraManager;
 
     private boolean isMediaPlaying;
-    private boolean currentlyAllowSleep;
 
     DeviceState(MyContext myContext) {
         this.myContext = myContext;
@@ -125,15 +128,38 @@ class DeviceState {
         onMediaStopList.add(onMediaStop);
     }
 
-    private long MEDIA_STATE_POLLING_RATE = 1000;
-    private Handler mediaStatePollingHandler = new Handler();
-    private boolean isPollingMediaState = false;
-
     private void setupMediaStateCallbacks() {
+        if (Build.VERSION.SDK_INT >= 26) {
+            setupMediaStateCallbacks_method1();
+        }
+        else {
+            setupMediaStateCallbacks_method2();
+        }
+    }
+
+    private static final long EVALUATE_MEDIA_STATE_DELAY = 1000;
+    private Handler evaluateMediaStateDelayHandler = new Handler();
+
+    @RequiresApi(api = 26)
+    private void setupMediaStateCallbacks_method1() {
+        myContext.audioManager.registerAudioPlaybackCallback(new AudioManager.AudioPlaybackCallback() {
+            @Override
+            public void onPlaybackConfigChanged(List<AudioPlaybackConfiguration> configs) {
+                evaluateMediaStateDelayHandler.removeCallbacksAndMessages(null);
+                evaluateMediaStateDelayHandler.postDelayed(DeviceState.this::executeMediaCallbacksIfStateChange, EVALUATE_MEDIA_STATE_DELAY);
+            }
+        }, null);
+    }
+
+    private void setupMediaStateCallbacks_method2() {
         addOnAllowSleepCallback(this::stopPollingMediaState);
         addScreenOnCallback(this::startPollingMediaState);
         startPollingMediaState();
     }
+
+    private long MEDIA_STATE_POLLING_RATE = 1000;
+    private Handler mediaStatePollingHandler = new Handler();
+    private boolean isPollingMediaState = false;
 
     private void startPollingMediaState() {
         if (!isPollingMediaState) {
@@ -151,6 +177,12 @@ class DeviceState {
     }
 
     private void pollMediaState() {
+        executeMediaCallbacksIfStateChange();
+        mediaStatePollingHandler.removeCallbacksAndMessages(null);
+        mediaStatePollingHandler.postDelayed(this::pollMediaState, MEDIA_STATE_POLLING_RATE);
+    }
+
+    private void executeMediaCallbacksIfStateChange() {
         boolean isMediaCurrentlyPlaying = myContext.audioManager.isMusicActive();
 
         if (isMediaCurrentlyPlaying && !isMediaPlaying) {
@@ -163,9 +195,6 @@ class DeviceState {
             isMediaPlaying = false;
             for (Runnable onMediaStop : onMediaStopList) onMediaStop.run();
         }
-
-        mediaStatePollingHandler.removeCallbacksAndMessages(null);
-        mediaStatePollingHandler.postDelayed(this::pollMediaState, MEDIA_STATE_POLLING_RATE);
     }
 
     // endregion
@@ -252,6 +281,9 @@ class DeviceState {
         addMediaStopCallback(() -> {
             if (!isScreenOn()) allowSleepAfterDelay();
         });
+
+        addScreenOnCallback(() -> onAllowSleepHandler.removeCallbacksAndMessages(null));
+        addMediaStartCallback(() -> onAllowSleepHandler.removeCallbacksAndMessages(null));
     }
 
     private Handler onAllowSleepHandler = new Handler();
@@ -263,7 +295,7 @@ class DeviceState {
         int allowSleepEndHour = myContext.sharedPreferences.getInt("SeekBarPreference_allowSleepEnd", 0);
 
         boolean allowSleep = allowSleepSwitch && currentlyAllowSleep(allowSleepStartHour, allowSleepEndHour);
-        //if (preventSleepMinutes == 0 || allowSleep) preventSleepMinutes = 1;
+        if (preventSleepMinutes == 0 || allowSleep) preventSleepMinutes = 1;
         long timeout = preventSleepMinutes * 60000;
 
         onAllowSleepHandler.removeCallbacksAndMessages(null);
@@ -289,6 +321,7 @@ class DeviceState {
         myContext.context.unregisterReceiver(screenOffReceiver);
         myContext.context.unregisterReceiver(screenOnReceiver);
         myContext.context.unregisterReceiver(deviceUnlockedReceiver);
+        evaluateMediaStateDelayHandler.removeCallbacksAndMessages(null);
         stopPollingMediaState();
         onAllowSleepHandler.removeCallbacksAndMessages(null);
     }
