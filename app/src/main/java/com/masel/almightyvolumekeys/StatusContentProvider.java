@@ -19,7 +19,7 @@ public class StatusContentProvider extends ContentProvider {
     @Nullable
     @Override
     public Cursor query(@NonNull Uri uri, @Nullable String[] projection, @Nullable String selection, @Nullable String[] selectionArgs, @Nullable String sortOrder) {
-        String isEnabled = MonitorService.isEnabled() ? "enabled" : "disabled";
+        String isEnabled = MonitorService.isEnabled(getContext()) ? "enabled" : "disabled";
         return new MatrixCursor(new String[]{isEnabled});
     }
 

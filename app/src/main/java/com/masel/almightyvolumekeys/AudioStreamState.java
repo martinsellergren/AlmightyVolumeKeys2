@@ -1,5 +1,7 @@
 package com.masel.almightyvolumekeys;
 
+import androidx.annotation.NonNull;
+
 class AudioStreamState {
     private int stream;
     private int volume;
@@ -19,5 +21,11 @@ class AudioStreamState {
 
     int getVolume() {
         return volume;
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return String.format("Stream %s, Volume %s", stream, volume);
     }
 }

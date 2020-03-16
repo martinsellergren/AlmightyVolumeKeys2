@@ -174,7 +174,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void onEnableDisableClick() {
         String toastText = "Find the Almighty Volume Keys-service";
-        if (MonitorService.isEnabled()) {
+        if (MonitorService.isEnabled(this)) {
             RecUtils.toast(this, toastText);
             //openAccessibilitySettings();
             openNotificationListenerSettings();
@@ -228,7 +228,7 @@ public class MainActivity extends AppCompatActivity {
     private void updateEnableServiceText() {
         TextView textView_enableAVK = findViewById(R.id.textView_enableAVK);
 
-        if (MonitorService.isEnabled()) {
+        if (MonitorService.isEnabled(this)) {
             textView_enableAVK.setVisibility(View.GONE);
         }
         else {
@@ -237,7 +237,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showEnableServicePopupIfNotEnabled() {
-        if (!MonitorService.isEnabled()) {
+        if (!MonitorService.isEnabled(this)) {
             RecUtils.showHeadsUpDialog(this, "This app needs to be activated!\nOpen side menu and activate.", null);
         }
     }

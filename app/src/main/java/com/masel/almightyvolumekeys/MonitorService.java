@@ -1,9 +1,16 @@
 package com.masel.almightyvolumekeys;
 
 import android.app.ActivityManager;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.media.AudioManager;
+import android.os.IBinder;
 import android.service.notification.NotificationListenerService;
+
+import androidx.preference.PreferenceManager;
 
 import com.masel.rec_utils.AudioRecorder;
 import com.masel.rec_utils.KeyValueStore;
@@ -16,13 +23,10 @@ public class MonitorService extends NotificationListenerService {
     private VolumeKeyCaptureUsingMediaSession volumeKeyCaptureUsingMediaSession;
     private VolumeKeyCaptureUsingPolling volumeKeyCaptureUsingPolling;
 
-    private static boolean isEnabled = false;
-
     @Override
     public void onListenerConnected() {
         Utils.runOnMainThread(() -> {
             RecUtils.log("Monitor service started");
-            isEnabled = true;
             Utils.requestForeground(this);
 
             cleanUpAfterCrashDuringRecording();
@@ -36,6 +40,7 @@ public class MonitorService extends NotificationListenerService {
             });
 
             PreventSleepOnScreenOff.init(myContext);
+            saveIsEnabled(true);
         });
     }
 
@@ -48,7 +53,7 @@ public class MonitorService extends NotificationListenerService {
     public void onListenerDisconnected() {
         Utils.runOnMainThread(() -> {
             RecUtils.log("Monitor service stopped");
-            isEnabled = false;
+            saveIsEnabled(false);
 
             volumeKeyCaptureUsingMediaSession.destroy();
             volumeKeyCaptureUsingPolling.destroy();
@@ -60,15 +65,24 @@ public class MonitorService extends NotificationListenerService {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        isEnabled = false;
-    }
-
-    static boolean isEnabled() {
-        return isEnabled;
     }
 
     static boolean isAvailable(Context context) {
         ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
         return am.isLowRamDevice();
     }
+
+    // region Is enabled
+
+    private static final String MONITOR_SERVICE_IS_ENABLED_KEY = "MONITOR_SERVICE_IS_ENABLED_KEY";
+
+    private void saveIsEnabled(boolean isEnabled) {
+        myContext.sharedPreferences.edit().putBoolean(MONITOR_SERVICE_IS_ENABLED_KEY, isEnabled).apply();
+    }
+
+    static boolean isEnabled(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(MONITOR_SERVICE_IS_ENABLED_KEY, false);
+    }
+
+    // endregion
 }

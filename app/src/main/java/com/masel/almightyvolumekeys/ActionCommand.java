@@ -153,8 +153,10 @@ class ActionCommand {
     }
 
     private void discardAnyVolumeChanges() {
-        if (resetAudioStreamState != null)
+        if (resetAudioStreamState != null) {
+            RecUtils.log(resetAudioStreamState.toString());
             myContext.volumeUtils.setVolume(resetAudioStreamState.getStream(), resetAudioStreamState.getVolume(), false);
+        }
     }
 
     /**
