@@ -30,7 +30,7 @@ class ActionCommand {
 
     private MyContext myContext;
     private int deviceStateOnCommandStart;
-
+    private int ringerModeOnCommandStart;
     private AudioStreamState resetAudioStreamState = null;
 
     ActionCommand(MyContext myContext) {
@@ -45,6 +45,7 @@ class ActionCommand {
 
         if (command.length() == 0) {
             this.deviceStateOnCommandStart = myContext.deviceState.getCurrent();
+            this.ringerModeOnCommandStart = myContext.audioManager.getRingerMode();
             this.resetAudioStreamState = resetAudioStreamState;
         }
         command += volumePress;
@@ -156,6 +157,7 @@ class ActionCommand {
         if (resetAudioStreamState != null) {
             RecUtils.log(resetAudioStreamState.toString());
             myContext.volumeUtils.setVolume(resetAudioStreamState.getStream(), resetAudioStreamState.getVolume(), false);
+            if (resetAudioStreamState.getRingerMuteFlag() != 0) myContext.audioManager.setRingerMode(AudioManager.RINGER_MODE_SILENT);
         }
     }
 

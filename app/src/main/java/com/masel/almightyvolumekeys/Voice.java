@@ -44,7 +44,7 @@ class Voice {
         if (tts == null || volumeUtils == null) return false;
 
         beforeSpeechVolume = new AudioStreamState(volumeUtils, AudioManager.STREAM_MUSIC);
-        volumeUtils.setPercentage(AudioManager.STREAM_MUSIC, volumePercentage, false);
+        volumeUtils.setVolumePercentage(AudioManager.STREAM_MUSIC, volumePercentage, false);
 
         int res = tts.speak(speech, TextToSpeech.QUEUE_FLUSH, null, speech);
         return res == TextToSpeech.SUCCESS;

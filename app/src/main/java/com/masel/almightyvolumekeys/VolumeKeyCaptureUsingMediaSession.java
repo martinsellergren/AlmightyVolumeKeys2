@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.media.AudioManager;
+import android.os.Handler;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 
@@ -23,6 +24,9 @@ class VolumeKeyCaptureUsingMediaSession {
     private VolumeKeyInputController volumeKeyInputController;
     private MediaSessionCompat mediaSession;
 
+    private VolumeProviderCompat volumeProvider;
+    private int controlledAudioStream;
+
     VolumeKeyCaptureUsingMediaSession(MyContext myContext, VolumeKeyInputController volumeKeyInputController) {
         this.myContext = myContext;
         this.volumeKeyInputController = volumeKeyInputController;
@@ -35,12 +39,13 @@ class VolumeKeyCaptureUsingMediaSession {
         stateBuilder.setState(PlaybackStateCompat.STATE_PLAYING, 0, 1);
         mediaSession.setPlaybackState(stateBuilder.build());
         setupControlledAudioStream();
-        setupRingerModeChangedVolumeUpdate();
 
         myContext.deviceState.addMediaStartCallback(this::enableOrDisable);
         myContext.deviceState.addMediaStopCallback(this::enableOrDisable);
         myContext.deviceState.addOnAllowSleepCallback(() -> mediaSession.setActive(false));
         myContext.deviceState.addScreenOnCallback(this::enableOrDisable);
+        myContext.deviceState.addOnRingerModeChangeCallback(this::onRingerModeChange);
+        //myContext.deviceState.addOnSettingsChangeCallback(this::syncMediaSessionVolume);
 
         enableOrDisable();
     }
@@ -62,8 +67,9 @@ class VolumeKeyCaptureUsingMediaSession {
             mediaSession.setActive(false);
             mediaSession.release();
         }
-        myContext.sharedPreferences.unregisterOnSharedPreferenceChangeListener(sharedPreferenceChangeListener);
-        myContext.context.unregisterReceiver(onRingerModeChanged);
+        try {
+            myContext.sharedPreferences.unregisterOnSharedPreferenceChangeListener(sharedPreferenceChangeListener);
+        } catch (Exception e) {}
     }
 
     private void setupControlledAudioStream() {
@@ -80,8 +86,22 @@ class VolumeKeyCaptureUsingMediaSession {
         }
     });
 
-    private VolumeProviderCompat volumeProvider;
-    private int controlledAudioStream;
+    private void onRingerModeChange() {
+        if (controlledAudioStream != AudioManager.STREAM_RING) return;
+
+        int ringerMode = myContext.audioManager.getRingerMode();
+        if (ringerMode == AudioManager.RINGER_MODE_SILENT || ringerMode == AudioManager.RINGER_MODE_VIBRATE) {
+            if (volumeProvider.getCurrentVolume() != 0) {
+                myContext.volumeUtils.setVolumePercentage(AudioManager.STREAM_RING, 0, false);
+                volumeProvider.setCurrentVolume(0);
+            }
+        } else if (ringerMode == AudioManager.RINGER_MODE_NORMAL) {
+            if (volumeProvider.getCurrentVolume() == 0) {
+                myContext.volumeUtils.setVolumePercentage(AudioManager.STREAM_RING, 75, false);
+                syncMediaSessionVolume();
+            }
+        }
+    }
 
     private void updateVolumeProvider() {
         RecUtils.log("Update volume provider");
@@ -103,23 +123,22 @@ class VolumeKeyCaptureUsingMediaSession {
                 else if (volume < minVolume) volume = minVolume;
 
                 setCurrentVolume(volume);
-                myContext.volumeUtils.setVolume(controlledAudioStream, volume, false);
+                syncAudioStreamVolume();
             }
         };
 
         mediaSession.setPlaybackToRemote(volumeProvider);
     }
 
-    private BroadcastReceiver onRingerModeChanged = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            int streamVolume = myContext.volumeUtils.getVolume(controlledAudioStream);
-            volumeProvider.setCurrentVolume(streamVolume);
-        }
-    };
+    private void syncAudioStreamVolume() {
+        int volumePercentage = (int)Math.round((double)volumeProvider.getCurrentVolume() / volumeProvider.getMaxVolume() * 100);
+        myContext.volumeUtils.setVolumePercentage(controlledAudioStream, volumePercentage, false);
+    }
 
-    private void setupRingerModeChangedVolumeUpdate() {
-        myContext.context.registerReceiver(onRingerModeChanged, new IntentFilter(AudioManager.RINGER_MODE_CHANGED_ACTION));
+    private void syncMediaSessionVolume() {
+        int volumePercentage = myContext.volumeUtils.getVolumePercentage(controlledAudioStream);
+        int mediaSessionVolume = (int)Math.round((double)volumePercentage / 100 * volumeProvider.getMaxVolume());
+        volumeProvider.setCurrentVolume(mediaSessionVolume);
     }
 
     private int prevDirection = 0;
@@ -129,6 +148,7 @@ class VolumeKeyCaptureUsingMediaSession {
         if (direction != 0 && prevDirection == 0) {
             RecUtils.log("Media session caught press");
             resetAudioStreamState = new AudioStreamState(myContext.volumeUtils, controlledAudioStream);
+            if (controlledAudioStream == AudioManager.STREAM_RING && myContext.audioManager.getRingerMode() == AudioManager.RINGER_MODE_SILENT) resetAudioStreamState.setRingerMuteFlag();
         }
         else if (direction != 0 && direction == prevDirection) {
             volumeKeyInputController.longPressDetected(direction > 0);

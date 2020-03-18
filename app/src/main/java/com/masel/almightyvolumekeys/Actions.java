@@ -2,12 +2,9 @@ package com.masel.almightyvolumekeys;
 
 import android.Manifest;
 import android.app.NotificationManager;
-import android.content.ComponentName;
 import android.content.Context;
 import android.media.AudioManager;
 import android.media.ToneGenerator;
-import android.media.session.MediaController;
-import android.media.session.MediaSessionManager;
 import android.os.Build;
 import android.view.KeyEvent;
 
@@ -309,8 +306,8 @@ class Actions {
 
         @Override
         void run(MyContext myContext) throws ExecutionException {
-            myContext.volumeUtils.setPercentage(AudioManager.STREAM_RING, 100, true);
-            myContext.volumeUtils.setPercentage(AudioManager.STREAM_NOTIFICATION, 100, true);
+            myContext.volumeUtils.setVolumePercentage(AudioManager.STREAM_RING, 100, true);
+            myContext.volumeUtils.setVolumePercentage(AudioManager.STREAM_NOTIFICATION, 100, true);
             myContext.audioManager.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
         }
 
@@ -761,7 +758,7 @@ class Actions {
 
         @Override
         void run(MyContext myContext) throws ExecutionException {
-            myContext.volumeUtils.setPercentage(AudioManager.STREAM_MUSIC, 100, true);
+            myContext.volumeUtils.setVolumePercentage(AudioManager.STREAM_MUSIC, 100, true);
         }
     }
 
@@ -773,7 +770,7 @@ class Actions {
 
         @Override
         void run(MyContext myContext) throws ExecutionException {
-            myContext.volumeUtils.setPercentage(AudioManager.STREAM_MUSIC, 0, true);
+            myContext.volumeUtils.setVolumePercentage(AudioManager.STREAM_MUSIC, 0, true);
         }
     }
 
@@ -785,7 +782,7 @@ class Actions {
 
         @Override
         void run(MyContext myContext) throws ExecutionException {
-            myContext.volumeUtils.setPercentage(AudioManager.STREAM_RING, 100, true);
+            myContext.volumeUtils.setVolumePercentage(AudioManager.STREAM_RING, 100, true);
         }
     }
 
@@ -797,7 +794,7 @@ class Actions {
 
         @Override
         void run(MyContext myContext) throws ExecutionException {
-            myContext.volumeUtils.setPercentage(AudioManager.STREAM_RING, 0, true);
+            myContext.volumeUtils.setVolumePercentage(AudioManager.STREAM_RING, 0, true);
         }
     }
 

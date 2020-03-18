@@ -37,7 +37,7 @@ class VolumeUtils {
         return myContext.audioManager.getStreamVolume(stream);
     }
 
-    void setPercentage(int stream, int volumePercentage, boolean showUi) {
+    void setVolumePercentage(int stream, int volumePercentage, boolean showUi) {
         int minVolume = getMin(stream);
         int maxVolume = getMax(stream);
         int targetVolume = (int)Math.round(minVolume + (maxVolume - minVolume) * ((double)volumePercentage / 100d));
@@ -46,7 +46,7 @@ class VolumeUtils {
         setVolume(stream, targetVolume, showUi);
     }
 
-    int getPercentage(int stream) {
+    int getVolumePercentage(int stream) {
         float minVolume = getMin(stream);
         float maxVolume = getMax(stream);
         int percentage = Math.round((getVolume(stream) - minVolume) / (maxVolume - minVolume) * 100);

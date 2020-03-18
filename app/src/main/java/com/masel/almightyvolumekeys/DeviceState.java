@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.ContentObserver;
 import android.media.AudioManager;
 import android.media.AudioPlaybackConfiguration;
 import android.os.Build;
@@ -40,6 +41,8 @@ class DeviceState {
         setupScreenStateCallbacks();
         setupDeviceUnlockedCallbacks();
         setupOnAllowSleepCallbacks();
+        //setupOnSettingsChangeCallbacks();
+        setupOnRingerModeChangeCallbacks();
     }
 
     /**
@@ -69,7 +72,7 @@ class DeviceState {
         }
     }
 
-    // region Get more states
+    // region More states
 
     boolean isMediaPlaying() {
         return isMediaPlaying;
@@ -316,6 +319,65 @@ class DeviceState {
 
     // endregion
 
+    // region Settings change callbacks
+
+    private List<Runnable> onSettingsChangeList = new ArrayList<>();
+
+    void addOnSettingsChangeCallback(Runnable onSettingsChange) {
+        onSettingsChangeList.add(onSettingsChange);
+    }
+
+    void removeOnSettingsChangeCallback(Runnable onSettingsChange) {
+        onSettingsChangeList.remove(onSettingsChange);
+    }
+
+    private ContentObserver settingsObserver;
+
+    private void setupOnSettingsChangeCallbacks() {
+        settingsObserver = new ContentObserver(new Handler()) {
+            @Override
+            public void onChange(boolean selfChange) {
+                super.onChange(selfChange);
+
+                RecUtils.log("Settings change");
+                for (Runnable onSettingsChange : onSettingsChangeList) onSettingsChange.run();
+            }
+        };
+
+        myContext.context.getContentResolver().registerContentObserver(
+                android.provider.Settings.System.CONTENT_URI,
+                true,
+                settingsObserver);
+    }
+
+    // endregion
+
+    // region Ringer mode change
+
+    private List<Runnable> onRingerModeChangeList = new ArrayList<>();
+
+    void addOnRingerModeChangeCallback(Runnable onRingerModeChange) {
+        onRingerModeChangeList.add(onRingerModeChange);
+    }
+
+    void removeOnRingerModeChangeCallback(Runnable onRingerModeChange) {
+        onRingerModeChangeList.remove(onRingerModeChange);
+    }
+
+    private void setupOnRingerModeChangeCallbacks() {
+        myContext.context.registerReceiver(onRingerModeChangedReceiver, new IntentFilter(AudioManager.RINGER_MODE_CHANGED_ACTION));
+    }
+
+    private BroadcastReceiver onRingerModeChangedReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            RecUtils.log("DeviceState: Ringer mode changed");
+            for (Runnable onRingerModeChange : onRingerModeChangeList) onRingerModeChange.run();
+        }
+    };
+
+    // endregion
+
     void destroy() {
         //cameraManager.unregisterAvailabilityCallback(cameraCallback);
         myContext.context.unregisterReceiver(screenOffReceiver);
@@ -324,5 +386,7 @@ class DeviceState {
         evaluateMediaStateDelayHandler.removeCallbacksAndMessages(null);
         stopPollingMediaState();
         onAllowSleepHandler.removeCallbacksAndMessages(null);
+        //myContext.context.getContentResolver().unregisterContentObserver(settingsObserver);
+        myContext.context.unregisterReceiver(onRingerModeChangedReceiver);
     }
 }

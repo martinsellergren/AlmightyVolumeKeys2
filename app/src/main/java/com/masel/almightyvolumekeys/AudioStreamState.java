@@ -6,6 +6,8 @@ class AudioStreamState {
     private int stream;
     private int volume;
 
+    private int ringerMuteFlag = 0;
+
     AudioStreamState(int stream, int volume) {
         this.stream = stream;
         this.volume = volume;
@@ -21,6 +23,16 @@ class AudioStreamState {
 
     int getVolume() {
         return volume;
+    }
+
+    /**
+     * Also specify that ring-stream is muted. Not set means ignore.
+     */
+    void setRingerMuteFlag() {
+        ringerMuteFlag = 1;
+    }
+    int getRingerMuteFlag() {
+        return ringerMuteFlag;
     }
 
     @NonNull
