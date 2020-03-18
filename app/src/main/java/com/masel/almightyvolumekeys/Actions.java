@@ -449,7 +449,7 @@ class Actions {
 
         @Override
         void run(MyContext myContext) throws ExecutionException {
-            setDnd(myContext.notificationManager, true);
+            RecUtils.setDnd(myContext.notificationManager, true);
         }
 
         @Override
@@ -484,7 +484,7 @@ class Actions {
 
         @Override
         void run(MyContext myContext) throws ExecutionException {
-            setDnd(myContext.notificationManager, false);
+            RecUtils.setDnd(myContext.notificationManager, false);
         }
 
         @Override
@@ -514,7 +514,7 @@ class Actions {
     static class Do_not_disturb_on_off extends MultiAction {
         @Override
         Action pickAction(MyContext myContext) {
-            if (dndIsOn(myContext.notificationManager)) return new Do_not_disturb_off();
+            if (RecUtils.dndIsOn(myContext.notificationManager)) return new Do_not_disturb_off();
             else return new Do_not_disturb_on();
         }
 
@@ -530,22 +530,6 @@ class Actions {
         boolean isAvailable(Context context) {
             return Build.VERSION.SDK_INT >= 23;
         }
-    }
-
-    private static void setDnd(NotificationManager notificationManager, boolean on) {
-        if (Build.VERSION.SDK_INT < 23) return;
-
-        if (on) {
-            notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_PRIORITY);
-        }
-        else {
-            notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_ALL);
-        }
-    }
-
-    private static boolean dndIsOn(NotificationManager notificationManager) {
-        if (Build.VERSION.SDK_INT < 23) return false;
-        return notificationManager.getCurrentInterruptionFilter() != NotificationManager.INTERRUPTION_FILTER_ALL;
     }
 
     // endregion

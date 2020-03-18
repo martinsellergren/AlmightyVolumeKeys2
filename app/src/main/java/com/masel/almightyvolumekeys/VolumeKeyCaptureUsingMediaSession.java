@@ -123,16 +123,18 @@ class VolumeKeyCaptureUsingMediaSession {
                 else if (volume < minVolume) volume = minVolume;
 
                 setCurrentVolume(volume);
-                syncAudioStreamVolume();
+                boolean res = syncAudioStreamVolume();
+                if (!res) syncMediaSessionVolume();
             }
         };
 
         mediaSession.setPlaybackToRemote(volumeProvider);
     }
 
-    private void syncAudioStreamVolume() {
+    private boolean syncAudioStreamVolume() {
         int volumePercentage = (int)Math.round((double)volumeProvider.getCurrentVolume() / volumeProvider.getMaxVolume() * 100);
         myContext.volumeUtils.setVolumePercentage(controlledAudioStream, volumePercentage, false);
+        return myContext.volumeUtils.getVolumePercentage(controlledAudioStream) == volumePercentage;
     }
 
     private void syncMediaSessionVolume() {
