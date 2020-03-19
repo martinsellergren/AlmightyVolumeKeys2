@@ -86,8 +86,13 @@ public class MappingListPreference extends ListPreference {
                 return false;
             }
 
-            if (state.equals("music") && !actionName.equals(new Actions.No_action().getName())) {
-                showMusicMappingHeadsUpDialog(extractCommand(getKey()));
+//            if (state.equals("music") && !actionName.equals(new Actions.No_action().getName())) {
+//                showMusicMappingHeadsUpDialog(extractCommand(getKey()));
+//            }
+            if (actionName.equals(new Actions.Media_pause().getName())) {
+                RecUtils.showHeadsUpDialog(getActivity(),
+                        "To resume playing, go to the IDLE-tab and pick <b>Media: play</b>",
+                        () -> requestNeededPermissions(actionName));
             }
             else if (actionName.equals(new Actions.Media_play().getName())) {
                 RecUtils.showHeadsUpDialog(getActivity(),
