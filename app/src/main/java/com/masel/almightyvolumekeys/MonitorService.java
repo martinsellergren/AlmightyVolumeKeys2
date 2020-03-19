@@ -1,13 +1,8 @@
 package com.masel.almightyvolumekeys;
 
 import android.app.ActivityManager;
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
-import android.content.ServiceConnection;
-import android.content.SharedPreferences;
 import android.media.AudioManager;
-import android.os.IBinder;
 import android.service.notification.NotificationListenerService;
 
 import androidx.preference.PreferenceManager;
@@ -39,7 +34,7 @@ public class MonitorService extends NotificationListenerService {
                 if (stream == AudioManager.STREAM_MUSIC && volumeKeyCaptureUsingPolling.isActive()) volumeKeyCaptureUsingPolling.getResetAction().run();
             });
 
-            PreventSleepOnScreenOff.init(myContext);
+            DisableAppOnInactiveDevice.init(myContext);
             saveIsEnabled(true);
         });
     }

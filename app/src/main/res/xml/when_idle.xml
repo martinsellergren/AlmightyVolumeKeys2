@@ -12,37 +12,52 @@
             app:key="mappingListPreference_idle_command_1" />
 
         <com.masel.almightyvolumekeys.MappingListPreference
-            app:key="mappingListPreference_idle_command_0" />
-
-        <com.masel.almightyvolumekeys.MappingListPreference
             app:key="mappingListPreference_idle_command_11" />
 
         <com.masel.almightyvolumekeys.MappingListPreference
-            app:key="mappingListPreference_idle_command_00" />
-
-<!--        <com.masel.almightyvolumekeys.MappingListPreference-->
-<!--            app:key="mappingListPreference_idle_command_111" />-->
-
-<!--        <com.masel.almightyvolumekeys.MappingListPreference-->
-<!--            app:key="mappingListPreference_idle_command_000" />-->
-
-        <com.masel.almightyvolumekeys.MappingListPreference
-            app:key="mappingListPreference_idle_command_10" />
-
-        <com.masel.almightyvolumekeys.MappingListPreference
-            app:key="mappingListPreference_idle_command_01" />
+            app:key="mappingListPreference_idle_command_111" />
 
         <com.masel.almightyvolumekeys.MappingListPreference
             app:key="mappingListPreference_idle_command_3" />
 
         <com.masel.almightyvolumekeys.MappingListPreference
-            app:key="mappingListPreference_idle_command_2" />
-
-        <com.masel.almightyvolumekeys.MappingListPreference
             app:key="mappingListPreference_idle_command_13" />
 
         <com.masel.almightyvolumekeys.MappingListPreference
+            app:key="mappingListPreference_idle_command_113" />
+
+        <com.masel.almightyvolumekeys.MappingListPreference
+            app:key="mappingListPreference_idle_command_0" />
+
+        <com.masel.almightyvolumekeys.MappingListPreference
+            app:key="mappingListPreference_idle_command_00" />
+
+        <com.masel.almightyvolumekeys.MappingListPreference
+            app:key="mappingListPreference_idle_command_000" />
+
+        <com.masel.almightyvolumekeys.MappingListPreference
+            app:key="mappingListPreference_idle_command_2" />
+
+        <com.masel.almightyvolumekeys.MappingListPreference
             app:key="mappingListPreference_idle_command_02" />
+
+        <com.masel.almightyvolumekeys.MappingListPreference
+            app:key="mappingListPreference_idle_command_002" />
+
+        <com.masel.almightyvolumekeys.MappingListPreference
+            app:key="mappingListPreference_idle_command_10" />
+
+        <com.masel.almightyvolumekeys.MappingListPreference
+            app:key="mappingListPreference_idle_command_12" />
+
+        <com.masel.almightyvolumekeys.MappingListPreference
+            app:key="mappingListPreference_idle_command_01" />
+
+        <com.masel.almightyvolumekeys.MappingListPreference
+            app:key="mappingListPreference_idle_command_03" />
+
+<!--        <com.masel.almightyvolumekeys.MappingListPreference-->
+<!--            app:key="mappingListPreference_idle_command_001" />-->
 
 <!--        <com.masel.almightyvolumekeys.MappingListPreference-->
 <!--            app:key="mappingListPreference_idle_command_110"/>-->

@@ -20,15 +20,15 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 //        volumeKeysChange = findPreference("ListPreference_VolumeKeysChange");
 //        requestDoNotDisturbPermissionIfRingtoneSet(volumeKeysChange);
 
-        SeekBarPreference preventSleepTimeout = findPreference("SeekBarPreference_preventSleepTimeout");
-        preventSleepTimeout.setMin(0);
-        preventSleepTimeout.setMax(180);
-        preventSleepTimeout.setShowSeekBarValue(true);
+        SeekBarPreference disableAppTimeout = findPreference("SeekBarPreference_disableAppTimeout");
+        disableAppTimeout.setMin(0);
+        disableAppTimeout.setMax(180);
+        disableAppTimeout.setShowSeekBarValue(true);
 
-        SeekBarPreference allowSleepStart = findPreference("SeekBarPreference_allowSleepStart");
-        SeekBarPreference allowSleepEnd = findPreference("SeekBarPreference_allowSleepEnd");
-        designForTimeInput(allowSleepStart);
-        designForTimeInput(allowSleepEnd);
+//        SeekBarPreference allowSleepStart = findPreference("SeekBarPreference_allowSleepStart");
+//        SeekBarPreference allowSleepEnd = findPreference("SeekBarPreference_allowSleepEnd");
+//        designForTimeInput(allowSleepStart);
+//        designForTimeInput(allowSleepEnd);
 
         Preference gotoSoundRec = findPreference("Preference_gotoSoundRec");
         gotoSoundRec.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {

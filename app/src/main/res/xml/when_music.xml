@@ -12,10 +12,10 @@
             app:key="mappingListPreference_music_command_3"/>
 
         <com.masel.almightyvolumekeys.MappingListPreference
-            app:key="mappingListPreference_music_command_2"/>
+            app:key="mappingListPreference_music_command_13"/>
 
         <com.masel.almightyvolumekeys.MappingListPreference
-            app:key="mappingListPreference_music_command_13"/>
+            app:key="mappingListPreference_music_command_2"/>
 
         <com.masel.almightyvolumekeys.MappingListPreference
             app:key="mappingListPreference_music_command_02"/>
@@ -24,7 +24,13 @@
             app:key="mappingListPreference_music_command_10"/>
 
         <com.masel.almightyvolumekeys.MappingListPreference
+            app:key="mappingListPreference_music_command_12"/>
+
+        <com.masel.almightyvolumekeys.MappingListPreference
             app:key="mappingListPreference_music_command_01"/>
+
+        <com.masel.almightyvolumekeys.MappingListPreference
+            app:key="mappingListPreference_music_command_03"/>
 
 <!--        <com.masel.almightyvolumekeys.MappingListPreference-->
 <!--            app:key="mappingListPreference_music_command_110"/>-->

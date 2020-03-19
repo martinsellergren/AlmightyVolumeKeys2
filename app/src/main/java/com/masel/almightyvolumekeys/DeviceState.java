@@ -306,14 +306,15 @@ class DeviceState {
     private Handler onAllowSleepHandler = new Handler();
 
     private void allowSleepAfterDelay() {
-        int preventSleepMinutes = myContext.sharedPreferences.getInt("SeekBarPreference_preventSleepTimeout", 60);
-        boolean allowSleepSwitch = myContext.sharedPreferences.getBoolean("SwitchPreferenceCompat_allowSleep", false);
-        int allowSleepStartHour = myContext.sharedPreferences.getInt("SeekBarPreference_allowSleepStart", 0);
-        int allowSleepEndHour = myContext.sharedPreferences.getInt("SeekBarPreference_allowSleepEnd", 0);
-
-        boolean allowSleep = allowSleepSwitch && currentlyAllowSleep(allowSleepStartHour, allowSleepEndHour);
-        if (preventSleepMinutes == 0 || allowSleep) preventSleepMinutes = 1;
-        long timeout = preventSleepMinutes * 60000;
+        int disableAppMinutes = myContext.sharedPreferences.getInt("SeekBarPreference_disableAppTimeout", 60);
+//        boolean allowSleepSwitch = myContext.sharedPreferences.getBoolean("SwitchPreferenceCompat_allowSleep", false);
+//        int allowSleepStartHour = myContext.sharedPreferences.getInt("SeekBarPreference_allowSleepStart", 0);
+//        int allowSleepEndHour = myContext.sharedPreferences.getInt("SeekBarPreference_allowSleepEnd", 0);
+//
+//        boolean allowSleep = allowSleepSwitch && currentlyAllowSleep(allowSleepStartHour, allowSleepEndHour);
+//        if (disableAppMinutes == 0 || allowSleep) disableAppMinutes = 1;
+        if (disableAppMinutes == 0) disableAppMinutes = 1;
+        long timeout = disableAppMinutes * 60000;
 
         onAllowSleepHandler.removeCallbacksAndMessages(null);
         onAllowSleepHandler.postDelayed(() -> {

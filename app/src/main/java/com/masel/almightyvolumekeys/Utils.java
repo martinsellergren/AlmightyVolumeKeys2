@@ -13,6 +13,7 @@ import android.content.SharedPreferences;
 import android.media.AudioManager;
 import android.media.session.MediaController;
 import android.media.session.MediaSessionManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
@@ -40,10 +41,10 @@ class Utils {
         if (value.equals("Ringtone volume after 5 clicks")) return AudioManager.STREAM_RING;
         else return AudioManager.STREAM_MUSIC;
     }
-
-    static boolean loadPreventMaxAndMinVolume(SharedPreferences sharedPreferences) {
-        return sharedPreferences.getBoolean("SwitchPreferenceCompat_preventMaxAndMinVolume", true);
-    }
+//
+//    static boolean loadPreventMaxAndMinVolume(SharedPreferences sharedPreferences) {
+//        return sharedPreferences.getBoolean("SwitchPreferenceCompat_preventMaxAndMinVolume", true);
+//    }
 
 
 //    static boolean loadFiveClicksBeforeVolumeChange(MyContext myContext) {
@@ -141,5 +142,12 @@ class Utils {
             RecUtils.log(info);
         }
         RecUtils.log(" ");
+    }
+
+    static void gotoHelp(Context context) {
+        String url = "https://sites.google.com/view/almightyvolumekeys-help";
+        String translatedUrl = String.format("https://translate.google.com/translate?js=n&sl=en&tl=%s&u=%s", "sv", url);
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(translatedUrl));
+        context.startActivity(browserIntent);
     }
 }

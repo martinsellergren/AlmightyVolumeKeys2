@@ -149,7 +149,7 @@ public class MainActivity extends AppCompatActivity {
 
                 switch(item.getItemId()) {
                     case R.id.item_enableDisable:
-                        onEnableDisableClick();
+                        openNotificationListenerSettings();
                         break;
                     case R.id.item_settings:
                         startActivity(new Intent(MainActivity.this, SettingsActivity.class));
@@ -170,24 +170,6 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
         });
-    }
-
-    private void onEnableDisableClick() {
-        String toastText = "Find the Almighty Volume Keys-service";
-        if (MonitorService.isEnabled(this)) {
-            RecUtils.toast(this, toastText);
-            //openAccessibilitySettings();
-            openNotificationListenerSettings();
-        }
-        else {
-            RecUtils.showHeadsUpDialog(MainActivity.this,
-                    "In the following screen, <b>find</b> the Almighty Volume Keys' accessibility <b>service</b> and activate it.",
-                    () -> {
-                        RecUtils.toast(MainActivity.this, toastText);
-                        openNotificationListenerSettings();
-                        //openAccessibilitySettings();
-                    });
-        }
     }
 
     @Override
@@ -238,7 +220,13 @@ public class MainActivity extends AppCompatActivity {
 
     private void showEnableServicePopupIfNotEnabled() {
         if (!MonitorService.isEnabled(this)) {
-            RecUtils.showHeadsUpDialog(this, "This app needs to be activated!\nOpen side menu and activate.", null);
+            RecUtils.showDialog(this,
+                    null,
+                    "Activate <b>Almighty Volume Keys</b> in the following screen.",
+                    "Got it!",
+                    this::openNotificationListenerSettings,
+                    "Why?",
+                    () -> Utils.gotoHelp(this));
         }
     }
 

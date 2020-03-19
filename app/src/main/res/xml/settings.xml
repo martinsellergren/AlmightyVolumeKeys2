@@ -4,12 +4,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <PreferenceCategory
-        app:title="General"
+        app:title="General settings"
         app:singleLineTitle="false">
 
         <ListPreference
             app:key="ListPreference_VolumeKeysChange"
-            app:title="Volume keys change"
+            app:title="Use volume keys for"
             app:singleLineTitle="false"
             app:entries="@array/media_or_ringtone_volume"
             app:entryValues="@array/media_or_ringtone_volume"
@@ -34,12 +34,12 @@
 <!--            app:summary="When camera is active a photo is usually taken when pressing a volume key (a system feature on many Android devices). Set this to True to execute this default camera-action instead of any mapped Almighty Volume Keys-action."-->
 <!--            app:defaultValue="true"/>-->
 
-        <SwitchPreferenceCompat
-            app:key="SwitchPreferenceCompat_preventMaxAndMinVolume"
-            app:title="Prevent max and min volume"
-            app:singleLineTitle="false"
-            app:summary="If on, you need to click the volume key three times to to go the last step to max or min volume. If you instead want normal behaviour you can disable this. But some commands won't work at min or max volume. For example, if you're at min volume, commands starting with volume Down won't work."
-            app:defaultValue="true" />
+<!--        <SwitchPreferenceCompat-->
+<!--            app:key="SwitchPreferenceCompat_preventMaxAndMinVolume"-->
+<!--            app:title="Prevent max and min volume"-->
+<!--            app:singleLineTitle="false"-->
+<!--            app:summary="If on, you need to click the volume key three times to to go the last step to max or min volume. If you instead want normal behaviour you can disable this. But some commands won't work at min or max volume. For example, if you're at min volume, commands starting with volume Down won't work."-->
+<!--            app:defaultValue="true" />-->
 
     </PreferenceCategory>
 
@@ -56,36 +56,36 @@
     </PreferenceCategory>
 
     <PreferenceCategory
-        app:title="Control sleep settings (advanced)"
+        app:title="Automatically disable to save battery (advanced)"
         app:singleLineTitle="false">
 
         <Preference
-            app:summary="If nothing significant is going on (no music, no phone call, not charging etc) your device might fall asleep. (Only happens when the screen is off). When this happens, the volume keys won't work until the screen is turned on and the device wakes up." />
+            app:summary="When this app is running your device is prevented from falling asleep. When sleeping, almost no battery is used." />
 
         <SeekBarPreference
-            app:key="SeekBarPreference_preventSleepTimeout"
-            app:title="Prevent sleep timeout [minutes]"
+            app:key="SeekBarPreference_disableAppTimeout"
+            app:title="Disable app timeout [minutes]"
             app:singleLineTitle="false"
-            app:summary="Prevent sleep this long after screen off. Zero means the device falls asleep whenever it pleases. Higher value means less sleep so more battery usage (but usually not too bad)."
+            app:summary="Disable app (and allow device to fall asleep) this long after screen off. When screen on, app is re-enabled. Zero means device falls asleep whenever it pleases, but volume clicks isn't captured when screen off."
             app:defaultValue="60"/>
 
-        <SwitchPreferenceCompat
-            app:key="SwitchPreferenceCompat_allowSleep"
-            app:title="Allow sleep [o'clock]"
-            app:singleLineTitle="false"
-            app:defaultValue="false"/>
+<!--        <SwitchPreferenceCompat-->
+<!--            app:key="SwitchPreferenceCompat_allowSleep"-->
+<!--            app:title="Allow sleep [o'clock]"-->
+<!--            app:singleLineTitle="false"-->
+<!--            app:defaultValue="false"/>-->
 
-        <SeekBarPreference
-            app:key="SeekBarPreference_allowSleepStart"
-            app:summary="Always allow sleep (ignoring the timeout above) starting at this hour of the day..."
-            app:dependency="SwitchPreferenceCompat_allowSleep"
-            app:defaultValue="23" />
+<!--        <SeekBarPreference-->
+<!--            app:key="SeekBarPreference_allowSleepStart"-->
+<!--            app:summary="Always allow sleep (ignoring the timeout above) starting at this hour of the day..."-->
+<!--            app:dependency="SwitchPreferenceCompat_allowSleep"-->
+<!--            app:defaultValue="23" />-->
 
-        <SeekBarPreference
-            app:key="SeekBarPreference_allowSleepEnd"
-            app:summary="...until this hour of the day."
-            app:dependency="SwitchPreferenceCompat_allowSleep"
-            app:defaultValue="6" />
+<!--        <SeekBarPreference-->
+<!--            app:key="SeekBarPreference_allowSleepEnd"-->
+<!--            app:summary="...until this hour of the day."-->
+<!--            app:dependency="SwitchPreferenceCompat_allowSleep"-->
+<!--            app:defaultValue="6" />-->
 
     </PreferenceCategory>
 

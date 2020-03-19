@@ -2,10 +2,7 @@ package com.masel.almightyvolumekeys;
 
 import com.masel.rec_utils.RecUtils;
 
-/**
- * Keep cpu (and volume keys) on after screen off, for minimum time defined in user-settings.
- */
-class PreventSleepOnScreenOff {
+class DisableAppOnInactiveDevice {
 
     static void init(MyContext myContext) {
         myContext.deviceState.addScreenOnCallback(() -> acquireWakeLock(myContext));
@@ -35,15 +32,6 @@ class PreventSleepOnScreenOff {
         }
         catch (Exception e) {
             RecUtils.log("Failed to release wakelock");
-        }
-    }
-
-    static boolean sleepCurrentlyPrevented(MyContext myContext) {
-        try {
-            return myContext.wakeLock.isHeld();
-        }
-        catch (Exception e) {
-            return false;
         }
     }
 }
