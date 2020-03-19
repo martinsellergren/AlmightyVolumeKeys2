@@ -128,10 +128,10 @@ class ActionCommand {
         int maxVolume = myContext.volumeUtils.getMax(resetAudioStreamState.getStream());
         int startVolume = resetAudioStreamState.getVolume();
 
-        if (command.equals("111") && startVolume == maxVolume - 1) {
+        if (command.equals("1111") && startVolume == maxVolume - 1) {
             return resetAudioStreamState.getStream() == AudioManager.STREAM_MUSIC ? new Actions.Media_volume_100() : new Actions.Ringtone_volume_100();
         }
-        if (command.equals("000") && startVolume == minVolume + 1) {
+        if (command.equals("0000") && startVolume == minVolume + 1) {
             return resetAudioStreamState.getStream() == AudioManager.STREAM_MUSIC ? new Actions.Media_volume_0() : new Actions.Ringtone_volume_0();
         }
 

@@ -34,14 +34,16 @@ class DeviceState {
 
     DeviceState(MyContext myContext) {
         this.myContext = myContext;
+
         //cameraManager = (CameraManager) myContext.context.getSystemService(Context.CAMERA_SERVICE);
+        isMediaPlaying = myContext.audioManager.isMusicActive();
 
         //setupCameraStateCallbacks();
         setupMediaStateCallbacks();
         setupScreenStateCallbacks();
         setupDeviceUnlockedCallbacks();
         setupOnAllowSleepCallbacks();
-        //setupOnSettingsChangeCallbacks();
+        setupOnSettingsChangeCallbacks();
         setupOnRingerModeChangeCallbacks();
     }
 
@@ -125,10 +127,14 @@ class DeviceState {
 
     void addMediaStartCallback(Runnable onMediaStart) {
         onMediaStartList.add(onMediaStart);
+
+        if (isMediaPlaying()) onMediaStart.run();
     }
 
     void addMediaStopCallback(Runnable onMediaStop) {
         onMediaStopList.add(onMediaStop);
+
+        if (!isMediaPlaying()) onMediaStop.run();
     }
 
     private void setupMediaStateCallbacks() {
@@ -142,16 +148,18 @@ class DeviceState {
 
     private static final long EVALUATE_MEDIA_STATE_DELAY = 1000;
     private Handler evaluateMediaStateDelayHandler = new Handler();
+    private AudioManager.AudioPlaybackCallback audioPlaybackCallback = null;
 
     @RequiresApi(api = 26)
     private void setupMediaStateCallbacks_method1() {
-        myContext.audioManager.registerAudioPlaybackCallback(new AudioManager.AudioPlaybackCallback() {
+        audioPlaybackCallback = new AudioManager.AudioPlaybackCallback() {
             @Override
             public void onPlaybackConfigChanged(List<AudioPlaybackConfiguration> configs) {
                 evaluateMediaStateDelayHandler.removeCallbacksAndMessages(null);
                 evaluateMediaStateDelayHandler.postDelayed(DeviceState.this::executeMediaCallbacksIfStateChange, EVALUATE_MEDIA_STATE_DELAY);
             }
-        }, null);
+        };
+        myContext.audioManager.registerAudioPlaybackCallback(audioPlaybackCallback, null);
     }
 
     private void setupMediaStateCallbacks_method2() {
@@ -219,24 +227,27 @@ class DeviceState {
         onScreenOnList.remove(callback);
     }
 
+    private BroadcastReceiver screenOffReceiver = null;
+    private BroadcastReceiver screenOnReceiver = null;
+
     private void setupScreenStateCallbacks() {
+        screenOffReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                for (Runnable onScreenOff : onScreenOffList) onScreenOff.run();
+            }
+        };
+
+        screenOnReceiver= new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                for (Runnable onScreenOn : onScreenOnList) onScreenOn.run();
+            }
+        };
+
         myContext.context.registerReceiver(screenOffReceiver, new IntentFilter(Intent.ACTION_SCREEN_OFF));
         myContext.context.registerReceiver(screenOnReceiver, new IntentFilter(Intent.ACTION_SCREEN_ON));
     }
-
-    private BroadcastReceiver screenOffReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            for (Runnable onScreenOff : onScreenOffList) onScreenOff.run();
-        }
-    };
-
-    private BroadcastReceiver screenOnReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            for (Runnable onScreenOn : onScreenOnList) onScreenOn.run();
-        }
-    };
 
     // endregion
 
@@ -252,16 +263,19 @@ class DeviceState {
         onDeviceUnlockedList.remove(callback);
     }
 
+    private BroadcastReceiver deviceUnlockedReceiver = null;
+
     private void setupDeviceUnlockedCallbacks() {
+        deviceUnlockedReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                for (Runnable onDeviceUnlocked : onDeviceUnlockedList) onDeviceUnlocked.run();
+            }
+        };
+
         myContext.context.registerReceiver(deviceUnlockedReceiver, new IntentFilter(Intent.ACTION_USER_PRESENT));
     }
 
-    private BroadcastReceiver deviceUnlockedReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            for (Runnable onDeviceUnlocked : onDeviceUnlockedList) onDeviceUnlocked.run();
-        }
-    };
 
     // endregion
 
@@ -331,15 +345,15 @@ class DeviceState {
         onSettingsChangeList.remove(onSettingsChange);
     }
 
-    private ContentObserver settingsObserver;
+    private ContentObserver settingsObserver = null;
 
     private void setupOnSettingsChangeCallbacks() {
-        settingsObserver = new ContentObserver(new Handler()) {
+        settingsObserver = new ContentObserver(null) {
             @Override
             public void onChange(boolean selfChange) {
                 super.onChange(selfChange);
 
-                RecUtils.log("Settings change");
+                //RecUtils.log("Settings change");
                 for (Runnable onSettingsChange : onSettingsChangeList) onSettingsChange.run();
             }
         };
@@ -364,29 +378,35 @@ class DeviceState {
         onRingerModeChangeList.remove(onRingerModeChange);
     }
 
+    private BroadcastReceiver onRingerModeChangedReceiver = null;
+
     private void setupOnRingerModeChangeCallbacks() {
+        onRingerModeChangedReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                RecUtils.log("DeviceState: Ringer mode changed");
+                for (Runnable onRingerModeChange : onRingerModeChangeList) onRingerModeChange.run();
+            }
+        };
+
         myContext.context.registerReceiver(onRingerModeChangedReceiver, new IntentFilter(AudioManager.RINGER_MODE_CHANGED_ACTION));
     }
-
-    private BroadcastReceiver onRingerModeChangedReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            RecUtils.log("DeviceState: Ringer mode changed");
-            for (Runnable onRingerModeChange : onRingerModeChangeList) onRingerModeChange.run();
-        }
-    };
 
     // endregion
 
     void destroy() {
         //cameraManager.unregisterAvailabilityCallback(cameraCallback);
-        myContext.context.unregisterReceiver(screenOffReceiver);
-        myContext.context.unregisterReceiver(screenOnReceiver);
-        myContext.context.unregisterReceiver(deviceUnlockedReceiver);
-        evaluateMediaStateDelayHandler.removeCallbacksAndMessages(null);
+
         stopPollingMediaState();
+        if (Build.VERSION.SDK_INT >= 26 && audioPlaybackCallback != null) myContext.audioManager.unregisterAudioPlaybackCallback(audioPlaybackCallback);
+        if (screenOffReceiver != null) myContext.context.unregisterReceiver(screenOffReceiver);
+        if (screenOnReceiver != null) myContext.context.unregisterReceiver(screenOnReceiver);
+        if (deviceUnlockedReceiver != null) myContext.context.unregisterReceiver(deviceUnlockedReceiver);
+        if (settingsObserver != null) myContext.context.getContentResolver().unregisterContentObserver(settingsObserver);
+        if (onRingerModeChangedReceiver != null) myContext.context.unregisterReceiver(onRingerModeChangedReceiver);
+
+        evaluateMediaStateDelayHandler.removeCallbacksAndMessages(null);
+        mediaStatePollingHandler.removeCallbacksAndMessages(null);
         onAllowSleepHandler.removeCallbacksAndMessages(null);
-        //myContext.context.getContentResolver().unregisterContentObserver(settingsObserver);
-        myContext.context.unregisterReceiver(onRingerModeChangedReceiver);
     }
 }

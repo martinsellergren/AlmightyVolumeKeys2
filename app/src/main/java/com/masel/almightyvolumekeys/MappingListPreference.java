@@ -63,10 +63,21 @@ public class MappingListPreference extends ListPreference {
             }
             if (!actionName.equals(new Actions.No_action().getName())
                     && getValue().equals(new Actions.No_action().getName())
-                    && state.equals("idle") && ProManager.loadIsLocked(context)
-                    && getNumberOfSetActionsWhenIdle() >= ProManager.numberOfFreeIdleActions) {
+                    && state.equals("idle")
+                    && ProManager.loadIsLocked(context)
+                    && getNumberOfMappedActions("idle") >= ProManager.numberOfFreeIdleActions) {
                 RecUtils.showHeadsUpDialog(getActivity(),
-                        "For more than two idle-actions, you <b>need to unlock pro</b> (see the side-menu).",
+                        String.format("For more than %s idle-actions, you need to <b>unlock pro</b> (see the side-menu).", ProManager.numberOfFreeIdleActions),
+                        null);
+                return false;
+            }
+            if (!actionName.equals(new Actions.No_action().getName())
+                    && getValue().equals(new Actions.No_action().getName())
+                    && state.equals("music")
+                    && ProManager.loadIsLocked(context)
+                    && getNumberOfMappedActions("music") >= ProManager.numberOfFreeMediaActions) {
+                RecUtils.showHeadsUpDialog(getActivity(),
+                        String.format("For more than %s media-actions, you need to <b>unlock pro</b> (see the side-menu).", ProManager.numberOfFreeMediaActions),
                         null);
                 return false;
             }
@@ -281,10 +292,11 @@ public class MappingListPreference extends ListPreference {
         return activity;
     }
 
-    private int getNumberOfSetActionsWhenIdle() {
+    private int getNumberOfMappedActions(String state) {
         int count = 0;
+        String regex = String.format("mappingListPreference_%s_command_.*", state);
         for (Map.Entry<String, ?> entry : Utils.getMappings(getContext())) {
-            if (entry.getKey().matches("mappingListPreference_idle_command_.*")) {
+            if (entry.getKey().matches(regex)) {
                 if (!entry.getValue().equals(new Actions.No_action().getName())) count++;
             }
         }

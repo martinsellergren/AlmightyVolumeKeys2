@@ -45,7 +45,7 @@ class VolumeKeyCaptureUsingMediaSession {
         myContext.deviceState.addOnAllowSleepCallback(() -> mediaSession.setActive(false));
         myContext.deviceState.addScreenOnCallback(this::enableOrDisable);
         myContext.deviceState.addOnRingerModeChangeCallback(this::onRingerModeChange);
-        //myContext.deviceState.addOnSettingsChangeCallback(this::syncMediaSessionVolume);
+        myContext.deviceState.addOnSettingsChangeCallback(this::syncMediaSessionVolume);
 
         enableOrDisable();
     }
@@ -109,7 +109,7 @@ class VolumeKeyCaptureUsingMediaSession {
         int minVolume = myContext.volumeUtils.getMin(controlledAudioStream);
         int maxVolume = myContext.volumeUtils.getMax(controlledAudioStream);
 
-        volumeProvider = new VolumeProviderCompat(VolumeProviderCompat.VOLUME_CONTROL_RELATIVE,
+        volumeProvider = new VolumeProviderCompat(VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE,
                 myContext.volumeUtils.getSteps(controlledAudioStream),
                 myContext.volumeUtils.getVolume(controlledAudioStream)) {
             @Override
@@ -125,6 +125,12 @@ class VolumeKeyCaptureUsingMediaSession {
                 setCurrentVolume(volume);
                 boolean res = syncAudioStreamVolume();
                 if (!res) syncMediaSessionVolume();
+            }
+
+            @Override
+            public void onSetVolumeTo(int volume) {
+                setCurrentVolume(volume);
+                syncAudioStreamVolume();
             }
         };
 
