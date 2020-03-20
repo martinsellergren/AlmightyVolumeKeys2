@@ -1,5 +1,6 @@
 package com.masel.almightyvolumekeys;
 
+import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -18,6 +19,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationCompat;
 import androidx.preference.PreferenceManager;
 
@@ -26,6 +28,7 @@ import com.masel.rec_utils.RecUtils;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -148,10 +151,28 @@ class Utils {
         RecUtils.log(" ");
     }
 
-    static void gotoHelp(Context context) {
-        String url = "https://sites.google.com/view/almightyvolumekeys-help";
-        String translatedUrl = String.format("https://translate.google.com/translate?js=n&sl=en&tl=%s&u=%s", "sv", url);
-        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(translatedUrl));
-        context.startActivity(browserIntent);
+    static void gotoHelp(AppCompatActivity activity) {
+        String defaultUrl = "https://sites.google.com/view/almightyvolumekeys-help";
+        String lang = Locale.getDefault().getLanguage();
+        String translatedUrl = String.format("https://translate.google.com/translate?js=n&sl=en&tl=%s&u=%s", lang, defaultUrl);
+
+        Intent engIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(defaultUrl));
+        engIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
+
+        Intent translatedIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(translatedUrl));
+        translatedIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
+
+        if (lang.equals("en")) {
+            activity.startActivity(engIntent);
+        }
+        else {
+            RecUtils.showDialog(activity,
+                    null,
+                    String.format("Auto-translate to: <b>%s</b>?", Locale.getDefault().getDisplayLanguage()),
+                    Locale.getDefault().getDisplayLanguage(),
+                    () -> activity.startActivity(translatedIntent),
+                    "English",
+                    () -> activity.startActivity(engIntent));
+        }
     }
 }

@@ -74,8 +74,8 @@ public class MainActivity extends AppCompatActivity {
             unlockProButton.setTitle("Pro is unlocked");
             unlockProButton.setIcon(R.drawable.lock_open_24dp);
             unlockProButton.setOnMenuItemClickListener(item -> {
-                RecUtils.showHeadsUpDialog(MainActivity.this, "Thanks for unlocking pro! Hope you like it!", proManager::revertPro);
-                //RecUtils.showHeadsUpDialog(MainActivity.this, "Thanks for unlocking pro! Hope you like it!", null);
+                //RecUtils.showHeadsUpDialog(MainActivity.this, "Thanks for unlocking pro! Hope you like it!", proManager::revertPro);
+                RecUtils.showHeadsUpDialog(MainActivity.this, "Thanks for unlocking pro! Hope you like it!", null);
                 return true;
             });
         };
@@ -155,7 +155,8 @@ public class MainActivity extends AppCompatActivity {
                         startActivity(new Intent(MainActivity.this, SettingsActivity.class));
                         break;
                     case R.id.item_support:
-                        startActivity(new Intent(MainActivity.this, SupportActivity.class));
+                        Utils.gotoHelp(MainActivity.this);
+                        //startActivity(new Intent(MainActivity.this, SupportActivity.class));
                         break;
                     case R.id.item_unlock_pro:
                         //RecUtils.toast(MainActivity.this, "Unlock pro");

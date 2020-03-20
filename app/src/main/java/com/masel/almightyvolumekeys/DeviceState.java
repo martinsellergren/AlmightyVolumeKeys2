@@ -313,7 +313,6 @@ class DeviceState {
 //
 //        boolean allowSleep = allowSleepSwitch && currentlyAllowSleep(allowSleepStartHour, allowSleepEndHour);
 //        if (disableAppMinutes == 0 || allowSleep) disableAppMinutes = 1;
-        if (disableAppMinutes == 0) disableAppMinutes = 1;
         long timeout = disableAppMinutes * 60000;
 
         onAllowSleepHandler.removeCallbacksAndMessages(null);

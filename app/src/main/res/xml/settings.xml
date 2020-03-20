@@ -66,7 +66,7 @@
             app:key="SeekBarPreference_disableAppTimeout"
             app:title="Disable app timeout [minutes]"
             app:singleLineTitle="false"
-            app:summary="Disable app (and allow device to fall asleep) this long after screen off. When screen on, app is re-enabled. Zero means device falls asleep whenever it pleases, but volume clicks isn't captured when screen off."
+            app:summary="Disable app (and allow device to fall asleep) this long after screen off. When screen on, app is automatically enabled. 0 means device falls asleep whenever it pleases but idle-actions won't work when screen is off."
             app:defaultValue="60"/>
 
 <!--        <SwitchPreferenceCompat-->
