@@ -30,7 +30,6 @@ class ActionCommand {
 
     private MyContext myContext;
     private int deviceStateOnCommandStart;
-    private int ringerModeOnCommandStart;
     private AudioStreamState resetAudioStreamState = null;
 
     ActionCommand(MyContext myContext) {
@@ -45,7 +44,6 @@ class ActionCommand {
 
         if (command.length() == 0) {
             this.deviceStateOnCommandStart = myContext.deviceState.getCurrent();
-            this.ringerModeOnCommandStart = myContext.audioManager.getRingerMode();
             this.resetAudioStreamState = resetAudioStreamState;
         }
         command += volumePress;
@@ -122,17 +120,25 @@ class ActionCommand {
         return command.length();
     }
 
-    private Action getGlobalAction(String command) {
-        if (resetAudioStreamState == null) return null;
-        int minVolume = myContext.volumeUtils.getMin(resetAudioStreamState.getStream());
-        int maxVolume = myContext.volumeUtils.getMax(resetAudioStreamState.getStream());
-        int startVolume = resetAudioStreamState.getVolume();
+    private Utils.Question allowCurrentCommandToSetMaxVolumeQuestion = null;
+    private Utils.Question allowCurrentCommandToSetMinVolumeQuestion = null;
 
-        if (command.matches("111+") && startVolume == maxVolume - 1) {
-            return resetAudioStreamState.getStream() == AudioManager.STREAM_MUSIC ? new Actions.Media_volume_100() : new Actions.Ringtone_volume_100();
+    void setAllowCurrentCommandToSetExtremeVolumeQuestions(Utils.Question allowCurrentCommandToSetMaxVolumeQuestion, Utils.Question allowCurrentCommandToSetMinVolumeQuestion) {
+        this.allowCurrentCommandToSetMaxVolumeQuestion = allowCurrentCommandToSetMaxVolumeQuestion;
+        this.allowCurrentCommandToSetMinVolumeQuestion = allowCurrentCommandToSetMinVolumeQuestion;
+    }
+
+    private Action getGlobalAction(String command) {
+        if (allowCurrentCommandToSetMaxVolumeQuestion != null
+                && allowCurrentCommandToSetMaxVolumeQuestion.ask()
+                && command.replace("3", "").matches("111+")) {
+            return new Actions.Media_volume_100();
         }
-        if (command.matches("000+") && startVolume == minVolume + 1) {
-            return resetAudioStreamState.getStream() == AudioManager.STREAM_MUSIC ? new Actions.Media_volume_0() : new Actions.Ringtone_volume_0();
+
+        else if (allowCurrentCommandToSetMinVolumeQuestion != null
+                && allowCurrentCommandToSetMinVolumeQuestion.ask()
+                && command.replace("2", "").matches("000+")) {
+            return new Actions.Media_volume_0();
         }
 
         return null;

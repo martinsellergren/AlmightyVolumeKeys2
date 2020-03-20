@@ -30,6 +30,10 @@ public class MonitorService extends NotificationListenerService {
             volumeKeyCaptureUsingMediaSession = new VolumeKeyCaptureUsingMediaSession(myContext, volumeKeyInputController);
             volumeKeyCaptureUsingPolling = new VolumeKeyCaptureUsingPolling(myContext, volumeKeyInputController);
 
+            volumeKeyInputController.setAllowCurrentCommandToSetExtremeVolumeQuestions(
+                    volumeKeyCaptureUsingPolling.isPrev3volumeOneStepFromMax(),
+                    volumeKeyCaptureUsingPolling.isPrev3volumeOneStepFromMin());
+
             myContext.volumeUtils.addOnVolumeSetCallback((stream, volume) -> {
                 if (stream == AudioManager.STREAM_MUSIC && volumeKeyCaptureUsingPolling.isActive()) volumeKeyCaptureUsingPolling.getResetAction().run();
             });

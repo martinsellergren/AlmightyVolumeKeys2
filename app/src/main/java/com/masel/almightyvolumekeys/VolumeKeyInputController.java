@@ -53,4 +53,8 @@ class VolumeKeyInputController {
     void discardPresses() {
         actionCommand.reset();
     }
+
+    void setAllowCurrentCommandToSetExtremeVolumeQuestions(Utils.Question allowCurrentCommandToSetMaxVolumeQuestion, Utils.Question allowCurrentCommandToSetMinVolumeQuestion) {
+        actionCommand.setAllowCurrentCommandToSetExtremeVolumeQuestions(allowCurrentCommandToSetMaxVolumeQuestion, allowCurrentCommandToSetMinVolumeQuestion);
+    }
 }

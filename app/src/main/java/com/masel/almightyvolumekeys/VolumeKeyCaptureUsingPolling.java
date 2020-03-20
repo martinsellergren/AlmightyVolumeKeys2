@@ -27,7 +27,10 @@ class VolumeKeyCaptureUsingPolling {
         this.minMusicVolume = myContext.volumeUtils.getMin(AudioManager.STREAM_MUSIC);
         this.maxMusicVolume = myContext.volumeUtils.getMax(AudioManager.STREAM_MUSIC);
 
-        myContext.deviceState.addMediaStartCallback(this::enableOrDisable);
+        myContext.deviceState.addMediaStartCallback(() -> {
+            preventVolumeExtremes(myContext.volumeUtils.getVolume(AudioManager.STREAM_MUSIC));
+            enableOrDisable();
+        });
         myContext.deviceState.addMediaStopCallback(this::enableOrDisable);
         myContext.deviceState.addOnAllowSleepCallback(this::stopPolling);
         myContext.deviceState.addScreenOnCallback(this::enableOrDisable);
@@ -270,6 +273,14 @@ class VolumeKeyCaptureUsingPolling {
         volumeChangesLast3.add(volumeUp);
         volumeChangeTimesLast3.add(System.currentTimeMillis());
         prevVolumesLast3.add(prevMusicVolume);
+    }
+
+    Utils.Question isPrev3volumeOneStepFromMax() {
+        return () -> isActive() && prevVolumesLast3.size() == 3 && prevVolumesLast3.get(0) == maxMusicVolume - 1;
+    }
+
+    Utils.Question isPrev3volumeOneStepFromMin() {
+        return () -> isActive() && prevVolumesLast3.size() == 3 && prevVolumesLast3.get(0) == minMusicVolume + 1;
     }
 
     private static final long TIME_INACTIVE_BEFORE_KEY_RELEASE_ASSUMED = Math.max(MAX_DELTA_PRESS_TIME_FOR_LONG_PRESS, MUSIC_VOLUME_POLLING_DELTA * 2);

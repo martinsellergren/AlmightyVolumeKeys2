@@ -31,6 +31,10 @@ import java.util.Set;
 
 class Utils {
 
+    interface Question {
+        boolean ask();
+    }
+
     static int loadVolumeKeysAudioStream(SharedPreferences sharedPreferences) {
         String value = sharedPreferences.getString("ListPreference_VolumeKeysChange", null);
         int backupStream = AudioManager.STREAM_MUSIC;

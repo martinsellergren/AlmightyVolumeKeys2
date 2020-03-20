@@ -197,6 +197,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void openNotificationListenerSettings() {
         Intent intent = new Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
         startActivity(intent);
     }
 
