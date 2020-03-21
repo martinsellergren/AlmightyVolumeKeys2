@@ -15,8 +15,8 @@
             app:entryValues="@array/media_or_ringtone_volume"
             app:defaultValue="Media volume"
             app:useSimpleSummaryProvider="true" />
-            app:entries="@array/media_or_ringtone_volume_with_after_5_clicks"
-            app:entryValues="@array/media_or_ringtone_volume_with_after_5_clicks"
+<!--            app:entries="@array/media_or_ringtone_volume_with_after_5_clicks"-->
+<!--            app:entryValues="@array/media_or_ringtone_volume_with_after_5_clicks"-->
 
 <!--        <ListPreference-->
 <!--            app:key="ListPreference_LongVolumePressChanges"-->
@@ -60,13 +60,14 @@
         app:singleLineTitle="false">
 
         <Preference
-            app:summary="When this app is running your device is prevented from falling asleep. When sleeping, almost no battery is used." />
+            app:summary="Automatically disable this app when screen and music has been off for a while. This is good to save battery. When screen or music is turned on, the app is automatically enabled again. If you leave this as default, battery usage is low. See Help for more info about battery usage."/>
+<!--            app:summary="When this app is running your device is prevented from falling asleep. When sleeping, almost no battery is used. See Help for more info."-->
 
         <SeekBarPreference
             app:key="SeekBarPreference_disableAppTimeout"
-            app:title="Disable app timeout [minutes]"
+            app:title="Disable app time [minutes]"
             app:singleLineTitle="false"
-            app:summary="Disable app (and allow device to fall asleep) this long after screen off. When screen on, app is automatically enabled. 0 means device falls asleep whenever it pleases but idle-actions won't work when screen is off."
+            app:summary="Disable app this long after screen and music off."
             app:defaultValue="60"/>
 
 <!--        <SwitchPreferenceCompat-->

@@ -152,7 +152,7 @@ class Utils {
     }
 
     static void gotoHelp(AppCompatActivity activity) {
-        String defaultUrl = "https://sites.google.com/view/almightyvolumekeys-help";
+        String defaultUrl = "https://sites.google.com/view/almightyvolumekeys-help#h.ak1tvc342tsx";
         String lang = Locale.getDefault().getLanguage();
         String translatedUrl = String.format("https://translate.google.com/translate?js=n&sl=en&tl=%s&u=%s", lang, defaultUrl);
 
