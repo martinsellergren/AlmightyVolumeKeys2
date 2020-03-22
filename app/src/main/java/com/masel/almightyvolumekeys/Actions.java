@@ -269,6 +269,76 @@ class Actions {
 
     // endregion
 
+    // region Announce tune
+
+    static class Announce_tune_title extends Action {
+        @Override
+        String getName() {
+            return "Announce tune: title";
+        }
+
+        @Override
+        void run(MyContext myContext) throws ExecutionException {
+            myContext.tuneAnnouncer.announceTitle();
+        }
+
+        @Override
+        Notifier.VibrationPattern getVibrationPattern() {
+            return Notifier.VibrationPattern.SILENT;
+        }
+
+        @Override
+        boolean isAvailable(Context context) {
+            return Voice.isAvailable(context);
+        }
+    }
+
+    static class Announce_tune_title_and_artist extends Action {
+        @Override
+        String getName() {
+            return "Announce tune: title and artist";
+        }
+
+        @Override
+        void run(MyContext myContext) throws ExecutionException {
+            myContext.tuneAnnouncer.announceTitleAndArtist();
+        }
+
+        @Override
+        Notifier.VibrationPattern getVibrationPattern() {
+            return Notifier.VibrationPattern.SILENT;
+        }
+
+        @Override
+        boolean isAvailable(Context context) {
+            return Voice.isAvailable(context);
+        }
+    }
+
+    static class Announce_tune_title_artist_and_album extends Action {
+        @Override
+        String getName() {
+            return "Announce tune: title, artist and album";
+        }
+
+        @Override
+        void run(MyContext myContext) throws ExecutionException {
+            myContext.tuneAnnouncer.announceTitleArtistAndAlbum();
+        }
+
+        @Override
+        Notifier.VibrationPattern getVibrationPattern() {
+            return Notifier.VibrationPattern.SILENT;
+        }
+
+        @Override
+        boolean isAvailable(Context context) {
+            return Voice.isAvailable(context);
+        }
+    }
+
+    // endregion
+
     // region Sound mode
 
     static class Sound_mode_sound extends Action {

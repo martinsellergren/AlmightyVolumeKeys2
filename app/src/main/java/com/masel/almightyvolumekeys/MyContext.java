@@ -21,6 +21,7 @@ class MyContext {
     final Notifier notifier;
     final MyVibrator vibrator;
     final Voice voice;
+    final TuneAnnouncer tuneAnnouncer;
     final SharedPreferences sharedPreferences;
     final MyFlashlight flashlight;
     final VolumeUtils volumeUtils;
@@ -45,6 +46,7 @@ class MyContext {
         deviceState = new DeviceState(this);
         volumeUtils = new VolumeUtils(this);
         voice = new Voice(context, volumeUtils);
+        tuneAnnouncer = new TuneAnnouncer(this);
     }
 
     void destroy() {

@@ -25,12 +25,12 @@ class Voice {
 
                     @Override
                     public void onDone(String utteranceId) {
-                        volumeUtils.setVolume(beforeSpeechVolume.getStream(), beforeSpeechVolume.getVolume(), false);
+                        if (beforeSpeechVolume != null) volumeUtils.setVolume(beforeSpeechVolume.getStream(), beforeSpeechVolume.getVolume(), false);
                     }
 
                     @Override
                     public void onError(String utteranceId) {
-                        volumeUtils.setVolume(beforeSpeechVolume.getStream(), beforeSpeechVolume.getVolume(), false);
+                        if (beforeSpeechVolume != null) volumeUtils.setVolume(beforeSpeechVolume.getStream(), beforeSpeechVolume.getVolume(), false);
                     }
                 });
             }
@@ -43,11 +43,20 @@ class Voice {
     boolean speak(String speech, int volumePercentage) {
         if (tts == null || volumeUtils == null) return false;
 
-        beforeSpeechVolume = new AudioStreamState(volumeUtils, AudioManager.STREAM_MUSIC);
-        volumeUtils.setVolumePercentage(AudioManager.STREAM_MUSIC, volumePercentage, false);
+        if (volumePercentage != -1) {
+            beforeSpeechVolume = new AudioStreamState(volumeUtils, AudioManager.STREAM_MUSIC);
+            volumeUtils.setVolumePercentage(AudioManager.STREAM_MUSIC, volumePercentage, false);
+        }
+        else {
+            beforeSpeechVolume = null;
+        }
 
         int res = tts.speak(speech, TextToSpeech.QUEUE_FLUSH, null, speech);
         return res == TextToSpeech.SUCCESS;
+    }
+
+    boolean speak(String speech) {
+        return speak(speech, -1);
     }
 
     private boolean isAvailable() {

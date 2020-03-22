@@ -87,7 +87,7 @@ class VolumeKeyCaptureUsingMediaSession {
     });
 
     private void onRingerModeChange() {
-        if (controlledAudioStream != AudioManager.STREAM_RING) return;
+        if (!mediaSession.isActive() || controlledAudioStream != AudioManager.STREAM_RING) return;
 
         int ringerMode = myContext.audioManager.getRingerMode();
         if (ringerMode == AudioManager.RINGER_MODE_SILENT || ringerMode == AudioManager.RINGER_MODE_VIBRATE) {
@@ -144,6 +144,7 @@ class VolumeKeyCaptureUsingMediaSession {
     }
 
     private void syncMediaSessionVolume() {
+        if (!mediaSession.isActive()) return;
         int volumePercentage = myContext.volumeUtils.getVolumePercentage(controlledAudioStream);
         int mediaSessionVolume = (int)Math.round((double)volumePercentage / 100 * volumeProvider.getMaxVolume());
         volumeProvider.setCurrentVolume(mediaSessionVolume);

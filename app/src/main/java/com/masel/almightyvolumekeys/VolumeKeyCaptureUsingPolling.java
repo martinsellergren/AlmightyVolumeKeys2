@@ -119,16 +119,10 @@ class VolumeKeyCaptureUsingPolling {
     private AudioStreamState holdVolume = null;
 
     /**
-     * Continues only if music is playing.
      * Way in through startPolling(), way out through stopPolling().
      */
     private void pollMusicVolume() {
         pollingHandler.removeCallbacksAndMessages(null);
-
-//        if (!deviceStateOkForCapture()) {
-//            stopPolling();
-//            return;
-//        }
 
         int currentMusicVolume = myContext.volumeUtils.getVolume(AudioManager.STREAM_MUSIC);
         int diff = currentMusicVolume - prevMusicVolume;

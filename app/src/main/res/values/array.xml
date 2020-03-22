@@ -31,6 +31,9 @@
         <item>Media: next</item>
         <item>Media: previous</item>
         <item>Media: previous x2</item>
+        <item>Announce tune: title</item>
+        <item>Announce tune: title and artist</item>
+        <item>Announce tune: title, artist and album</item>
         <item>Media volume: 100%</item>
         <item>Media volume: 0%</item>
     </string-array>
