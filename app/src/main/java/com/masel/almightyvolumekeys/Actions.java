@@ -289,7 +289,7 @@ class Actions {
 
         @Override
         boolean isAvailable(Context context) {
-            return Voice.isAvailable(context);
+            return TuneAnnouncer.isAvailable(context);
         }
     }
 
@@ -311,7 +311,7 @@ class Actions {
 
         @Override
         boolean isAvailable(Context context) {
-            return Voice.isAvailable(context);
+            return TuneAnnouncer.isAvailable(context);
         }
     }
 
@@ -333,7 +333,7 @@ class Actions {
 
         @Override
         boolean isAvailable(Context context) {
-            return Voice.isAvailable(context);
+            return TuneAnnouncer.isAvailable(context);
         }
     }
 

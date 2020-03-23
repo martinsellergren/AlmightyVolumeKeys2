@@ -7,67 +7,73 @@ import android.media.session.MediaController;
 import android.media.session.MediaSessionManager;
 import android.media.session.PlaybackState;
 
+import androidx.annotation.NonNull;
+
+import com.masel.rec_utils.RecUtils;
+
 class TuneAnnouncer {
-    private Voice voice;
+    private MyContext myContext;
     private MediaSessionManager mediaSessionManager;
 
+    private Action.ExecutionException failException = new Action.ExecutionException("Failed to announce tune");
+
     TuneAnnouncer(MyContext myContext) {
-        this.voice = myContext.voice;
+        this.myContext = myContext;
         this.mediaSessionManager = (MediaSessionManager)myContext.context.getSystemService(Context.MEDIA_SESSION_SERVICE);
     }
 
-    boolean announceTitle() {
+    void announceTitle() throws Action.ExecutionException {
         MediaController player = getPlayingMediaController();
-        if (player == null) return false;
+        if (player == null) throw failException;
 
         String title = getTitle(player);
-        if (title == null) return false;
+        if (title.length() == 0) throw failException;
 
-        return voice.speak(title);
+        if (!myContext.voice.speak(title)) throw failException;
     }
 
-    boolean announceTitleAndArtist() {
+    void announceTitleAndArtist() throws Action.ExecutionException {
         MediaController player = getPlayingMediaController();
-        if (player == null) return false;
-        if (player.getMetadata() == null) return false;
+        if (player == null) throw failException;
 
         String title = getTitle(player);
         String artist = getArtist(player);
-        if (title == null || artist == null) return false;
+        if (title.length() == 0 && artist.length() == 0) throw failException;
 
-        return voice.speak(String.format("%s, %s", title, artist));
+        if (!myContext.voice.speak(String.format("%s, %s", title, artist))) throw failException;
     }
 
-    boolean announceTitleArtistAndAlbum() {
+    void announceTitleArtistAndAlbum() throws Action.ExecutionException {
         MediaController player = getPlayingMediaController();
-        if (player == null) return false;
-        if (player.getMetadata() == null) return false;
+        if (player == null) throw failException;
 
         String title = getTitle(player);
         String artist = getArtist(player);
         String album = getAlbum(player);
-        if (title == null || artist == null || album == null) return false;
+        if (title.length() == 0 && artist.length() == 0 && album.length() == 0) throw failException;
 
-        return voice.speak(String.format("%s, %s, %s", title, artist, album));
+        if (!myContext.voice.speak(String.format("%s, %s, %s", title, artist, album))) throw failException;
     }
 
-    private String getTitle(MediaController controller) {
-        if (controller.getMetadata() == null) return null;
+    private @NonNull String getTitle(MediaController controller) {
+        if (controller.getMetadata() == null) return "";
         String title = controller.getMetadata().getString(MediaMetadata.METADATA_KEY_DISPLAY_TITLE);
         if (title == null) title = controller.getMetadata().getString(MediaMetadata.METADATA_KEY_TITLE);
-        return title;
+        if (title == null) title = "";
+        return RecUtils.removeExtension(title);
     }
 
-    private String getArtist(MediaController controller) {
-        if (controller.getMetadata() == null) return null;
+    private @NonNull String getArtist(MediaController controller) {
+        if (controller.getMetadata() == null) return "";
         String artist = controller.getMetadata().getString(MediaMetadata.METADATA_KEY_ALBUM_ARTIST);
         if (artist == null) artist = controller.getMetadata().getString(MediaMetadata.METADATA_KEY_ARTIST);
-        return artist;
+        return artist != null ? artist : "";
     }
 
-    private String getAlbum(MediaController controller) {
-        if (controller.getMetadata() == null) return null;
-        return controller.getMetadata().getString(MediaMetadata.METADATA_KEY_ALBUM);
+    private @NonNull String getAlbum(MediaController controller) {
+        if (controller.getMetadata() == null) return "";
+        String album = controller.getMetadata().getString(MediaMetadata.METADATA_KEY_ALBUM);
+        return album != null ? album : "";
     }
 
     private MediaController getPlayingMediaController() {
