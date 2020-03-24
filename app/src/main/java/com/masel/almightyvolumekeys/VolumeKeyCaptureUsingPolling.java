@@ -34,8 +34,7 @@ class VolumeKeyCaptureUsingPolling {
         myContext.deviceState.addMediaStopCallback(this::enableOrDisable);
         myContext.deviceState.addOnAllowSleepCallback(this::stopPolling);
         myContext.deviceState.addScreenOnCallback(this::enableOrDisable);
-        //myContext.deviceState.addDeviceUnlockedCallback(this::startPollingAttemptsForAWhile);
-        
+
         if (deviceStateOkForCapture()) startPolling();
     }
 
@@ -48,7 +47,6 @@ class VolumeKeyCaptureUsingPolling {
     }
 
     private boolean deviceStateOkForCapture() {
-        //return myContext.deviceState.isDeviceUnlocked() || myContext.deviceState.isMediaPlaying();
         return myContext.deviceState.isMediaPlaying();
     }
 
@@ -58,51 +56,12 @@ class VolumeKeyCaptureUsingPolling {
 
     void destroy() {
         pollingHandler.removeCallbacksAndMessages(null);
-//        startPollingAttemptsHandler.removeCallbacksAndMessages(null);
-//        stopPollingAttemptsHandler.removeCallbacksAndMessages(null);
-        longPressKeyReleaseHandler.removeCallbacksAndMessages(null);
-        volumeSliderDragReleaseHandler.removeCallbacksAndMessages(null);
     }
-
-    // endregion
-
-//
-//    private static final long ATTEMPT_RATE = 750;
-//    private Handler startPollingAttemptsHandler = new Handler();
-//
-//    /**
-//     * Attempt to start polling, at a fixed rate.
-//     * Stop attempting if already polling.
-//     */
-//    private void startPollingAttempts() {
-//        startPollingAttemptsHandler.removeCallbacksAndMessages(null);
-//        if (isPolling) return;
-//
-//        startOrContinuePolling();
-//        startPollingAttemptsHandler.postDelayed(this::startPollingAttempts, ATTEMPT_RATE);
-//    }
-//
-//    private void stopPollingAttempts() {
-//        startPollingAttemptsHandler.removeCallbacksAndMessages(null);
-//    }
-//
-//    private static final long STOP_POLLING_ATTEMPTS_TIME = 3000;
-//    private Handler stopPollingAttemptsHandler = new Handler();
-//    private void startPollingAttemptsForAWhile() {
-//        startPollingAttempts();
-//
-//        stopPollingAttemptsHandler.removeCallbacksAndMessages(null);
-//        stopPollingAttemptsHandler.postDelayed(this::stopPollingAttempts, STOP_POLLING_ATTEMPTS_TIME);
-//    }
 
     /**
      * If already polling, discards any uncaught volume changes and restarts.
      */
     private void startPolling() {
-//        if (!deviceStateOkForCapture()) {
-//            return;
-//        }
-
         isActive = true;
         prevMusicVolume = myContext.volumeUtils.getVolume(AudioManager.STREAM_MUSIC);
         currentlyAllowVolumeExtremes = prevMusicVolume == maxMusicVolume || prevMusicVolume == minMusicVolume;
@@ -132,6 +91,7 @@ class VolumeKeyCaptureUsingPolling {
             volumeChange(volumeUp, prevMusicVolume);
         }
 
+        evaluateWaitingForInactivity();
         currentMusicVolume = modifyVolume(currentMusicVolume);
 
         prevMusicVolume = currentMusicVolume;
@@ -190,21 +150,19 @@ class VolumeKeyCaptureUsingPolling {
      * Time between two presses more than this indicates individual presses. */
     private static final long MAX_DELTA_PRESS_TIME_FOR_LONG_PRESS = 125;
 
-    private boolean waitingForKeyRelease = false;
-    private boolean waitingForDragRelease = false;
-
     private List<Boolean> volumeChangesLast3 = new LinkedList<>();
     private List<Long> volumeChangeTimesLast3 = new LinkedList<>();
     private List<Integer> prevVolumesLast3 = new LinkedList<>();
 
     private void volumeChange(boolean volumeUp, int prevMusicVolume) {
-        if (waitingForKeyRelease) {
-            initLongPressKeyReleaseHandler();
-            return;
-        }
-        if (waitingForDragRelease) {
-            volumeKeyInputController.discardPresses();
-            initVolumeSliderDragReleaseHandler();
+
+//        if (holdVolume != null && volumeChangesLast3.get(2) != volumeUp) {
+//            waitDone();
+//            myContext.volumeUtils.setVolume(holdVolume.getStream(), holdVolume.getVolume(), true, false);
+//        }
+
+        if (isWaitingForInactivity) {
+            lastActivityTime = System.currentTimeMillis();
             return;
         }
 
@@ -213,8 +171,7 @@ class VolumeKeyCaptureUsingPolling {
         if (detectLongPress()) {
             RecUtils.log("Music volume polling caught long-press");
             volumeKeyInputController.undoPresses(2);
-            waitingForKeyRelease = true;
-            initLongPressKeyReleaseHandler();
+            waitForInactivity(MAX_DELTA_PRESS_TIME_FOR_LONG_PRESS, this::completeLongPressDetected);
 
             boolean expected = volumeKeyInputController.longPressDetected(volumeUp);
             if (expected) {
@@ -223,14 +180,37 @@ class VolumeKeyCaptureUsingPolling {
         }
         else if (detectVolumeSliderDragged()) {
             RecUtils.log("Music volume polling caught volume-drag");
-            waitingForDragRelease = true;
-            initVolumeSliderDragReleaseHandler();
+            volumeKeyInputController.discardPresses();
+            waitForInactivity(750, this::completeVolumeSliderDragDetected);
         }
         else {
             RecUtils.log("Music volume polling caught click");
             AudioStreamState resetAudioStreamState = new AudioStreamState(AudioManager.STREAM_MUSIC, prevMusicVolume);
             volumeKeyInputController.completePressDetected(volumeUp, resetAudioStreamState);
         }
+    }
+
+    private boolean isWaitingForInactivity = false;
+    private long lastActivityTime;
+    private long minWaitTime;
+    private Runnable onWaitDone;
+
+    private void waitForInactivity(long minWaitTime, Runnable onWaitDone) {
+        this.minWaitTime = minWaitTime;
+        this.onWaitDone = onWaitDone;
+        isWaitingForInactivity = true;
+        lastActivityTime = System.currentTimeMillis();
+    }
+
+    private void evaluateWaitingForInactivity() {
+        if (isWaitingForInactivity && System.currentTimeMillis() >= lastActivityTime + minWaitTime) {
+            waitDone();
+        }
+    }
+
+    private void waitDone() {
+        if (onWaitDone != null) onWaitDone.run();
+        isWaitingForInactivity = false;
     }
 
     /**
@@ -269,41 +249,15 @@ class VolumeKeyCaptureUsingPolling {
         prevVolumesLast3.add(prevMusicVolume);
     }
 
-    Utils.Question isPrev3volumeOneStepFromMax() {
-        return () -> isActive() && prevVolumesLast3.size() == 3 && prevVolumesLast3.get(0) == maxMusicVolume - 1;
-    }
-
-    Utils.Question isPrev3volumeOneStepFromMin() {
-        return () -> isActive() && prevVolumesLast3.size() == 3 && prevVolumesLast3.get(0) == minMusicVolume + 1;
-    }
-
-    private static final long TIME_INACTIVE_BEFORE_KEY_RELEASE_ASSUMED = Math.max(MAX_DELTA_PRESS_TIME_FOR_LONG_PRESS, MUSIC_VOLUME_POLLING_DELTA * 2);
-    private Handler longPressKeyReleaseHandler = new Handler();
-    private void initLongPressKeyReleaseHandler() {
-        longPressKeyReleaseHandler.removeCallbacksAndMessages(null);
-        longPressKeyReleaseHandler.postDelayed(this::completeLongPressDetected, TIME_INACTIVE_BEFORE_KEY_RELEASE_ASSUMED);
-    }
-
     private void completeLongPressDetected() {
         RecUtils.log("Complete long press");
-        longPressKeyReleaseHandler.removeCallbacksAndMessages(null);
-        waitingForKeyRelease = false;
         holdVolume = null;
         AudioStreamState resetAudioStreamState = new AudioStreamState(AudioManager.STREAM_MUSIC, prevVolumesLast3.get(0));
         volumeKeyInputController.completePressDetected(volumeChangesLast3.get(0), resetAudioStreamState);
     }
 
-    private static final long TIME_INACTIVE_BEFORE_DRAG_RELEASE_ASSUMED = 1000;
-    private Handler volumeSliderDragReleaseHandler = new Handler();
-    private void initVolumeSliderDragReleaseHandler() {
-        volumeSliderDragReleaseHandler.removeCallbacksAndMessages(null);
-        volumeSliderDragReleaseHandler.postDelayed(this::completeVolumeSliderDragDetected, TIME_INACTIVE_BEFORE_DRAG_RELEASE_ASSUMED);
-    }
-
     private void completeVolumeSliderDragDetected() {
         RecUtils.log("Complete slider drag");
-        longPressKeyReleaseHandler.removeCallbacksAndMessages(null);
-        waitingForDragRelease = false;
         volumeKeyInputController.discardPresses();
     }
 
@@ -311,5 +265,13 @@ class VolumeKeyCaptureUsingPolling {
 
     Runnable getResetAction() {
         return this::startPolling;
+    }
+
+    Utils.Question isPrev3volumeOneStepFromMax() {
+        return () -> isActive() && prevVolumesLast3.size() == 3 && prevVolumesLast3.get(0) == maxMusicVolume - 1;
+    }
+
+    Utils.Question isPrev3volumeOneStepFromMin() {
+        return () -> isActive() && prevVolumesLast3.size() == 3 && prevVolumesLast3.get(0) == minMusicVolume + 1;
     }
 }

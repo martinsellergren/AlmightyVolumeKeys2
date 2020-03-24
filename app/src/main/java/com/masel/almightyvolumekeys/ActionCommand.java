@@ -134,7 +134,6 @@ class ActionCommand {
                 && command.replace("3", "").matches("111+")) {
             return new Actions.Media_volume_100();
         }
-
         else if (allowCurrentCommandToSetMinVolumeQuestion != null
                 && allowCurrentCommandToSetMinVolumeQuestion.ask()
                 && command.replace("2", "").matches("000+")) {
@@ -161,7 +160,6 @@ class ActionCommand {
 
     private void discardAnyVolumeChanges() {
         if (resetAudioStreamState != null) {
-            RecUtils.log(resetAudioStreamState.toString());
             myContext.volumeUtils.setVolume(resetAudioStreamState.getStream(), resetAudioStreamState.getVolume(), false);
             if (resetAudioStreamState.getRingerMuteFlag() != 0) myContext.audioManager.setRingerMode(AudioManager.RINGER_MODE_SILENT);
         }
