@@ -45,7 +45,7 @@ class MyContext {
 
         deviceState = new DeviceState(this);
         volumeUtils = new VolumeUtils(this);
-        voice = new Voice(context, volumeUtils);
+        voice = new Voice(this, volumeUtils);
         tuneAnnouncer = new TuneAnnouncer(this);
     }
 

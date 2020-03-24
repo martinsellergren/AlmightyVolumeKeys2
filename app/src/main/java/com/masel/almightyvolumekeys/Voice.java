@@ -1,53 +1,71 @@
 package com.masel.almightyvolumekeys;
 
 import android.content.Context;
+import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
 
-import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.media.AudioAttributesCompat;
 import androidx.media.AudioFocusRequestCompat;
 import androidx.media.AudioManagerCompat;
-
-import com.masel.rec_utils.RecUtils;
 
 class Voice {
 
     private AudioManager audioManager;
     private VolumeUtils volumeUtils;
-    private TextToSpeech tts;
+    @Nullable private TextToSpeech tts;
 
     private AudioStreamState beforeSpeechVolume = null;
 
-    Voice(Context context, VolumeUtils volumeUtils) {
+    Voice(MyContext myContext, VolumeUtils volumeUtils) {
         this.volumeUtils = volumeUtils;
-        this.audioManager = (AudioManager)context.getSystemService(Context.AUDIO_SERVICE);
+        this.audioManager = (AudioManager)myContext.context.getSystemService(Context.AUDIO_SERVICE);
+        initDefaultTtsEngine(myContext.context);
 
+        myContext.deviceState.addOnSecureSettingsChangeCallback(() -> {
+            destroy();
+            initDefaultTtsEngine(myContext.context);
+        });
+    }
+
+    private void initDefaultTtsEngine(Context context) {
         tts = new TextToSpeech(context, status -> {
             if (status == TextToSpeech.SUCCESS) {
-                tts.setOnUtteranceProgressListener(new UtteranceProgressListener() {
-                    @Override
-                    public void onStart(String utteranceId) {}
-
-                    @Override
-                    public void onDone(String utteranceId) {
-                        if (beforeSpeechVolume != null) volumeUtils.setVolume(beforeSpeechVolume.getStream(), beforeSpeechVolume.getVolume(), false);
-                        abandonAudioFocus();
-                    }
-
-                    @Override
-                    public void onError(String utteranceId) {
-                        if (beforeSpeechVolume != null) volumeUtils.setVolume(beforeSpeechVolume.getStream(), beforeSpeechVolume.getVolume(), false);
-                        abandonAudioFocus();
-                    }
-                });
+                if (tts == null) return;
+                tts.setOnUtteranceProgressListener(utteranceProgressListener);
             }
             else {
                 tts = null;
             }
         });
+
+        int res = tts.setAudioAttributes(new AudioAttributes.Builder()
+                .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+                .setLegacyStreamType(AudioManager.STREAM_MUSIC)
+                .setUsage(AudioAttributes.USAGE_ASSISTANCE_ACCESSIBILITY)
+                .setFlags(AudioAttributes.FLAG_AUDIBILITY_ENFORCED)
+                .build());
+        if (res == TextToSpeech.ERROR) tts = null;
     }
+
+    private UtteranceProgressListener utteranceProgressListener = new UtteranceProgressListener() {
+        @Override
+        public void onStart(String utteranceId) {}
+
+        @Override
+        public void onDone(String utteranceId) {
+            if (beforeSpeechVolume != null) volumeUtils.setVolume(beforeSpeechVolume.getStream(), beforeSpeechVolume.getVolume(), false);
+            abandonAudioFocus();
+        }
+
+        @Override
+        public void onError(String utteranceId) {
+            if (beforeSpeechVolume != null) volumeUtils.setVolume(beforeSpeechVolume.getStream(), beforeSpeechVolume.getVolume(), false);
+            abandonAudioFocus();
+        }
+    };
 
     private AudioFocusRequestCompat focusRequest = null;
 
@@ -57,7 +75,7 @@ class Voice {
                 .setAudioAttributes(new AudioAttributesCompat.Builder()
                         .setContentType(AudioAttributesCompat.CONTENT_TYPE_SPEECH)
                         .setLegacyStreamType(AudioManager.STREAM_MUSIC)
-                        .setUsage(AudioAttributesCompat.USAGE_ASSISTANT)
+                        .setUsage(AudioAttributesCompat.USAGE_ASSISTANCE_ACCESSIBILITY)
                         .setFlags(AudioAttributesCompat.FLAG_AUDIBILITY_ENFORCED)
                         .build())
                 .setWillPauseWhenDucked(false)
@@ -103,13 +121,6 @@ class Voice {
     }
 
     void destroy() {
-        tts.shutdown();
-    }
-
-    static boolean isAvailable(Context context) {
-        Voice voice = new Voice(context, null);
-        boolean isAvailable = voice.isAvailable();
-        voice.destroy();
-        return isAvailable;
+        if (tts != null) tts.shutdown();
     }
 }

@@ -155,11 +155,9 @@ public class MainActivity extends AppCompatActivity {
                         startActivity(new Intent(MainActivity.this, SettingsActivity.class));
                         break;
                     case R.id.item_support:
-                        Utils.gotoHelp(MainActivity.this);
-                        //startActivity(new Intent(MainActivity.this, SupportActivity.class));
+                        GotoHelpPage.gotoHelp(MainActivity.this);
                         break;
                     case R.id.item_unlock_pro:
-                        //RecUtils.toast(MainActivity.this, "Unlock pro");
                         // Handled elsewhere
                         break;
                     case R.id.item_rate_app:
@@ -228,7 +226,7 @@ public class MainActivity extends AppCompatActivity {
                     "Got it!",
                     this::openNotificationListenerSettings,
                     "Why?",
-                    () -> Utils.gotoHelp(this));
+                    () -> GotoHelpPage.gotoHelp(this, "why activate"));
         }
     }
 

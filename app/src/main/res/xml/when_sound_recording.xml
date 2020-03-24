@@ -12,25 +12,23 @@
             app:key="mappingListPreference_soundrec_command_1" />
 
         <com.masel.almightyvolumekeys.MappingListPreference
-            app:key="mappingListPreference_soundrec_command_0" />
-
-<!--        <com.masel.almightyvolumekeys.MappingListPreference-->
-<!--            app:key="mappingListPreference_soundrec_command_11" />-->
-
-<!--        <com.masel.almightyvolumekeys.MappingListPreference-->
-<!--            app:key="mappingListPreference_soundrec_command_00" />-->
+            app:key="mappingListPreference_soundrec_command_11" />
 
         <com.masel.almightyvolumekeys.MappingListPreference
             app:key="mappingListPreference_soundrec_command_3" />
 
+    </PreferenceCategory>
+
+    <PreferenceCategory>
+
+        <com.masel.almightyvolumekeys.MappingListPreference
+            app:key="mappingListPreference_soundrec_command_0" />
+
+        <com.masel.almightyvolumekeys.MappingListPreference
+            app:key="mappingListPreference_soundrec_command_00" />
+
         <com.masel.almightyvolumekeys.MappingListPreference
             app:key="mappingListPreference_soundrec_command_2" />
-
-        <!--    <com.masel.almightyvolumekeys.MappingListPreference-->
-        <!--        app:key="mappingListPreference_soundrec_command_11"/>-->
-
-        <!--    <com.masel.almightyvolumekeys.MappingListPreference-->
-        <!--        app:key="mappingListPreference_soundrec_command_00"/>-->
 
     </PreferenceCategory>
 

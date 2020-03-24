@@ -6,7 +6,9 @@ import android.content.Context;
 import android.media.AudioManager;
 import android.media.ToneGenerator;
 import android.os.Build;
+import android.provider.Settings;
 import android.view.KeyEvent;
+import android.view.Surface;
 
 import androidx.annotation.NonNull;
 
@@ -286,11 +288,6 @@ class Actions {
         Notifier.VibrationPattern getVibrationPattern() {
             return Notifier.VibrationPattern.SILENT;
         }
-
-        @Override
-        boolean isAvailable(Context context) {
-            return TuneAnnouncer.isAvailable(context);
-        }
     }
 
     static class Announce_tune_title_and_artist extends Action {
@@ -308,11 +305,6 @@ class Actions {
         Notifier.VibrationPattern getVibrationPattern() {
             return Notifier.VibrationPattern.SILENT;
         }
-
-        @Override
-        boolean isAvailable(Context context) {
-            return TuneAnnouncer.isAvailable(context);
-        }
     }
 
     static class Announce_tune_title_artist_and_album extends Action {
@@ -329,11 +321,6 @@ class Actions {
         @Override
         Notifier.VibrationPattern getVibrationPattern() {
             return Notifier.VibrationPattern.SILENT;
-        }
-
-        @Override
-        boolean isAvailable(Context context) {
-            return TuneAnnouncer.isAvailable(context);
         }
     }
 
@@ -679,11 +666,6 @@ class Actions {
         Notifier.VibrationPattern getVibrationPattern() {
             return Notifier.VibrationPattern.SILENT;
         }
-
-        @Override
-        boolean isAvailable(Context context) {
-            return Voice.isAvailable(context);
-        }
     }
 
     static class Tell_time_volume_75 extends Action {
@@ -701,11 +683,6 @@ class Actions {
         Notifier.VibrationPattern getVibrationPattern() {
             return Notifier.VibrationPattern.SILENT;
         }
-
-        @Override
-        boolean isAvailable(Context context) {
-            return Voice.isAvailable(context);
-        }
     }
 
     static class Tell_time_volume_50 extends Action {
@@ -722,11 +699,6 @@ class Actions {
         @Override
         Notifier.VibrationPattern getVibrationPattern() {
             return Notifier.VibrationPattern.SILENT;
-        }
-
-        @Override
-        boolean isAvailable(Context context) {
-            return Voice.isAvailable(context);
         }
     }
 
@@ -851,6 +823,124 @@ class Actions {
             myContext.volumeUtils.setVolumePercentage(AudioManager.STREAM_RING, 0, true);
         }
     }
+
+    // region Rotate screen
+
+    static class Screen_rotation_portrait extends Action {
+        @Override
+        String getName() {
+            return "Screen rotation: portrait";
+        }
+
+        @Override
+        void run(MyContext myContext) throws ExecutionException {
+            Settings.System.putInt(myContext.context.getContentResolver(), Settings.System.ACCELEROMETER_ROTATION, 0);
+            Settings.System.putInt(myContext.context.getContentResolver(), Settings.System.USER_ROTATION, Surface.ROTATION_0);
+        }
+
+        @Override
+        String[] getNeededPermissions(Context context) {
+            return new String[]{Settings.ACTION_MANAGE_WRITE_SETTINGS};
+        }
+    }
+
+    static class Screen_rotation_landscape_1 extends Action {
+        @Override
+        String getName() {
+            return "Screen rotation: landscape 1";
+        }
+
+        @Override
+        void run(MyContext myContext) throws ExecutionException {
+            Settings.System.putInt(myContext.context.getContentResolver(), Settings.System.ACCELEROMETER_ROTATION, 0);
+            Settings.System.putInt(myContext.context.getContentResolver(), Settings.System.USER_ROTATION, Surface.ROTATION_90);
+        }
+
+        @Override
+        String[] getNeededPermissions(Context context) {
+            return new String[]{Settings.ACTION_MANAGE_WRITE_SETTINGS};
+        }
+    }
+
+    static class Screen_rotation_landscape_2 extends Action {
+        @Override
+        String getName() {
+            return "Screen rotation: landscape 2";
+        }
+
+        @Override
+        void run(MyContext myContext) throws ExecutionException {
+            Settings.System.putInt(myContext.context.getContentResolver(), Settings.System.ACCELEROMETER_ROTATION, 0);
+            Settings.System.putInt(myContext.context.getContentResolver(), Settings.System.USER_ROTATION, Surface.ROTATION_270);
+        }
+
+        @Override
+        String[] getNeededPermissions(Context context) {
+            return new String[]{Settings.ACTION_MANAGE_WRITE_SETTINGS};
+        }
+    }
+
+    static class Screen_auto_rotate_on extends Action {
+        @Override
+        String getName() {
+            return "Screen auto-rotate: on";
+        }
+
+        @Override
+        void run(MyContext myContext) throws ExecutionException {
+            Settings.System.putInt(myContext.context.getContentResolver(), Settings.System.ACCELEROMETER_ROTATION, 1);
+        }
+
+        @Override
+        Notifier.VibrationPattern getVibrationPattern() {
+            return Notifier.VibrationPattern.ON;
+        }
+
+        @Override
+        String[] getNeededPermissions(Context context) {
+            return new String[]{Settings.ACTION_MANAGE_WRITE_SETTINGS};
+        }
+    }
+
+    static class Screen_auto_rotate_off extends Action {
+        @Override
+        String getName() {
+            return "Screen auto-rotate: off";
+        }
+
+        @Override
+        void run(MyContext myContext) throws ExecutionException {
+            Settings.System.putInt(myContext.context.getContentResolver(), Settings.System.ACCELEROMETER_ROTATION, 0);
+        }
+
+        @Override
+        Notifier.VibrationPattern getVibrationPattern() {
+            return Notifier.VibrationPattern.OFF;
+        }
+
+        @Override
+        String[] getNeededPermissions(Context context) {
+            return new String[]{Settings.ACTION_MANAGE_WRITE_SETTINGS};
+        }
+    }
+
+    static class Screen_auto_rotate_on_off extends MultiAction {
+        @Override
+        Action pickAction(MyContext myContext) {
+            int status = Settings.System.getInt(myContext.context.getContentResolver(), Settings.System.ACCELEROMETER_ROTATION, -1);
+            if (status == 0) return new Screen_auto_rotate_on();
+            if (status == 1) return new Screen_auto_rotate_off();
+
+            return new No_action();
+        }
+
+        @Override
+        String[] getNeededPermissions(Context context) {
+            return new String[]{Settings.ACTION_MANAGE_WRITE_SETTINGS};
+        }
+    }
+
+    // endregion
 
     // endregion
 

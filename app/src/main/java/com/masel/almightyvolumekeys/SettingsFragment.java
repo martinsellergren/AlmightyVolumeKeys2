@@ -1,6 +1,8 @@
 package com.masel.almightyvolumekeys;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.provider.Settings;
 
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
@@ -31,14 +33,25 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 //        designForTimeInput(allowSleepEnd);
 
         Preference gotoSoundRec = findPreference("Preference_gotoSoundRec");
-        gotoSoundRec.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                if (!RecUtils.gotoApp(getContext(), "com.masel.thesoundrecorder2")) {
-                    RecUtils.openAppOnPlayStore(getContext(), "com.masel.thesoundrecorder2");
-                }
-                return true;
+        gotoSoundRec.setOnPreferenceClickListener(preference -> {
+            if (!RecUtils.gotoApp(getContext(), "com.masel.thesoundrecorder2")) {
+                RecUtils.openAppOnPlayStore(getContext(), "com.masel.thesoundrecorder2");
             }
+            return true;
+        });
+
+        Preference gotoTtsSettings = findPreference("Preference_gotoTtsSettings");
+        gotoTtsSettings.setOnPreferenceClickListener(preference -> {
+            Intent intent = new Intent();
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
+            intent.setAction("com.android.settings.TTS_SETTINGS");
+            try {
+                startActivity(intent);
+            }
+            catch (Exception e) {
+                RecUtils.toast(getContext(), "Find Text-to-speech in device settings");
+            }
+            return true;
         });
     }
 

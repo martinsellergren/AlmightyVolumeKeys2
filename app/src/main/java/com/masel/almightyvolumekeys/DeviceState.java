@@ -43,7 +43,8 @@ class DeviceState {
         setupScreenStateCallbacks();
         setupDeviceUnlockedCallbacks();
         setupOnAllowSleepCallbacks();
-        setupOnSettingsChangeCallbacks();
+        setupOnSystemSettingsChangeCallbacks();
+        setupOnSecureSettingsChangeCallbacks();
         setupOnRingerModeChangeCallbacks();
     }
 
@@ -333,35 +334,68 @@ class DeviceState {
 
     // endregion
 
-    // region Settings change callbacks
+    // region System settings change callbacks
 
-    private List<Runnable> onSettingsChangeList = new ArrayList<>();
+    private List<Runnable> onSystemSettingsChangeList = new ArrayList<>();
 
-    void addOnSettingsChangeCallback(Runnable onSettingsChange) {
-        onSettingsChangeList.add(onSettingsChange);
+    void addOnSystemSettingsChangeCallback(Runnable onSystemSettingsChange) {
+        onSystemSettingsChangeList.add(onSystemSettingsChange);
     }
 
-    void removeOnSettingsChangeCallback(Runnable onSettingsChange) {
-        onSettingsChangeList.remove(onSettingsChange);
+    void removeOnSystemSettingsChangeCallback(Runnable onSystemSettingsChange) {
+        onSystemSettingsChangeList.remove(onSystemSettingsChange);
     }
 
-    private ContentObserver settingsObserver = null;
+    private ContentObserver systemSettingsObserver = null;
 
-    private void setupOnSettingsChangeCallbacks() {
-        settingsObserver = new ContentObserver(null) {
+    private void setupOnSystemSettingsChangeCallbacks() {
+        systemSettingsObserver = new ContentObserver(null) {
             @Override
             public void onChange(boolean selfChange) {
                 super.onChange(selfChange);
 
                 //RecUtils.log("Settings change");
-                for (Runnable onSettingsChange : onSettingsChangeList) onSettingsChange.run();
+                for (Runnable onSystemSettingsChange : onSystemSettingsChangeList) onSystemSettingsChange.run();
             }
         };
 
         myContext.context.getContentResolver().registerContentObserver(
                 android.provider.Settings.System.CONTENT_URI,
                 true,
-                settingsObserver);
+                systemSettingsObserver);
+    }
+
+    // endregion
+
+    // region Secure settings change callbacks
+
+    private List<Runnable> onSecureSettingsChangeList = new ArrayList<>();
+
+    void addOnSecureSettingsChangeCallback(Runnable onSecureSettingsChange) {
+        onSecureSettingsChangeList.add(onSecureSettingsChange);
+    }
+
+    void removeOnSecureSettingsChangeCallback(Runnable onSecureSettingsChange) {
+        onSecureSettingsChangeList.remove(onSecureSettingsChange);
+    }
+
+    private ContentObserver secureSettingsObserver = null;
+
+    private void setupOnSecureSettingsChangeCallbacks() {
+        secureSettingsObserver = new ContentObserver(null) {
+            @Override
+            public void onChange(boolean selfChange) {
+                super.onChange(selfChange);
+
+                RecUtils.log("Secure settings change");
+                for (Runnable onSecureSettingsChange : onSecureSettingsChangeList) onSecureSettingsChange.run();
+            }
+        };
+
+        myContext.context.getContentResolver().registerContentObserver(
+                android.provider.Settings.Secure.CONTENT_URI,
+                true,
+                secureSettingsObserver);
     }
 
     // endregion
@@ -402,7 +436,8 @@ class DeviceState {
         if (screenOffReceiver != null) myContext.context.unregisterReceiver(screenOffReceiver);
         if (screenOnReceiver != null) myContext.context.unregisterReceiver(screenOnReceiver);
         if (deviceUnlockedReceiver != null) myContext.context.unregisterReceiver(deviceUnlockedReceiver);
-        if (settingsObserver != null) myContext.context.getContentResolver().unregisterContentObserver(settingsObserver);
+        if (systemSettingsObserver != null) myContext.context.getContentResolver().unregisterContentObserver(systemSettingsObserver);
+        if (secureSettingsObserver != null) myContext.context.getContentResolver().unregisterContentObserver(secureSettingsObserver);
         if (onRingerModeChangedReceiver != null) myContext.context.unregisterReceiver(onRingerModeChangedReceiver);
 
         evaluateMediaStateDelayHandler.removeCallbacksAndMessages(null);

@@ -5,6 +5,12 @@
         <item>Media: play</item>
         <item>Sound recorder: start</item>
         <item>Flashlight: on/off</item>
+        <item>Screen rotation: portrait</item>
+        <item>Screen rotation: landscape 1</item>
+        <item>Screen rotation: landscape 2</item>
+        <item>Screen auto-rotate: on</item>
+        <item>Screen auto-rotate: off</item>
+        <item>Screen auto-rotate: on/off</item>
         <item>Do not disturb: on</item>
         <item>Do not disturb: off</item>
         <item>Do not disturb: on/off</item>

@@ -56,6 +56,19 @@
     </PreferenceCategory>
 
     <PreferenceCategory
+        app:title="Text-to-speech settings"
+        app:singleLineTitle="false">
+
+        <Preference
+            app:key="Preference_gotoTtsSettings"
+            app:title="Open Text-to-speech settings"
+            app:summary="Specify for example spoken language."
+            app:singleLineTitle="false"
+            app:icon="@drawable/mic_24dp"/>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
         app:title="Automatically disable to save battery (advanced)"
         app:singleLineTitle="false">
 

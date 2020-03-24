@@ -57,7 +57,7 @@ public class MappingListPreference extends ListPreference {
             Action action = Actions.getActionFromName(actionName);
 
             if (!action.isAvailable(context)) {
-                RecUtils.showHeadsUpDialog(getActivity(), "This action is currently not available on your device. See Help for more info.", null);
+                RecUtils.showHeadsUpDialog(getActivity(), "This action is not available on your device. See Help for more info.", null);
                 setValue(new Actions.No_action().getName());
                 return false;
             }
@@ -86,12 +86,9 @@ public class MappingListPreference extends ListPreference {
                 return false;
             }
 
-//            if (state.equals("music") && !actionName.equals(new Actions.No_action().getName())) {
-//                showMusicMappingHeadsUpDialog(extractCommand(getKey()));
-//            }
             if (actionName.equals(new Actions.Media_pause().getName())) {
                 RecUtils.showHeadsUpDialog(getActivity(),
-                        "To resume playing, go to the IDLE-tab and pick <b>Media: play</b>",
+                        "To resume playing, use <b>Media: play</b>-action in the IDLE-tab.",
                         () -> requestNeededPermissions(actionName));
             }
             else if (actionName.equals(new Actions.Media_play().getName())) {

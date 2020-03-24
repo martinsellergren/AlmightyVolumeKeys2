@@ -60,20 +60,29 @@ class TuneAnnouncer {
         String title = controller.getMetadata().getString(MediaMetadata.METADATA_KEY_DISPLAY_TITLE);
         if (title == null) title = controller.getMetadata().getString(MediaMetadata.METADATA_KEY_TITLE);
         if (title == null) title = "";
-        return RecUtils.removeExtension(title);
+        title = RecUtils.removeExtension(title);
+        return optimizeForAnnouncement(title);
     }
 
     private @NonNull String getArtist(MediaController controller) {
         if (controller.getMetadata() == null) return "";
         String artist = controller.getMetadata().getString(MediaMetadata.METADATA_KEY_ALBUM_ARTIST);
         if (artist == null) artist = controller.getMetadata().getString(MediaMetadata.METADATA_KEY_ARTIST);
-        return artist != null ? artist : "";
+        artist = artist != null ? artist : "";
+        return optimizeForAnnouncement(artist);
     }
 
     private @NonNull String getAlbum(MediaController controller) {
         if (controller.getMetadata() == null) return "";
         String album = controller.getMetadata().getString(MediaMetadata.METADATA_KEY_ALBUM);
-        return album != null ? album : "";
+        album = album != null ? album : "";
+        return optimizeForAnnouncement(album);
+    }
+
+    private String optimizeForAnnouncement(String text) {
+        String initSymbolsRegex = "^[^\\p{IsAlphabetic}\\p{IsDigit}]*";
+        text = text.replaceFirst(initSymbolsRegex, "");
+        return RecUtils.reverse(RecUtils.reverse(text).replaceFirst(initSymbolsRegex, ""));
     }
 
     private MediaController getPlayingMediaController() {
@@ -82,9 +91,5 @@ class TuneAnnouncer {
             if (mediaController.getPlaybackState().getState() == PlaybackState.STATE_PLAYING) return mediaController;
         }
         return null;
-    }
-
-    static boolean isAvailable(Context context) {
-        return Voice.isAvailable(context);
     }
 }

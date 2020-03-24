@@ -150,29 +150,4 @@ class Utils {
         }
         RecUtils.log(" ");
     }
-
-    static void gotoHelp(AppCompatActivity activity) {
-        String defaultUrl = "https://sites.google.com/view/almightyvolumekeys-help#h.ak1tvc342tsx";
-        String lang = Locale.getDefault().getLanguage();
-        String translatedUrl = String.format("https://translate.google.com/translate?js=n&sl=en&tl=%s&u=%s", lang, defaultUrl);
-
-        Intent engIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(defaultUrl));
-        engIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
-
-        Intent translatedIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(translatedUrl));
-        translatedIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
-
-        if (lang.equals("en")) {
-            activity.startActivity(engIntent);
-        }
-        else {
-            RecUtils.showDialog(activity,
-                    null,
-                    String.format("Auto-translate to: <b>%s</b>?", Locale.getDefault().getDisplayLanguage()),
-                    Locale.getDefault().getDisplayLanguage(),
-                    () -> activity.startActivity(translatedIntent),
-                    "English",
-                    () -> activity.startActivity(engIntent));
-        }
-    }
 }
