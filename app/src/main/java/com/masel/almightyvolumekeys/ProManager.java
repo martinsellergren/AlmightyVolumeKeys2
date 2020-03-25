@@ -39,19 +39,18 @@ class ProManager implements PurchasesUpdatedListener {
     private Runnable onPending = null;
     private Runnable onUnlocked = null;
 
-    private ProManager(Context context) {
+    ProManager(Context context) {
         this.billingClient = BillingClient.newBuilder(context)
                 .enablePendingPurchases()
                 .setListener(this)
                 .build();
     }
 
-    private static ProManager instance = null;
 
-    static ProManager getInstance(Context context) {
-        if (instance == null) instance = new ProManager(context);
-        return instance;
+    void destroy() {
+        billingClient.endConnection();
     }
+
 
     @Override
     public void onPurchasesUpdated(BillingResult billingResult, @Nullable List<Purchase> purchases) {
@@ -73,7 +72,6 @@ class ProManager implements PurchasesUpdatedListener {
 
     /**
      * Execute state-action. Also handle acknowledgment of purchase.
-     * @param purchase
      */
     private void handlePurchase(Purchase purchase) {
         if (purchase.getPurchaseState() == Purchase.PurchaseState.PURCHASED) {
@@ -110,21 +108,23 @@ class ProManager implements PurchasesUpdatedListener {
     }
 
     /**
-     * Initializes the connection to google play and executes state-action depending on current pro-state.
+     * Executes state-action depending on current pro-state.
      * Network not needed.
+     *
+     * If done purchase, acknowledges purchase.
      */
-    void init(Context context) {
+    void runStateAction() {
         Runnable onConnected = () -> {
             List<Purchase> purchases = billingClient.queryPurchases(BillingClient.SkuType.INAPP).getPurchasesList();
             if (purchases.size() == 0) onLocked.run();
             else handlePurchase(purchases.get(0));
         };
 
-        connectAndExecute(context, onConnected);
+        connectAndExecute(onConnected, null);
     }
 
     /**
-     * Network needed, else ends with toast.
+     * Network needed, else ends with toast. If connection to play-store fail, ends with toast.
      */
     void startPurchase(Activity activity) {
         RunnableWithProductDetails onProductDetailsFetched = skuDetails -> {
@@ -155,14 +155,18 @@ class ProManager implements PurchasesUpdatedListener {
                     });
         };
 
-        connectAndExecute(activity, onConnected);
+        Runnable onFail = () -> {
+            RecUtils.toast(activity, "Google billing error. Try restart device/ reinstall app.");
+        };
+
+        connectAndExecute(onConnected, onFail);
     }
 
     /**
      * Connect to play-store service and execute action. If already connected, just execute action.
      * If error, end with toast.
      */
-    private void connectAndExecute(Context context, Runnable onConnected) {
+    private void connectAndExecute(Runnable onConnected, Runnable onFail) {
         if (billingClient.isReady()) {
             onConnected.run();
         }
@@ -172,8 +176,10 @@ class ProManager implements PurchasesUpdatedListener {
                 public void onBillingSetupFinished(BillingResult billingResult) {
                     if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK) {
                         onConnected.run();
-                    } else {
+                    }
+                    else {
                         RecUtils.log("Can't connect to google play.");
+                        if (onFail != null) onFail.run();
                     }
                 }
 
@@ -183,10 +189,6 @@ class ProManager implements PurchasesUpdatedListener {
                 }
             });
         }
-    }
-
-    void destroy() {
-        billingClient.endConnection();
     }
 
     // region Save and load is-locked-flag.
@@ -221,6 +223,6 @@ class ProManager implements PurchasesUpdatedListener {
             billingClient.consumeAsync(consumeParams, (billingResult, s) -> RecUtils.log("Pro reverted"));
         };
 
-        connectAndExecute(context, onConnected);
+        connectAndExecute(onConnected, null);
     }
 }

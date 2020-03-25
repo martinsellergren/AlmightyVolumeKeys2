@@ -69,7 +69,7 @@ public class MappingListPreference extends ListPreference {
                     && getNumberOfMappedActions("idle") >= ProManager.numberOfFreeIdleActions) {
                 RecUtils.showHeadsUpDialog(getActivity(),
                         String.format("For more than %s idle-actions, you need to <b>unlock pro</b>.", ProManager.numberOfFreeIdleActions),
-                        () -> ProManager.getInstance(getContext()).startPurchase(getActivity()));
+                        () -> MainActivity.proManager.startPurchase(getActivity()));
                 return false;
             }
             if (!actionName.equals(new Actions.No_action().getName())
@@ -79,7 +79,7 @@ public class MappingListPreference extends ListPreference {
                     && getNumberOfMappedActions("music") >= ProManager.numberOfFreeMediaActions) {
                 RecUtils.showHeadsUpDialog(getActivity(),
                         String.format("For more than %s media-actions, you need to <b>unlock pro</b>.", ProManager.numberOfFreeMediaActions),
-                        () -> ProManager.getInstance(getContext()).startPurchase(getActivity()));
+                        () -> MainActivity.proManager.startPurchase(getActivity()));
                 return false;
             }
             if (actionName.equals("Tasker task")) {

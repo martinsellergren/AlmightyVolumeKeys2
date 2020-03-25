@@ -28,7 +28,6 @@ public class MainActivity extends AppCompatActivity {
 
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle actionBarDrawerToggle;
-    private ProManager proManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,11 +35,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         RecUtils.initSettingsSharedPreferences(this, R.xml.settings);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        if (getSupportActionBar() != null) getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         setupTabs();
         setupSideMenu();
-
-        proManager = ProManager.getInstance(this);
+        setupProManager();
     }
 
     @Override
@@ -51,7 +49,11 @@ public class MainActivity extends AppCompatActivity {
 
     // region Unlock pro
 
-    private void updateProManager() {
+    static ProManager proManager;
+
+    private void setupProManager() {
+        proManager = new ProManager(this);
+
         NavigationView navigationView = findViewById(R.id.navigationView);
         MenuItem unlockProButton = navigationView.getMenu().findItem(R.id.item_unlock_pro);
 
@@ -80,14 +82,13 @@ public class MainActivity extends AppCompatActivity {
             unlockProButton.setTitle("Pro is unlocked");
             unlockProButton.setIcon(R.drawable.lock_open_24dp);
             unlockProButton.setOnMenuItemClickListener(item -> {
-                RecUtils.showHeadsUpDialog(MainActivity.this, "Thanks for unlocking pro! Hope you like it!", () -> proManager.revertPro(this));
-                //RecUtils.showHeadsUpDialog(MainActivity.this, "Thanks for unlocking pro! Hope you like it!", null);
+                //RecUtils.showHeadsUpDialog(MainActivity.this, "Thanks for unlocking pro! Hope you like it!", () -> proManager.revertPro(this));
+                RecUtils.showHeadsUpDialog(MainActivity.this, "Thanks for unlocking pro! Hope you like it!", null);
                 return true;
             });
         };
 
         proManager.setStateActions(proLocked, proPending, proUnlocked);
-        proManager.init(this);
     }
 
     // endregion
@@ -235,7 +236,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-        updateProManager();
+        proManager.runStateAction();
         updateEnableServiceHeadsUp();
         requestPermissions();
     }
