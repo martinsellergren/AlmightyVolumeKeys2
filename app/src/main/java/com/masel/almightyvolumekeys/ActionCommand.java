@@ -103,7 +103,7 @@ class ActionCommand {
             }
         }
         catch (Exception e) {
-            myContext.notifier.notify(e.getMessage(), Notifier.VibrationPattern.ERROR, false);
+            myContext.notifier.notify("Failed to execute: " + action.getName(), Notifier.VibrationPattern.ERROR, false);
             RecUtils.log("Unknown error during action execution: " + action.toString() + "\n" + e.getMessage());
         }
 

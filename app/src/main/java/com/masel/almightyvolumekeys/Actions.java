@@ -3,12 +3,14 @@ package com.masel.almightyvolumekeys;
 import android.Manifest;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.content.Intent;
 import android.media.AudioManager;
 import android.media.ToneGenerator;
 import android.os.Build;
 import android.provider.Settings;
 import android.view.KeyEvent;
 import android.view.Surface;
+import android.view.inputmethod.InputMethodManager;
 
 import androidx.annotation.NonNull;
 
@@ -841,6 +843,8 @@ class Actions {
         }
     }
 
+    // endregion
+
     // region Rotate screen
 
     static class Screen_rotation_portrait extends Action {
@@ -975,6 +979,47 @@ class Actions {
     }
 
     // endregion
+
+    // region More
+
+    static class Switch_keyboard extends Action {
+        @Override
+        String getName() {
+            return "Switch keyboard";
+        }
+
+        @Override
+        void run(MyContext myContext) throws ExecutionException {
+            InputMethodManager imeManager = (InputMethodManager) myContext.context.getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (imeManager != null) {
+                imeManager.showInputMethodPicker();
+            }
+            else {
+                throw new ExecutionException("Failed to open keyboard picker");
+            }
+        }
+    }
+
+//    static class Show_volume_panel extends Action {
+//        @Override
+//        String getName() {
+//            return "Show volume panel";
+//        }
+//
+//        @Override
+//        void run(MyContext myContext) throws ExecutionException {
+//            if (Build.VERSION.SDK_INT >= 29) {
+//                Intent intent = new Intent(Settings.Panel.ACTION_VOLUME);
+//                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//                myContext.context.startActivity(intent);
+//            }
+//        }
+//
+//        @Override
+//        boolean isAvailable(Context context) {
+//            return Build.VERSION.SDK_INT >= 29;
+//        }
+//    }
 
     // endregion
 

@@ -68,8 +68,8 @@ public class MappingListPreference extends ListPreference {
                     && ProManager.loadIsLocked(context)
                     && getNumberOfMappedActions("idle") >= ProManager.numberOfFreeIdleActions) {
                 RecUtils.showHeadsUpDialog(getActivity(),
-                        String.format("For more than %s idle-actions, you need to <b>unlock pro</b> (see the side-menu).", ProManager.numberOfFreeIdleActions),
-                        null);
+                        String.format("For more than %s idle-actions, you need to <b>unlock pro</b>.", ProManager.numberOfFreeIdleActions),
+                        () -> ProManager.getInstance(getContext()).startPurchase(getActivity()));
                 return false;
             }
             if (!actionName.equals(new Actions.No_action().getName())
@@ -78,8 +78,8 @@ public class MappingListPreference extends ListPreference {
                     && ProManager.loadIsLocked(context)
                     && getNumberOfMappedActions("music") >= ProManager.numberOfFreeMediaActions) {
                 RecUtils.showHeadsUpDialog(getActivity(),
-                        String.format("For more than %s media-actions, you need to <b>unlock pro</b> (see the side-menu).", ProManager.numberOfFreeMediaActions),
-                        null);
+                        String.format("For more than %s media-actions, you need to <b>unlock pro</b>.", ProManager.numberOfFreeMediaActions),
+                        () -> ProManager.getInstance(getContext()).startPurchase(getActivity()));
                 return false;
             }
             if (actionName.equals("Tasker task")) {
@@ -95,6 +95,12 @@ public class MappingListPreference extends ListPreference {
             }
             if (actionName.equals(new Actions.Media_play().getName())) {
                 headsUps.add("This action will start playing the media you <b>recently paused</b>.\n\nTo control currently playing media, see the <b>MEDIA-tab</b>.");
+            }
+            if (actionName.equals(new Actions.Media_volume_0().getName())) {
+                headsUps.add("MEDIA-commands starting with Volume Down won't work when at 0% media volume.");
+            }
+            if (actionName.equals(new Actions.Media_volume_100().getName())) {
+                headsUps.add("MEDIA-commands starting with Volume Up won't work when at 100% media volume.");
             }
             if (actionName.equals(new Actions.Sound_recorder_start().getName()) && !TheSoundRecorderConnection.appIsInstalled(context)) {
                 headsUps.add("For sound recording, you need to install another app: <b>The Sound Recorder</b>.");

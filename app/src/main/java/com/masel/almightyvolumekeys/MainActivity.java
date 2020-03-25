@@ -39,22 +39,28 @@ public class MainActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         setupTabs();
         setupSideMenu();
+
+        proManager = ProManager.getInstance(this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (proManager != null) proManager.destroy();
     }
 
     // region Unlock pro
 
-    private ProManager setupUnlockPro() {
+    private void updateProManager() {
         NavigationView navigationView = findViewById(R.id.navigationView);
         MenuItem unlockProButton = navigationView.getMenu().findItem(R.id.item_unlock_pro);
-
-        ProManager proManager = new ProManager(this);
 
         Runnable proLocked = () -> {
             ProManager.saveIsLocked(this, true);
             unlockProButton.setTitle("Unlock pro");
             unlockProButton.setIcon(R.drawable.lock_locked_24dp);
             unlockProButton.setOnMenuItemClickListener(item -> {
-                proManager.startPurchase();
+                proManager.startPurchase(this);
                 return true;
             });
         };
@@ -74,22 +80,21 @@ public class MainActivity extends AppCompatActivity {
             unlockProButton.setTitle("Pro is unlocked");
             unlockProButton.setIcon(R.drawable.lock_open_24dp);
             unlockProButton.setOnMenuItemClickListener(item -> {
-                //RecUtils.showHeadsUpDialog(MainActivity.this, "Thanks for unlocking pro! Hope you like it!", proManager::revertPro);
-                RecUtils.showHeadsUpDialog(MainActivity.this, "Thanks for unlocking pro! Hope you like it!", null);
+                RecUtils.showHeadsUpDialog(MainActivity.this, "Thanks for unlocking pro! Hope you like it!", () -> proManager.revertPro(this));
+                //RecUtils.showHeadsUpDialog(MainActivity.this, "Thanks for unlocking pro! Hope you like it!", null);
                 return true;
             });
         };
 
         proManager.setStateActions(proLocked, proPending, proUnlocked);
-        proManager.init();
-        return proManager;
+        proManager.init(this);
     }
 
     // endregion
 
     // region Setup tabs
 
-    class MyPagerAdapter extends FragmentPagerAdapter {
+    static class MyPagerAdapter extends FragmentPagerAdapter {
         MyPagerAdapter(FragmentManager fm) {
             super(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
         }
@@ -141,33 +146,29 @@ public class MainActivity extends AppCompatActivity {
         actionBarDrawerToggle.syncState();
 
         NavigationView navigationView = findViewById(R.id.navigationView);
-        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+        navigationView.setNavigationItemSelectedListener(item -> {
+            drawerLayout.closeDrawer(GravityCompat.START, true);
 
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                drawerLayout.closeDrawer(GravityCompat.START, true);
-
-                switch(item.getItemId()) {
-                    case R.id.item_enableDisable:
-                        openNotificationListenerSettings();
-                        break;
-                    case R.id.item_settings:
-                        startActivity(new Intent(MainActivity.this, SettingsActivity.class));
-                        break;
-                    case R.id.item_support:
-                        GotoHelpPage.gotoHelp(MainActivity.this);
-                        break;
-                    case R.id.item_unlock_pro:
-                        // Handled elsewhere
-                        break;
-                    case R.id.item_rate_app:
-                        RecUtils.showRateAppDialog(MainActivity.this);
-                        break;
-                    default:
-                        throw new RuntimeException("Dead end");
-                }
-                return true;
+            switch(item.getItemId()) {
+                case R.id.item_enableDisable:
+                    openNotificationListenerSettings();
+                    break;
+                case R.id.item_settings:
+                    startActivity(new Intent(MainActivity.this, SettingsActivity.class));
+                    break;
+                case R.id.item_support:
+                    GotoHelpPage.gotoHelp(MainActivity.this);
+                    break;
+                case R.id.item_unlock_pro:
+                    // Handled elsewhere
+                    break;
+                case R.id.item_rate_app:
+                    RecUtils.showRateAppDialog(MainActivity.this);
+                    break;
+                default:
+                    throw new RuntimeException("Dead end");
             }
+            return true;
         });
     }
 
@@ -234,16 +235,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-        proManager = setupUnlockPro();
+        updateProManager();
         updateEnableServiceHeadsUp();
         requestPermissions();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-
-        proManager.destroy();
     }
 
     // region Permission request

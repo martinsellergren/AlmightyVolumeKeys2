@@ -30,7 +30,6 @@ class ProManager implements PurchasesUpdatedListener {
         void run(SkuDetails skuDetails);
     }
 
-    private Activity activity;
     private BillingClient billingClient;
 
     /**
@@ -40,15 +39,19 @@ class ProManager implements PurchasesUpdatedListener {
     private Runnable onPending = null;
     private Runnable onUnlocked = null;
 
-    ProManager(Activity activity) {
-        this.activity = activity;
-        this.billingClient = BillingClient.newBuilder(activity)
+    private ProManager(Context context) {
+        this.billingClient = BillingClient.newBuilder(context)
                 .enablePendingPurchases()
                 .setListener(this)
                 .build();
     }
 
+    private static ProManager instance = null;
 
+    static ProManager getInstance(Context context) {
+        if (instance == null) instance = new ProManager(context);
+        return instance;
+    }
 
     @Override
     public void onPurchasesUpdated(BillingResult billingResult, @Nullable List<Purchase> purchases) {
@@ -110,20 +113,20 @@ class ProManager implements PurchasesUpdatedListener {
      * Initializes the connection to google play and executes state-action depending on current pro-state.
      * Network not needed.
      */
-    void init() {
+    void init(Context context) {
         Runnable onConnected = () -> {
             List<Purchase> purchases = billingClient.queryPurchases(BillingClient.SkuType.INAPP).getPurchasesList();
             if (purchases.size() == 0) onLocked.run();
             else handlePurchase(purchases.get(0));
         };
 
-        connectAndExecute(onConnected);
+        connectAndExecute(context, onConnected);
     }
 
     /**
      * Network needed, else ends with toast.
      */
-    void startPurchase() {
+    void startPurchase(Activity activity) {
         RunnableWithProductDetails onProductDetailsFetched = skuDetails -> {
             BillingFlowParams flowParams = BillingFlowParams.newBuilder().setSkuDetails(skuDetails).build();
             BillingResult res = billingClient.launchBillingFlow(activity, flowParams);
@@ -152,14 +155,14 @@ class ProManager implements PurchasesUpdatedListener {
                     });
         };
 
-        connectAndExecute(onConnected);
+        connectAndExecute(activity, onConnected);
     }
 
     /**
      * Connect to play-store service and execute action. If already connected, just execute action.
      * If error, end with toast.
      */
-    private void connectAndExecute(Runnable onConnected) {
+    private void connectAndExecute(Context context, Runnable onConnected) {
         if (billingClient.isReady()) {
             onConnected.run();
         }
@@ -170,7 +173,7 @@ class ProManager implements PurchasesUpdatedListener {
                     if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK) {
                         onConnected.run();
                     } else {
-                        RecUtils.logAndToast(activity, "Can't connect to google play.");
+                        RecUtils.log("Can't connect to google play.");
                     }
                 }
 
@@ -204,7 +207,7 @@ class ProManager implements PurchasesUpdatedListener {
     /**
      * For testing.
      */
-    void revertPro() {
+    void revertPro(Context context) {
         Runnable onConnected = () -> {
             List<Purchase> purchases = billingClient.queryPurchases(BillingClient.SkuType.INAPP).getPurchasesList();
             if (purchases.size() == 0) return;
@@ -215,11 +218,9 @@ class ProManager implements PurchasesUpdatedListener {
                             .setPurchaseToken(purchase.getPurchaseToken())
                             .build();
 
-            billingClient.consumeAsync(consumeParams, (billingResult, s) -> {
-                RecUtils.log("Pro reverted");
-            });
+            billingClient.consumeAsync(consumeParams, (billingResult, s) -> RecUtils.log("Pro reverted"));
         };
 
-        connectAndExecute(onConnected);
+        connectAndExecute(context, onConnected);
     }
 }
