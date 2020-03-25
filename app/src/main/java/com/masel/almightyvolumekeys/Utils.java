@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.Set;
 
 class Utils {
+    private Utils(){}
 
     interface Question {
         boolean ask();
@@ -137,6 +138,8 @@ class Utils {
         new Handler(Looper.getMainLooper()).post(runnable);
     }
 
+    // region Debug
+
     static void logMediaSessions(Context context) {
         MediaSessionManager manager = (MediaSessionManager) context.getSystemService(Context.MEDIA_SESSION_SERVICE);
         List<MediaController> controllers = manager.getActiveSessions(new ComponentName(context, MonitorService.class));
@@ -150,4 +153,6 @@ class Utils {
         }
         RecUtils.log(" ");
     }
+
+    // endregion
 }

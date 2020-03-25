@@ -72,7 +72,7 @@ class VolumeKeyCaptureUsingPolling {
         if (!isActive) startPolling();
     }
 
-    private static final int MUSIC_VOLUME_POLLING_DELTA = 100;
+    private static final int MUSIC_VOLUME_POLLING_DELTA = 80;
     private int prevMusicVolume;
     private Handler pollingHandler = new Handler();
     private AudioStreamState holdVolume = null;

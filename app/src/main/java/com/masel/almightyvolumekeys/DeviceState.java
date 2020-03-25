@@ -5,11 +5,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.ContentObserver;
+import android.hardware.camera2.CameraManager;
 import android.media.AudioManager;
 import android.media.AudioPlaybackConfiguration;
 import android.os.Build;
 import android.os.Handler;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
 import com.masel.rec_utils.RecUtils;
@@ -28,17 +30,19 @@ class DeviceState {
     static final int OTHER = 3;
 
     private MyContext myContext;
-    //private CameraManager cameraManager;
+    private CameraManager cameraManager;
 
+    private boolean isCameraActive;
     private boolean isMediaPlaying;
 
     DeviceState(MyContext myContext) {
         this.myContext = myContext;
 
-        //cameraManager = (CameraManager) myContext.context.getSystemService(Context.CAMERA_SERVICE);
+        cameraManager = (CameraManager) myContext.context.getSystemService(Context.CAMERA_SERVICE);
+        isCameraActive = false;
         isMediaPlaying = myContext.audioManager.isMusicActive();
 
-        //setupCameraStateCallbacks();
+        setupCameraStateCallbacks();
         setupMediaStateCallbacks();
         setupScreenStateCallbacks();
         setupDeviceUnlockedCallbacks();
@@ -77,6 +81,10 @@ class DeviceState {
 
     // region More states
 
+    boolean isCameraActive() {
+        return isCameraActive;
+    }
+
     boolean isMediaPlaying() {
         return isMediaPlaying;
     }
@@ -93,31 +101,35 @@ class DeviceState {
 
     // region Camera callbacks
 
-//    private List<Runnable> onCameraActiveList = new ArrayList<>();
-//    private List<Runnable> onCameraNotActiveList = new ArrayList<>();
-//
-//    void addCameraStateCallbacks(Runnable onCameraActive, Runnable onCameraNotActive) {
-//        onCameraActiveList.add(onCameraActive);
-//        onCameraNotActiveList.add(onCameraNotActive);
-//    }
-//
-//    private void setupCameraStateCallbacks() {
-//        cameraManager.registerAvailabilityCallback(cameraCallback, null);
-//    }
-//
-//    private CameraManager.AvailabilityCallback cameraCallback = new CameraManager.AvailabilityCallback() {
-//        @Override
-//        public void onCameraAvailable(@NonNull String cameraId) {
-//            super.onCameraAvailable(cameraId);
-//            for (Runnable onCameraActive : onCameraActiveList) onCameraActive.run();
-//        }
-//
-//        @Override
-//        public void onCameraUnavailable(@NonNull String cameraId) {
-//            super.onCameraUnavailable(cameraId);
-//            for (Runnable onCameraNotActive : onCameraNotActiveList) onCameraNotActive.run();
-//        }
-//    };
+    private List<Runnable> onCameraActiveList = new ArrayList<>();
+    private List<Runnable> onCameraNotActiveList = new ArrayList<>();
+
+    void addCameraStateCallbacks(Runnable onCameraActive, Runnable onCameraNotActive) {
+        onCameraActiveList.add(onCameraActive);
+        onCameraNotActiveList.add(onCameraNotActive);
+    }
+
+    private CameraManager.AvailabilityCallback cameraCallback = null;
+
+    private void setupCameraStateCallbacks() {
+        cameraCallback = new CameraManager.AvailabilityCallback() {
+            @Override
+            public void onCameraAvailable(@NonNull String cameraId) {
+                super.onCameraAvailable(cameraId);
+                isCameraActive = false;
+                for (Runnable onCameraNotActive : onCameraNotActiveList) onCameraNotActive.run();
+            }
+
+            @Override
+            public void onCameraUnavailable(@NonNull String cameraId) {
+                super.onCameraUnavailable(cameraId);
+                isCameraActive = true;
+                for (Runnable onCameraActive : onCameraActiveList) onCameraActive.run();
+            }
+        };
+        cameraManager.registerAvailabilityCallback(cameraCallback, null);
+    }
+
 
     // endregion
 
@@ -354,7 +366,7 @@ class DeviceState {
             public void onChange(boolean selfChange) {
                 super.onChange(selfChange);
 
-                //RecUtils.log("Settings change");
+                RecUtils.log("System settings change");
                 for (Runnable onSystemSettingsChange : onSystemSettingsChangeList) onSystemSettingsChange.run();
             }
         };
@@ -429,8 +441,7 @@ class DeviceState {
     // endregion
 
     void destroy() {
-        //cameraManager.unregisterAvailabilityCallback(cameraCallback);
-
+        if (cameraCallback != null) cameraManager.unregisterAvailabilityCallback(cameraCallback);
         stopPollingMediaState();
         if (Build.VERSION.SDK_INT >= 26 && audioPlaybackCallback != null) myContext.audioManager.unregisterAudioPlaybackCallback(audioPlaybackCallback);
         if (screenOffReceiver != null) myContext.context.unregisterReceiver(screenOffReceiver);

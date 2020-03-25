@@ -45,7 +45,7 @@ class Voice {
                 .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
                 .setLegacyStreamType(AudioManager.STREAM_MUSIC)
                 .setUsage(AudioAttributes.USAGE_ASSISTANCE_ACCESSIBILITY)
-                .setFlags(AudioAttributes.FLAG_AUDIBILITY_ENFORCED)
+                //.setFlags(AudioAttributes.FLAG_AUDIBILITY_ENFORCED)
                 .build());
         if (res == TextToSpeech.ERROR) tts = null;
     }
@@ -76,7 +76,7 @@ class Voice {
                         .setContentType(AudioAttributesCompat.CONTENT_TYPE_SPEECH)
                         .setLegacyStreamType(AudioManager.STREAM_MUSIC)
                         .setUsage(AudioAttributesCompat.USAGE_ASSISTANCE_ACCESSIBILITY)
-                        .setFlags(AudioAttributesCompat.FLAG_AUDIBILITY_ENFORCED)
+                        //.setFlags(AudioAttributesCompat.FLAG_AUDIBILITY_ENFORCED)
                         .build())
                 .setWillPauseWhenDucked(false)
                 .build();

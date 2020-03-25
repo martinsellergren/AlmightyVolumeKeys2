@@ -72,16 +72,16 @@ class ActionCommand {
             return;
         }
 
-        Action action = getGlobalAction(command);
-        if (action == null) action = getMappedAction(command);
+        Action action = getGlobalAction(command, deviceStateOnCommandStart);
+        if (action == null) action = getMappedAction(command, deviceStateOnCommandStart);
 
         if (action == null || action.getName().equals((new Actions.No_action().getName()))) {
-            RecUtils.log(String.format("Non-mapped command: %s (state:%s)", command, DeviceState.str(myContext.deviceState.getCurrent())));
+            RecUtils.log(String.format("Non-mapped command: %s (state:%s)", command, DeviceState.str(deviceStateOnCommandStart)));
             reset();
             return;
         }
 
-        RecUtils.log(String.format("Execute %s -> %s (state:%s)", command, action.getName(), DeviceState.str(myContext.deviceState.getCurrent())));
+        RecUtils.log(String.format("Execute %s -> %s (state:%s)", command, action.getName(), DeviceState.str(deviceStateOnCommandStart)));
 
         try {
             if (!RecUtils.hasPermissions(myContext.context, action.getNeededPermissions(myContext.context))) {
@@ -128,7 +128,9 @@ class ActionCommand {
         this.allowCurrentCommandToSetMinVolumeQuestion = allowCurrentCommandToSetMinVolumeQuestion;
     }
 
-    private Action getGlobalAction(String command) {
+    private Action getGlobalAction(String command, int deviceState) {
+        if (deviceState != DeviceState.MUSIC) return null;
+
         if (allowCurrentCommandToSetMaxVolumeQuestion != null
                 && allowCurrentCommandToSetMaxVolumeQuestion.ask()
                 && command.replace("3", "").matches("111+")) {
@@ -143,9 +145,8 @@ class ActionCommand {
         return null;
     }
 
-    private Action getMappedAction(String command) {
-        int state = myContext.deviceState.getCurrent();
-        String key = String.format("mappingListPreference_%s_command_%s", DeviceState.str(state).toLowerCase(), command);
+    private Action getMappedAction(String command, int deviceState) {
+        String key = String.format("mappingListPreference_%s_command_%s", DeviceState.str(deviceState).toLowerCase(), command);
 
         String actionName = myContext.sharedPreferences.getString(key, null);
         if (actionName == null) return null;

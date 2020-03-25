@@ -37,22 +37,25 @@ class VolumeKeyCaptureUsingMediaSession {
         myContext.deviceState.addMediaStopCallback(this::enableOrDisable);
         myContext.deviceState.addOnAllowSleepCallback(() -> mediaSession.setActive(false));
         myContext.deviceState.addScreenOnCallback(this::enableOrDisable);
-        myContext.deviceState.addOnRingerModeChangeCallback(this::onRingerModeChange);
-        myContext.deviceState.addOnSystemSettingsChangeCallback(this::syncMediaSessionVolume);
+        myContext.deviceState.addOnSystemSettingsChangeCallback(this::enableOrDisable);
+        myContext.deviceState.addOnSecureSettingsChangeCallback(this::enableOrDisable);
+        myContext.deviceState.addCameraStateCallbacks(this::enableOrDisable, this::enableOrDisable);
+        myContext.deviceState.addOnRingerModeChangeCallback(this::fineTuningsIfControllingRingerVolume);
 
         enableOrDisable();
     }
 
     private void enableOrDisable() {
         boolean active = deviceStateOkForCapture();
-        RecUtils.log("Volume key capture: media session: " + active);
-
-        mediaSession.setActive(active);
+        if (active != mediaSession.isActive()) {
+            RecUtils.log("Volume key capture: media session: " + active);
+            syncMediaSessionVolume();
+            mediaSession.setActive(active);
+        }
     }
 
     private boolean deviceStateOkForCapture() {
-        //return !myContext.deviceState.isDeviceUnlocked() && !myContext.deviceState.isMediaPlaying();
-        return !myContext.deviceState.isMediaPlaying();
+        return myContext.deviceState.getCurrent() == DeviceState.IDLE && !myContext.deviceState.isCameraActive();
     }
 
     void destroy() {
@@ -79,7 +82,7 @@ class VolumeKeyCaptureUsingMediaSession {
         }
     });
 
-    private void onRingerModeChange() {
+    private void fineTuningsIfControllingRingerVolume() {
         if (!mediaSession.isActive() || controlledAudioStream != AudioManager.STREAM_RING) return;
 
         int ringerMode = myContext.audioManager.getRingerMode();

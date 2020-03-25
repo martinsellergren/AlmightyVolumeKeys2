@@ -23,11 +23,7 @@ class VolumeKeyInputController {
         int press = volumeUp ? ActionCommand.VOLUME_PRESS_UP : ActionCommand.VOLUME_PRESS_DOWN;
         if (currentLongPress) press = volumeUp ? ActionCommand.VOLUME_PRESS_LONG_UP : ActionCommand.VOLUME_PRESS_LONG_DOWN;
 
-        int state = myContext.deviceState.getCurrent();
-        if (state == DeviceState.IDLE || state == DeviceState.MUSIC || state == DeviceState.SOUNDREC) {
-            actionCommand.addBit(press, resetAudioStreamState);
-        }
-
+        actionCommand.addBit(press, resetAudioStreamState);
         currentLongPress = false;
     }
 

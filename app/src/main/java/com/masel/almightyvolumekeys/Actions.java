@@ -651,6 +651,23 @@ class Actions {
 
     // region Tell time
 
+    static class Tell_time extends Action {
+        @Override
+        String getName() {
+            return "Tell time";
+        }
+
+        @Override
+        void run(MyContext myContext) throws ExecutionException {
+            tellTime(myContext, -1);
+        }
+
+        @Override
+        Notifier.VibrationPattern getVibrationPattern() {
+            return Notifier.VibrationPattern.SILENT;
+        }
+    }
+
     static class Tell_time_volume_100 extends Action {
         @Override
         String getName() {
@@ -872,6 +889,23 @@ class Actions {
         void run(MyContext myContext) throws ExecutionException {
             Settings.System.putInt(myContext.context.getContentResolver(), Settings.System.ACCELEROMETER_ROTATION, 0);
             Settings.System.putInt(myContext.context.getContentResolver(), Settings.System.USER_ROTATION, Surface.ROTATION_270);
+        }
+
+        @Override
+        String[] getNeededPermissions(Context context) {
+            return new String[]{Settings.ACTION_MANAGE_WRITE_SETTINGS};
+        }
+    }
+
+    static class Screen_rotation_portrait_landscape extends MultiAction {
+        @Override
+        Action pickAction(MyContext myContext) {
+            if (Settings.System.getInt(myContext.context.getContentResolver(), Settings.System.USER_ROTATION, -1) != 0) {
+                return new Screen_rotation_portrait();
+            }
+            else {
+                return new Screen_rotation_landscape_1();
+            }
         }
 
         @Override

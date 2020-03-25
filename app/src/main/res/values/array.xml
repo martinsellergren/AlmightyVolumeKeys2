@@ -8,6 +8,7 @@
         <item>Screen rotation: portrait</item>
         <item>Screen rotation: landscape 1</item>
         <item>Screen rotation: landscape 2</item>
+        <item>Screen rotation: portrait/landscape</item>
         <item>Screen auto-rotate: on</item>
         <item>Screen auto-rotate: off</item>
         <item>Screen auto-rotate: on/off</item>
@@ -42,6 +43,11 @@
         <item>Announce tune: title, artist and album</item>
         <item>Media volume: 100%</item>
         <item>Media volume: 0%</item>
+        <item>Tell time</item>
+        <item>Screen rotation: portrait</item>
+        <item>Screen rotation: landscape 1</item>
+        <item>Screen rotation: landscape 2</item>
+        <item>Screen rotation: portrait/landscape</item>
     </string-array>
 
     <string-array name="soundrec_actions">
