@@ -56,13 +56,13 @@
     </PreferenceCategory>
 
     <PreferenceCategory
-        app:title="Text-to-speech settings"
+        app:title="Voice settings"
         app:singleLineTitle="false">
 
         <Preference
             app:key="Preference_gotoTtsSettings"
             app:title="Open Text-to-speech settings"
-            app:summary="Specify for example spoken language."
+            app:summary="Specify for example voice language."
             app:singleLineTitle="false"
             app:icon="@drawable/mic_24dp"/>
 

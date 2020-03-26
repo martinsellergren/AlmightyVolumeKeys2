@@ -2,71 +2,68 @@
 <resources>
     <string-array name="idle_actions">
         <item>No action</item>
-        <item>Media: play</item>
-        <item>Sound recorder: start</item>
-        <item>Flashlight: on/off</item>
+        <item>Media: Play</item>
+        <item>Sound recorder: Start</item>
+        <item>Flashlight: On/Off</item>
         <item>Switch keyboard</item>
-        <item>Screen rotation: portrait</item>
-        <item>Screen rotation: landscape 1</item>
-        <item>Screen rotation: landscape 2</item>
-        <item>Screen rotation: portrait/landscape</item>
-        <item>Screen auto-rotate: on</item>
-        <item>Screen auto-rotate: off</item>
-        <item>Screen auto-rotate: on/off</item>
-        <item>Do not disturb: on</item>
-        <item>Do not disturb: off</item>
-        <item>Do not disturb: on/off</item>
-        <item>Sound mode: sound</item>
-        <item>Sound mode: sound (volume 100%)</item>
-        <item>Sound mode: vibrate</item>
-        <item>Sound mode: silent</item>
-        <item>Sound mode: sound/vibrate</item>
-        <item>Sound mode: sound/silent</item>
-        <item>Sound mode: vibrate/silent</item>
-        <item>Tell time (volume 100%)</item>
-        <item>Tell time (volume 75%)</item>
-        <item>Tell time (volume 50%)</item>
-        <item>Bluetooth: on</item>
-        <item>Bluetooth: off</item>
-        <item>Bluetooth: on/off</item>
+        <item>Screen orientation: Portrait</item>
+        <item>Screen orientation: Landscape 1</item>
+        <item>Screen orientation: Landscape 2</item>
+        <item>Screen orientation: Portrait/Landscape</item>
+        <item>Screen auto-rotate: On</item>
+        <item>Screen auto-rotate: Off</item>
+        <item>Screen auto-rotate: On/Off</item>
+        <item>Do not disturb: On</item>
+        <item>Do not disturb: Off</item>
+        <item>Do not disturb: On/Off</item>
+        <item>Sound mode: Sound</item>
+        <item>Sound mode: Sound (volume 100%)</item>
+        <item>Sound mode: Vibrate</item>
+        <item>Sound mode: Silent</item>
+        <item>Sound mode: Sound/Vibrate</item>
+        <item>Sound mode: Sound/Silent</item>
+        <item>Sound mode: Vibrate/Silent</item>
+        <item>Voice: Tell time (volume 100%)</item>
+        <item>Voice: Tell time (volume 75%)</item>
+        <item>Voice: Tell time (volume 50%)</item>
+        <item>Voice: Tell time and date (volume 100%)</item>
+        <item>Voice: Tell time and date (volume 75%)</item>
+        <item>Voice: Tell time and date (volume 50%)</item>
+        <item>Bluetooth: On</item>
+        <item>Bluetooth: Off</item>
+        <item>Bluetooth: On/Off</item>
         <item>Media volume: 100%</item>
         <item>Media volume: 0%</item>
     </string-array>
 
     <string-array name="music_actions">
         <item>No action</item>
-        <item>Media: pause</item>
-        <item>Media: next</item>
-        <item>Media: previous</item>
-        <item>Media: previous x2</item>
-        <item>Announce tune: title</item>
-        <item>Announce tune: title and artist</item>
-        <item>Announce tune: title, artist and album</item>
+        <item>Media: Pause</item>
+        <item>Media: Next</item>
+        <item>Media: Previous</item>
+        <item>Media: Previous x2</item>
+        <item>Voice: Announce tune (title)</item>
+        <item>Voice: Announce tune (title and artist)</item>
+        <item>Voice: Announce tune (title, artist and album)</item>
+        <item>Voice: Tell time</item>
+        <item>Voice: Tell time and date</item>
         <item>Media volume: 100%</item>
         <item>Media volume: 0%</item>
-        <item>Tell time</item>
-        <item>Screen rotation: portrait</item>
-        <item>Screen rotation: landscape 1</item>
-        <item>Screen rotation: landscape 2</item>
-        <item>Screen rotation: portrait/landscape</item>
+        <item>Screen orientation: Portrait</item>
+        <item>Screen orientation: Landscape 1</item>
+        <item>Screen orientation: Landscape 2</item>
+        <item>Screen orientation: Portrait/Landscape</item>
     </string-array>
 
     <string-array name="soundrec_actions">
         <item>No action</item>
-        <item>Sound recorder: stop and save</item>
-        <item>Sound recorder: stop and trash</item>
+        <item>Sound recorder: Stop and save</item>
+        <item>Sound recorder: Stop and trash</item>
     </string-array>
 
     <string-array name="media_or_ringtone_volume">
         <item>Media volume</item>
         <item>Ringtone volume</item>
-    </string-array>
-
-    <string-array name="media_or_ringtone_volume_with_after_5_clicks">
-        <item>Media volume</item>
-        <item>Ringtone volume</item>
-        <item>Media volume after 5 clicks</item>
-        <item>Ringtone volume after 5 clicks</item>
     </string-array>
 
 </resources>

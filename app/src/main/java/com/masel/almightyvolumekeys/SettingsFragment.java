@@ -42,15 +42,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
         Preference gotoTtsSettings = findPreference("Preference_gotoTtsSettings");
         gotoTtsSettings.setOnPreferenceClickListener(preference -> {
-            Intent intent = new Intent();
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
-            intent.setAction("com.android.settings.TTS_SETTINGS");
-            try {
-                startActivity(intent);
-            }
-            catch (Exception e) {
-                RecUtils.toast(getContext(), "Find Text-to-speech in device settings");
-            }
+            Utils.gotoTtsSettings(getContext());
             return true;
         });
     }

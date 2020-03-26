@@ -1,9 +1,7 @@
 package com.masel.almightyvolumekeys;
 
 import android.Manifest;
-import android.app.NotificationManager;
 import android.content.Context;
-import android.content.Intent;
 import android.media.AudioManager;
 import android.media.ToneGenerator;
 import android.os.Build;
@@ -12,7 +10,7 @@ import android.view.KeyEvent;
 import android.view.Surface;
 import android.view.inputmethod.InputMethodManager;
 
-import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.masel.rec_utils.RecUtils;
 
@@ -44,10 +42,10 @@ class Actions {
 
     // region Audio recording
 
-    static class Sound_recorder_start extends Action {
+    static class Sound_recorder_Start extends Action {
         @Override
         String getName() {
-            return "Sound recorder: start";
+            return "Sound recorder: Start";
         }
 
         @Override
@@ -80,10 +78,10 @@ class Actions {
         }
     }
 
-    static class Sound_recorder_stop_and_save extends Action {
+    static class Sound_recorder_Stop_and_save extends Action {
         @Override
         String getName() {
-            return "Sound recorder: stop and save";
+            return "Sound recorder: Stop and save";
         }
 
         @Override
@@ -115,10 +113,10 @@ class Actions {
         }
     }
 
-    static class Sound_recorder_stop_and_trash extends Action {
+    static class Sound_recorder_Stop_and_trash extends Action {
         @Override
         String getName() {
-            return "Sound recorder: stop and trash";
+            return "Sound recorder: Stop and trash";
         }
 
         @Override
@@ -154,10 +152,10 @@ class Actions {
 
     // region Media control
 
-    static class Media_next extends Action {
+    static class Media_Next extends Action {
         @Override
         String getName() {
-            return "Media: next";
+            return "Media: Next";
         }
 
         @Override
@@ -176,10 +174,10 @@ class Actions {
         }
     }
 
-    static class Media_previous extends Action {
+    static class Media_Previous extends Action {
         @Override
         String getName() {
-            return "Media: previous";
+            return "Media: Previous";
         }
 
         @Override
@@ -198,10 +196,10 @@ class Actions {
         }
     }
 
-    static class Media_previous_x2 extends Action {
+    static class Media_Previous_x2 extends Action {
         @Override
         String getName() {
-            return "Media: previous x2";
+            return "Media: Previous x2";
         }
 
         @Override
@@ -221,10 +219,10 @@ class Actions {
         }
     }
 
-    static class Media_play extends Action {
+    static class Media_Play extends Action {
         @Override
         String getName() {
-            return "Media: play";
+            return "Media: Play";
         }
 
         @Override
@@ -243,10 +241,10 @@ class Actions {
         }
     }
 
-    static class Media_pause extends Action {
+    static class Media_Pause extends Action {
         @Override
         String getName() {
-            return "Media: pause";
+            return "Media: Pause";
         }
 
         @Override
@@ -275,10 +273,10 @@ class Actions {
 
     // region Announce tune
 
-    static class Announce_tune_title extends Action {
+    static class Voice_Announce_tune_title extends Action {
         @Override
         String getName() {
-            return "Announce tune: title";
+            return "Voice: Announce tune (title)";
         }
 
         @Override
@@ -292,10 +290,10 @@ class Actions {
         }
     }
 
-    static class Announce_tune_title_and_artist extends Action {
+    static class Voice_Announce_tune_title_and_artist extends Action {
         @Override
         String getName() {
-            return "Announce tune: title and artist";
+            return "Voice: Announce tune (title and artist)";
         }
 
         @Override
@@ -309,10 +307,10 @@ class Actions {
         }
     }
 
-    static class Announce_tune_title_artist_and_album extends Action {
+    static class Voice_Announce_tune_title_artist_and_album extends Action {
         @Override
         String getName() {
-            return "Announce tune: title, artist and album";
+            return "Voice: Announce tune (title, artist and album)";
         }
 
         @Override
@@ -330,10 +328,10 @@ class Actions {
 
     // region Sound mode
 
-    static class Sound_mode_sound extends Action {
+    static class Sound_mode_Sound extends Action {
         @Override
         String getName() {
-            return "Sound mode: sound";
+            return "Sound mode: Sound";
         }
 
         @Override
@@ -357,10 +355,10 @@ class Actions {
         }
     }
 
-    static class Sound_mode_sound_volume_100 extends Action {
+    static class Sound_mode_Sound_volume_100 extends Action {
         @Override
         String getName() {
-            return "Sound mode: sound (volume 100%)";
+            return "Sound mode: Sound (volume 100%)";
         }
 
         @Override
@@ -386,10 +384,10 @@ class Actions {
         }
     }
 
-    static class Sound_mode_vibrate extends Action {
+    static class Sound_mode_Vibrate extends Action {
         @Override
         String getName() {
-            return "Sound mode: vibrate";
+            return "Sound mode: Vibrate";
         }
 
         @Override
@@ -413,10 +411,10 @@ class Actions {
         }
     }
 
-    static class Sound_mode_silent extends Action {
+    static class Sound_mode_Silent extends Action {
         @Override
         String getName() {
-            return "Sound mode: silent";
+            return "Sound mode: Silent";
         }
 
         @Override
@@ -440,13 +438,13 @@ class Actions {
         }
     }
 
-    static class Sound_mode_sound_vibrate extends MultiAction {
+    static class Sound_mode_Sound_Vibrate extends MultiAction {
         @Override
         Action pickAction(MyContext myContext) {
             switch (myContext.audioManager.getRingerMode()) {
-                case AudioManager.RINGER_MODE_VIBRATE: return new Sound_mode_sound();
-                case AudioManager.RINGER_MODE_NORMAL: return new Sound_mode_vibrate();
-                default: return new Sound_mode_sound();
+                case AudioManager.RINGER_MODE_VIBRATE: return new Sound_mode_Sound();
+                case AudioManager.RINGER_MODE_NORMAL: return new Sound_mode_Vibrate();
+                default: return new Sound_mode_Sound();
             }
         }
 
@@ -456,13 +454,13 @@ class Actions {
         }
     }
 
-    static class Sound_mode_sound_silent extends MultiAction {
+    static class Sound_mode_Sound_Silent extends MultiAction {
         @Override
         Action pickAction(MyContext myContext) {
             switch (myContext.audioManager.getRingerMode()) {
-                case AudioManager.RINGER_MODE_SILENT: return new Sound_mode_sound();
-                case AudioManager.RINGER_MODE_NORMAL: return new Sound_mode_silent();
-                default: return new Sound_mode_sound();
+                case AudioManager.RINGER_MODE_SILENT: return new Sound_mode_Sound();
+                case AudioManager.RINGER_MODE_NORMAL: return new Sound_mode_Silent();
+                default: return new Sound_mode_Sound();
             }
         }
 
@@ -472,13 +470,13 @@ class Actions {
         }
     }
 
-    static class Sound_mode_vibrate_silent extends MultiAction {
+    static class Sound_mode_Vibrate_Silent extends MultiAction {
         @Override
         Action pickAction(MyContext myContext) {
             switch (myContext.audioManager.getRingerMode()) {
-                case AudioManager.RINGER_MODE_SILENT: return new Sound_mode_vibrate();
-                case AudioManager.RINGER_MODE_VIBRATE: return new Sound_mode_silent();
-                default: return new Sound_mode_vibrate();
+                case AudioManager.RINGER_MODE_SILENT: return new Sound_mode_Vibrate();
+                case AudioManager.RINGER_MODE_VIBRATE: return new Sound_mode_Silent();
+                default: return new Sound_mode_Vibrate();
             }
         }
 
@@ -499,11 +497,11 @@ class Actions {
 
     // region DND mode
 
-    static class Do_not_disturb_on extends Action {
+    static class Do_not_disturb_On extends Action {
 
         @Override
         String getName() {
-            return "Do not disturb: on";
+            return "Do not disturb: On";
         }
 
         @Override
@@ -535,10 +533,10 @@ class Actions {
         }
     }
 
-    static class Do_not_disturb_off extends Action {
+    static class Do_not_disturb_Off extends Action {
         @Override
         String getName() {
-            return "Do not disturb: off";
+            return "Do not disturb: Off";
         }
 
         @Override
@@ -570,11 +568,11 @@ class Actions {
         }
     }
 
-    static class Do_not_disturb_on_off extends MultiAction {
+    static class Do_not_disturb_On_Off extends MultiAction {
         @Override
         Action pickAction(MyContext myContext) {
-            if (RecUtils.dndIsOn(myContext.notificationManager)) return new Do_not_disturb_off();
-            else return new Do_not_disturb_on();
+            if (RecUtils.dndIsOn(myContext.notificationManager)) return new Do_not_disturb_Off();
+            else return new Do_not_disturb_On();
         }
 
         @Override
@@ -595,10 +593,10 @@ class Actions {
 
     // region Flashlight
 
-    static class Flashlight_on extends Action {
+    static class Flashlight_On extends Action {
         @Override
         String getName() {
-            return "Flashlight: on";
+            return "Flashlight: On";
         }
 
         @Override
@@ -613,10 +611,10 @@ class Actions {
         }
     }
 
-    static class Flashlight_off extends Action {
+    static class Flashlight_Off extends Action {
         @Override
         String getName() {
-            return "Flashlight: off";
+            return "Flashlight: Off";
         }
 
         @Override
@@ -636,11 +634,11 @@ class Actions {
         }
     }
 
-    static class Flashlight_on_off extends MultiAction {
+    static class Flashlight_On_Off extends MultiAction {
 
         @Override
         Action pickAction(MyContext myContext) {
-            return myContext.flashlight.isOn() ? new Flashlight_off() : new Flashlight_on();
+            return myContext.flashlight.isOn() ? new Flashlight_Off() : new Flashlight_On();
         }
 
         @Override
@@ -653,10 +651,10 @@ class Actions {
 
     // region Tell time
 
-    static class Tell_time extends Action {
+    static class Voice_Tell_time extends Action {
         @Override
         String getName() {
-            return "Tell time";
+            return "Voice: Tell time";
         }
 
         @Override
@@ -670,10 +668,10 @@ class Actions {
         }
     }
 
-    static class Tell_time_volume_100 extends Action {
+    static class Voice_Tell_time_volume_100 extends Action {
         @Override
         String getName() {
-            return "Tell time (volume 100%)";
+            return "Voice: Tell time (volume 100%)";
         }
 
         @Override
@@ -687,10 +685,10 @@ class Actions {
         }
     }
 
-    static class Tell_time_volume_75 extends Action {
+    static class Voice_Tell_time_volume_75 extends Action {
         @Override
         String getName() {
-            return "Tell time (volume 75%)";
+            return "Voice: Tell time (volume 75%)";
         }
 
         @Override
@@ -704,10 +702,10 @@ class Actions {
         }
     }
 
-    static class Tell_time_volume_50 extends Action {
+    static class Voice_Tell_time_volume_50 extends Action {
         @Override
         String getName() {
-            return "Tell time (volume 50%)";
+            return "Voice: Tell time (volume 50%)";
         }
 
         @Override
@@ -721,21 +719,96 @@ class Actions {
         }
     }
 
-    private static void tellTime(MyContext myContext, int volumePercentage) throws Action.ExecutionException {
-        String currentTime = new SimpleDateFormat("HH:mm", Locale.getDefault()).format(new Date());
+    private static void tellTime(MyContext myContext, int volumePercentage, boolean alsoDate) throws Action.ExecutionException {
+        String currentTime = new SimpleDateFormat("HH:mm" + (alsoDate ? ", MM/dd/yyyy" : ""), Locale.getDefault()).format(new Date());
         boolean ok = myContext.voice.speak(currentTime, volumePercentage);
         if (!ok) throw new Action.ExecutionException("Text-to-speech error");
     }
+    private static void tellTime(MyContext myContext, int volumePercentage) throws Action.ExecutionException {
+        tellTime(myContext, volumePercentage, false);
+    }
 
+    // endregion
+
+    // region Tell time and date
+
+
+    static class Voice_Tell_time_and_date extends Action {
+        @Override
+        String getName() {
+            return "Voice: Tell time and date";
+        }
+
+        @Override
+        void run(MyContext myContext) throws ExecutionException {
+            tellTime(myContext, -1, true);
+        }
+
+        @Override
+        Notifier.VibrationPattern getVibrationPattern() {
+            return Notifier.VibrationPattern.SILENT;
+        }
+    }
+
+    static class Voice_Tell_time_and_date_volume_100 extends Action {
+        @Override
+        String getName() {
+            return "Voice: Tell time and date (volume 100%)";
+        }
+
+        @Override
+        void run(MyContext myContext) throws ExecutionException {
+            tellTime(myContext, 100, true);
+        }
+
+        @Override
+        Notifier.VibrationPattern getVibrationPattern() {
+            return Notifier.VibrationPattern.SILENT;
+        }
+    }
+
+    static class Voice_Tell_time_and_date_volume_75 extends Action {
+        @Override
+        String getName() {
+            return "Voice: Tell time and date (volume 75%)";
+        }
+
+        @Override
+        void run(MyContext myContext) throws ExecutionException {
+            tellTime(myContext, 75, true);
+        }
+
+        @Override
+        Notifier.VibrationPattern getVibrationPattern() {
+            return Notifier.VibrationPattern.SILENT;
+        }
+    }
+
+    static class Voice_Tell_time_and_date_volume_50 extends Action {
+        @Override
+        String getName() {
+            return "Voice: Tell time and date (volume 50%)";
+        }
+
+        @Override
+        void run(MyContext myContext) throws ExecutionException {
+            tellTime(myContext, 50, true);
+        }
+
+        @Override
+        Notifier.VibrationPattern getVibrationPattern() {
+            return Notifier.VibrationPattern.SILENT;
+        }
+    }
 
     // endregion
 
     // region Bluetooth
 
-    static class Bluetooth_on extends Action {
+    static class Bluetooth_On extends Action {
         @Override
         String getName() {
-            return "Bluetooth: on";
+            return "Bluetooth: On";
         }
 
         @Override
@@ -755,10 +828,10 @@ class Actions {
         }
     }
 
-    static class Bluetooth_off extends Action {
+    static class Bluetooth_Off extends Action {
         @Override
         String getName() {
-            return "Bluetooth: off";
+            return "Bluetooth: Off";
         }
 
         @Override
@@ -778,11 +851,11 @@ class Actions {
         }
     }
 
-    static class Bluetooth_on_off extends MultiAction {
+    static class Bluetooth_On_Off extends MultiAction {
         @Override
         Action pickAction(MyContext myContext) {
-            if (MyBluetooth.isEnabled()) return new Bluetooth_off();
-            else return new Bluetooth_on();
+            if (MyBluetooth.isEnabled()) return new Bluetooth_Off();
+            else return new Bluetooth_On();
         }
 
         @Override
@@ -847,10 +920,10 @@ class Actions {
 
     // region Rotate screen
 
-    static class Screen_rotation_portrait extends Action {
+    static class Screen_orientation_Portrait extends Action {
         @Override
         String getName() {
-            return "Screen rotation: portrait";
+            return "Screen orientation: Portrait";
         }
 
         @Override
@@ -865,10 +938,10 @@ class Actions {
         }
     }
 
-    static class Screen_rotation_landscape_1 extends Action {
+    static class Screen_orientation_Landscape_1 extends Action {
         @Override
         String getName() {
-            return "Screen rotation: landscape 1";
+            return "Screen orientation: Landscape 1";
         }
 
         @Override
@@ -883,10 +956,10 @@ class Actions {
         }
     }
 
-    static class Screen_rotation_landscape_2 extends Action {
+    static class Screen_orientation_Landscape_2 extends Action {
         @Override
         String getName() {
-            return "Screen rotation: landscape 2";
+            return "Screen orientation: Landscape 2";
         }
 
         @Override
@@ -901,14 +974,14 @@ class Actions {
         }
     }
 
-    static class Screen_rotation_portrait_landscape extends MultiAction {
+    static class Screen_orientation_Portrait_Landscape extends MultiAction {
         @Override
         Action pickAction(MyContext myContext) {
             if (Settings.System.getInt(myContext.context.getContentResolver(), Settings.System.USER_ROTATION, -1) != 0) {
-                return new Screen_rotation_portrait();
+                return new Screen_orientation_Portrait();
             }
             else {
-                return new Screen_rotation_landscape_1();
+                return new Screen_orientation_Landscape_1();
             }
         }
 
@@ -918,10 +991,10 @@ class Actions {
         }
     }
 
-    static class Screen_auto_rotate_on extends Action {
+    static class Screen_auto_rotate_On extends Action {
         @Override
         String getName() {
-            return "Screen auto-rotate: on";
+            return "Screen auto-rotate: On";
         }
 
         @Override
@@ -940,10 +1013,10 @@ class Actions {
         }
     }
 
-    static class Screen_auto_rotate_off extends Action {
+    static class Screen_auto_rotate_Off extends Action {
         @Override
         String getName() {
-            return "Screen auto-rotate: off";
+            return "Screen auto-rotate: Off";
         }
 
         @Override
@@ -962,12 +1035,12 @@ class Actions {
         }
     }
 
-    static class Screen_auto_rotate_on_off extends MultiAction {
+    static class Screen_auto_rotate_On_Off extends MultiAction {
         @Override
         Action pickAction(MyContext myContext) {
             int status = Settings.System.getInt(myContext.context.getContentResolver(), Settings.System.ACCELEROMETER_ROTATION, -1);
-            if (status == 0) return new Screen_auto_rotate_on();
-            if (status == 1) return new Screen_auto_rotate_off();
+            if (status == 0) return new Screen_auto_rotate_On();
+            if (status == 1) return new Screen_auto_rotate_Off();
 
             return new No_action();
         }
@@ -1041,8 +1114,8 @@ class Actions {
      * @param name As defined in res/values/array.xml, as returned by action.getName().
      * @return Action with specified ~class-name
      */
-    @NonNull
-    static Action getActionFromName(String name) {
+    static @Nullable Action getActionFromName(@Nullable String name) {
+        if (name == null) return null;
         if (name.matches("^Tasker.*")) {
             return new TaskerAction(name);
         }
@@ -1054,7 +1127,7 @@ class Actions {
             return (Action)Class.forName(name).newInstance();
         }
         catch (Exception e) {
-            throw new RuntimeException("Error creating object: " + name);
+            return null;
         }
     }
 }

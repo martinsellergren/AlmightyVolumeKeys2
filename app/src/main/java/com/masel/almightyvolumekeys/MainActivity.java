@@ -32,6 +32,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //Utils.validateActions(this); //todo
+
         setContentView(R.layout.activity_main);
 
         RecUtils.initSettingsSharedPreferences(this, R.xml.settings);

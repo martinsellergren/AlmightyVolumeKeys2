@@ -9,12 +9,10 @@ import android.util.AttributeSet;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.ListPreference;
-import androidx.preference.Preference;
 import androidx.preference.PreferenceManager;
 
 import com.masel.rec_utils.RecUtils;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -56,6 +54,7 @@ public class MappingListPreference extends ListPreference {
             String state = extractState(getKey());
             String actionName = newValue.toString();
             Action action = Actions.getActionFromName(actionName);
+            if (action == null) return false;
 
             if (!action.isAvailable(context)) {
                 RecUtils.showHeadsUpDialog(getActivity(), "This action is not available on your device. See Help for more info.", null);
@@ -88,12 +87,12 @@ public class MappingListPreference extends ListPreference {
             }
 
             List<String> headsUps = new ArrayList<>();
-            RecUtils.SRunnable endAction = () -> requestNeededPermissions(actionName);
+            RecUtils.SRunnable endAction = () -> requestNeededPermissions(action);
 
-            if (actionName.equals(new Actions.Media_pause().getName())) {
+            if (actionName.equals(new Actions.Media_Pause().getName())) {
                 headsUps.add("To resume playing, use <b>Media: play</b>-action in the IDLE-tab.");
             }
-            if (actionName.equals(new Actions.Media_play().getName())) {
+            if (actionName.equals(new Actions.Media_Play().getName())) {
                 headsUps.add("This action will start playing the media you <b>recently paused</b>.\n\nTo control currently playing media, see the <b>MEDIA-tab</b>.");
             }
             if (actionName.equals(new Actions.Media_volume_0().getName())) {
@@ -102,21 +101,29 @@ public class MappingListPreference extends ListPreference {
             if (actionName.equals(new Actions.Media_volume_100().getName())) {
                 headsUps.add("MEDIA-commands starting with Volume Up won't work when at 100% media volume.");
             }
-            if (actionName.equals(new Actions.Sound_recorder_start().getName()) && !TheSoundRecorderConnection.appIsInstalled(context)) {
+            if (actionName.equals(new Actions.Sound_recorder_Start().getName()) && !TheSoundRecorderConnection.appIsInstalled(context)) {
                 headsUps.add("For sound recording, you need to install another app: <b>The Sound Recorder</b>.");
                 endAction = () -> RecUtils.openAppOnPlayStore(getContext(), "com.masel.thesoundrecorder2");
             }
-            if (actionName.equals(new Actions.Sound_recorder_start().getName()) && TheSoundRecorderConnection.appIsInstalled(context)) {
+            if (actionName.equals(new Actions.Sound_recorder_Start().getName()) && TheSoundRecorderConnection.appIsInstalled(context)) {
                 headsUps.add("To <b>stop recording</b>, see the <b>SOUND REC-tab</b> (or click the Recording... notification).");
             }
-            if (actionName.equals(new Actions.Sound_mode_sound_volume_100().getName())) {
+            if (actionName.equals(new Actions.Sound_mode_Sound_volume_100().getName())) {
                 headsUps.add("This action will set <b>ringtone</b> and <b>notification</b> volume to 100%.");
             }
-            if (HelpSystem.isLongPressHeadsUpAppropriate(getContext()) && extractCommand(getKey()).matches(".*[23].*")) {
+            if (extractCommand(getKey()).matches(".*[23].*") && HelpSystem.isLongPressHeadsUpAppropriate(getContext())) {
                 headsUps.add("<b>Long press guide:</b>\n1. Press and hold.\n2. Short vibration after 0.5 seconds.\n3. Release to execute action.\n\nMore info in Help.");
                 endAction = () -> {
                     HelpSystem.longPressHeadsUpShown(getContext());
-                    requestNeededPermissions(actionName);
+                    requestNeededPermissions(action);
+                };
+            }
+            if (actionName.matches("^Voice:.*") && HelpSystem.isVoiceHeadsUpAppropriate(getContext())) {
+                headsUps.add("Specify <b>voice language</b> and more in device Text-to-speech <b>settings</b>.");
+                endAction = () -> {
+                    Utils.gotoTtsSettings(getContext());
+                    HelpSystem.voiceHeadsUpShown(getContext());
+                    requestNeededPermissions(action);
                 };
             }
 
@@ -166,8 +173,9 @@ public class MappingListPreference extends ListPreference {
     private void setNoActionIfCurrentlySetIsUnavailable() {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
         String mappedActionName = sharedPreferences.getString(getKey(), null);
+        Action mappedAction = Actions.getActionFromName(mappedActionName);
 
-        if (mappedActionName != null && !Actions.getActionFromName(mappedActionName).isAvailable(getContext())) {
+        if (mappedAction != null && !mappedAction.isAvailable(getContext())) {
             sharedPreferences.edit().putString(getKey(), new Actions.No_action().getName()).apply();
         }
     }
@@ -184,7 +192,6 @@ public class MappingListPreference extends ListPreference {
      * End of list has available tasker tasks dynamically loaded. Formatted 'Tasker: xxx', or if no tasker tasks, one entry: 'Tasker task')
      */
     private String[] entriesWithState(String state) {
-        int res;
         if (state.equals("idle")) {
             List<String> entries = new ArrayList<>(Arrays.asList(getContext().getResources().getStringArray(R.array.idle_actions)));
             List<String> taskerEntries = taskerEntries();
@@ -215,8 +222,8 @@ public class MappingListPreference extends ListPreference {
         return entries;
     }
 
-    private void requestNeededPermissions(String actionName) {
-        Action action = Actions.getActionFromName(actionName);
+    private void requestNeededPermissions(Action action) {
+        if (action == null) return;
         RecUtils.requestPermissions(getActivity(), Arrays.asList(action.getNeededPermissions(getContext())));
     }
 

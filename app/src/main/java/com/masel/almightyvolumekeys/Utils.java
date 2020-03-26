@@ -25,6 +25,7 @@ import androidx.preference.PreferenceManager;
 
 import com.masel.rec_utils.RecUtils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -152,6 +153,31 @@ class Utils {
             RecUtils.log(info);
         }
         RecUtils.log(" ");
+    }
+
+    static void validateActions(Context context) {
+        List<String> actionNames = new ArrayList<>(Arrays.asList(context.getResources().getStringArray(R.array.idle_actions)));
+        actionNames.addAll(new ArrayList<>(Arrays.asList(context.getResources().getStringArray(R.array.music_actions))));
+        actionNames.addAll(new ArrayList<>(Arrays.asList(context.getResources().getStringArray(R.array.soundrec_actions))));
+
+        for (String name : actionNames) {
+            Action action = Actions.getActionFromName(name);
+
+            if (action == null || (!(action instanceof MultiAction) && !action.getName().equals(name))) {
+                throw new RuntimeException("Action inconsistency: " + name);
+            }
+        }
+    }
+
+    static void gotoTtsSettings(Context context) {
+        Intent intent = new Intent("com.android.settings.TTS_SETTINGS");
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
+        try {
+            context.startActivity(intent);
+        }
+        catch (Exception e) {
+            RecUtils.toast(context, "Find Text-to-speech in device settings");
+        }
     }
 
     // endregion

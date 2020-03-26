@@ -82,7 +82,11 @@ class TuneAnnouncer {
     private String optimizeForAnnouncement(String text) {
         String initSymbolsRegex = "^[^\\p{IsAlphabetic}\\p{IsDigit}]*";
         text = text.replaceFirst(initSymbolsRegex, "");
-        return RecUtils.reverse(RecUtils.reverse(text).replaceFirst(initSymbolsRegex, ""));
+        text = RecUtils.reverse(RecUtils.reverse(text).replaceFirst(initSymbolsRegex, ""));
+
+        if (text.equalsIgnoreCase("unknown")) text = "";
+
+        return text;
     }
 
     private MediaController getPlayingMediaController() {

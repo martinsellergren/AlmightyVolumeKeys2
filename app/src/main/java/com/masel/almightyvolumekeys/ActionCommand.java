@@ -5,6 +5,8 @@ import android.media.AudioManager;
 import android.os.Handler;
 import android.util.Log;
 
+import androidx.annotation.Nullable;
+
 import com.masel.rec_utils.RecUtils;
 
 import java.util.Map;
@@ -150,7 +152,7 @@ class ActionCommand {
         return null;
     }
 
-    private Action getMappedAction(String command, int deviceState) {
+    private @Nullable Action getMappedAction(String command, int deviceState) {
         String key = String.format("mappingListPreference_%s_command_%s", DeviceState.str(deviceState).toLowerCase(), command);
 
         String actionName = myContext.sharedPreferences.getString(key, null);
