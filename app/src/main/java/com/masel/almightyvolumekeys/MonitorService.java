@@ -39,7 +39,6 @@ public class MonitorService extends NotificationListenerService {
             });
 
             DisableAppOnInactiveDevice.init(myContext);
-            saveIsEnabled(true);
         });
     }
 
@@ -52,7 +51,6 @@ public class MonitorService extends NotificationListenerService {
     public void onListenerDisconnected() {
         Utils.runOnMainThread(() -> {
             RecUtils.log("Monitor service stopped");
-            saveIsEnabled(false);
 
             volumeKeyCaptureUsingMediaSession.destroy();
             volumeKeyCaptureUsingPolling.destroy();
@@ -75,12 +73,8 @@ public class MonitorService extends NotificationListenerService {
 
     private static final String MONITOR_SERVICE_IS_ENABLED_KEY = "MONITOR_SERVICE_IS_ENABLED_KEY";
 
-    private void saveIsEnabled(boolean isEnabled) {
-        myContext.sharedPreferences.edit().putBoolean(MONITOR_SERVICE_IS_ENABLED_KEY, isEnabled).apply();
-    }
-
     static boolean isEnabled(Context context) {
-        return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(MONITOR_SERVICE_IS_ENABLED_KEY, false);
+        return RecUtils.hasPermissionToSilenceDevice(context);
     }
 
     // endregion

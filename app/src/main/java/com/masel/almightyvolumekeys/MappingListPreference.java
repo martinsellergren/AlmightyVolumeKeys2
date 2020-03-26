@@ -87,7 +87,7 @@ public class MappingListPreference extends ListPreference {
             }
 
             List<String> headsUps = new ArrayList<>();
-            RecUtils.SRunnable endAction = () -> requestNeededPermissions(action);
+            Runnable endAction = () -> requestNeededPermissions(action);
 
             if (actionName.equals(new Actions.Media_Pause().getName())) {
                 headsUps.add("To resume playing, use <b>Media: play</b>-action in the IDLE-tab.");
@@ -135,7 +135,7 @@ public class MappingListPreference extends ListPreference {
 
     private void prepareForTasker() {
         String infoText;
-        RecUtils.SRunnable endAction = null;
+        Runnable endAction = null;
 
         switch (TaskerIntent.testStatus(getContext())) {
             case NotInstalled:

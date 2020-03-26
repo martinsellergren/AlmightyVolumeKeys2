@@ -2,6 +2,7 @@ package com.masel.almightyvolumekeys;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.view.MenuItem;
@@ -95,6 +96,7 @@ public class MainActivity extends AppCompatActivity {
         };
 
         proManager.setStateActions(proLocked, proPending, proUnlocked);
+        proManager.runStateAction();
     }
 
     // endregion
