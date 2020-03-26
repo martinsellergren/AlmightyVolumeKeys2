@@ -3,6 +3,7 @@ package com.masel.almightyvolumekeys;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.os.Handler;
+import android.util.Log;
 
 import com.masel.rec_utils.RecUtils;
 
@@ -72,8 +73,8 @@ class ActionCommand {
             return;
         }
 
-        Action action = getGlobalAction(command, deviceStateOnCommandStart);
-        if (action == null) action = getMappedAction(command, deviceStateOnCommandStart);
+        Action globalAction = getGlobalAction(command, deviceStateOnCommandStart);
+        final Action action = globalAction != null ? globalAction : getMappedAction(command, deviceStateOnCommandStart);
 
         if (action == null || action.getName().equals((new Actions.No_action().getName()))) {
             RecUtils.log(String.format("Non-mapped command: %s (state:%s)", command, DeviceState.str(deviceStateOnCommandStart)));
@@ -95,16 +96,20 @@ class ActionCommand {
             Action.execute(myContext, action);
         }
         catch (Action.ExecutionException e) {
-            myContext.notifier.notify(e.getMessage(), Notifier.VibrationPattern.ERROR, false);
-            RecUtils.log(e.getMessage());
+            new Handler().postDelayed(() -> {
+                myContext.notifier.notify(e.getMessage(), Notifier.VibrationPattern.ERROR, false);
+                RecUtils.log(e.getMessage());
 
-            if (e.getMessage().equals("Missing permission")) {
-                fixPermissions(action.getNeededPermissions(myContext.context));
-            }
+                if (e.getMessage() != null && e.getMessage().equals("Missing permission")) {
+                    fixPermissions(action.getNeededPermissions(myContext.context));
+                }
+            }, Notifier.vibrationPatternLength(action.getVibrationPattern()));
         }
         catch (Exception e) {
-            myContext.notifier.notify("Failed to execute: " + action.getName(), Notifier.VibrationPattern.ERROR, false);
-            RecUtils.log("Unknown error during action execution: " + action.toString() + "\n" + e.getMessage());
+            new Handler().postDelayed(() -> {
+                myContext.notifier.notify("Failed to execute: " + action.getName(), Notifier.VibrationPattern.ERROR, false);
+                RecUtils.log("Unknown error during action execution: " + action.toString() + "\n" + Log.getStackTraceString(e));
+            }, Notifier.vibrationPatternLength(action.getVibrationPattern()));
         }
 
 

@@ -87,7 +87,7 @@ class Notifier {
         }
     }
 
-    private long[] getVibrationPatternArray(VibrationPattern pattern) {
+    private static long[] getVibrationPatternArray(VibrationPattern pattern) {
         switch (pattern) {
             case ON: return VIBRATION_PATTERN_ARRAY_ON;
             case OFF: return VIBRATION_PATTERN_ARRAY_OFF;
@@ -108,13 +108,12 @@ class Notifier {
         cancel();
 
         String channelId = getNotificationChannelId(vibrationPattern);
-        long[] vibrationPatternArray = getVibrationPatternArray(vibrationPattern);
 
         Notification notification = new NotificationCompat.Builder(context, channelId)
                 .setSmallIcon(R.drawable.avk_notification_icon)
                 .setContentTitle(text)
                 .setPriority(NotificationCompat.PRIORITY_MAX)
-                .setVibrate(vibrationPatternArray)
+                .setVibrate(getVibrationPatternArray(vibrationPattern))
                 .setSound(null)
                 .setAutoCancel(true)
                 .build();
@@ -128,10 +127,15 @@ class Notifier {
         cancelNotificationHandler.postDelayed(this::cancel, DISPLAY_TIME);
 
         if (waitOnVibration) {
-            long sum = 0; for (long x : vibrationPatternArray) sum += x;
             final long MARGIN = 50;
-            SystemClock.sleep(sum + MARGIN);
+            SystemClock.sleep(vibrationPatternLength(vibrationPattern) + MARGIN);
         }
+    }
+
+    static long vibrationPatternLength(VibrationPattern pattern) {
+        long[] vibrationPatternArray = getVibrationPatternArray(pattern);
+        long sum = 0; for (long x : vibrationPatternArray) sum += x;
+        return sum;
     }
 
     void cancel() {

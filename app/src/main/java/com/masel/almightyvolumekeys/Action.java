@@ -70,8 +70,8 @@ abstract class Action {
     static void execute(MyContext myContext, Action action) throws ExecutionException {
         switch (action.getNotifyOrder()) {
             case ANY:
-                myContext.notifier.notify(action.getName(), action.getVibrationPattern(), false);
                 action.run(myContext);
+                myContext.notifier.notify(action.getName(), action.getVibrationPattern(), false);
                 break;
             case BEFORE:
                 myContext.notifier.notify(action.getName(), action.getVibrationPattern(), true);

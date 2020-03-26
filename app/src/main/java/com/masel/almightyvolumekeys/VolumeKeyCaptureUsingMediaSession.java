@@ -55,7 +55,8 @@ class VolumeKeyCaptureUsingMediaSession {
     }
 
     private boolean deviceStateOkForCapture() {
-        return myContext.deviceState.getCurrent() == DeviceState.IDLE && !myContext.deviceState.isCameraActive();
+        int state = myContext.deviceState.getCurrent();
+        return (state == DeviceState.IDLE || state == DeviceState.SOUNDREC) && !myContext.deviceState.isCameraActive();
     }
 
     void destroy() {
