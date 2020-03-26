@@ -2,6 +2,7 @@ package com.masel.almightyvolumekeys;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.view.MenuItem;
 import android.view.View;
@@ -22,7 +23,10 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
 import com.masel.rec_utils.RecUtils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -240,21 +244,41 @@ public class MainActivity extends AppCompatActivity {
 
         proManager.runStateAction();
         updateEnableServiceHeadsUp();
-        requestPermissions();
+        requestIntentSpecifiedPermissions();
+        //requestAllNeededPermissions();
     }
 
     // region Permission request
 
     /**
      * Only does something if main activity called with specific extra.
+     * Won't work in API >= 29.
      */
     public static final String EXTRA_PERMISSION_REQUEST = "com.masel.almightyvolumekeys.EXTRA_PERMISSION_REQUEST";
-    private void requestPermissions() {
+    private void requestIntentSpecifiedPermissions() {
         String[] permissions = getIntent().getStringArrayExtra(EXTRA_PERMISSION_REQUEST);
         if (permissions == null) return;
         getIntent().removeExtra(EXTRA_PERMISSION_REQUEST);
 
         RecUtils.requestPermissions(this, Arrays.asList(permissions));
+    }
+
+    /**
+     * Request permissions for all mapped actions.
+     */
+    private void requestAllNeededPermissions() {
+        List<String> neededPermissions = new ArrayList<>();
+
+        for (Map.Entry<String,String> mapping : Utils.getMappings(PreferenceManager.getDefaultSharedPreferences(this))) {
+            Action mappedAction = Actions.getActionFromName(mapping.getValue());
+            if (mappedAction == null) continue;
+
+            for (String permission : mappedAction.getNeededPermissions(this)) {
+                if (!neededPermissions.contains(permission)) neededPermissions.add(permission);
+            }
+        }
+
+        RecUtils.requestPermissions(this, neededPermissions);
     }
 
     // endregion

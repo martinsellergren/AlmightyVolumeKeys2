@@ -96,7 +96,7 @@ class Actions {
 
         @Override
         Notifier.VibrationPattern getVibrationPattern() {
-            return Notifier.VibrationPattern.OFF;
+            return Notifier.VibrationPattern.ON;
         }
 
         @Override

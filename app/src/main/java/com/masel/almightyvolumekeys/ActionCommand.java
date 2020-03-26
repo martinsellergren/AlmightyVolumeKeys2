@@ -85,16 +85,16 @@ class ActionCommand {
         }
 
         RecUtils.log(String.format("Execute %s -> %s (state:%s)", command, action.getName(), DeviceState.str(deviceStateOnCommandStart)));
+        discardAnyVolumeChanges();
 
         try {
             if (!RecUtils.hasPermissions(myContext.context, action.getNeededPermissions(myContext.context))) {
-                throw new Action.ExecutionException("Missing permission");
+                throw new Action.ExecutionException("Missing permission (" + action.getName() + ")");
             }
             if (!action.isAvailable(myContext.context)) {
                 throw new Action.ExecutionException("Action not available on this device");
             }
 
-            discardAnyVolumeChanges();
             Action.execute(myContext, action);
         }
         catch (Action.ExecutionException e) {
@@ -102,7 +102,7 @@ class ActionCommand {
                 myContext.notifier.notify(e.getMessage(), Notifier.VibrationPattern.ERROR, false);
                 RecUtils.log(e.getMessage());
 
-                if (e.getMessage() != null && e.getMessage().equals("Missing permission")) {
+                if (e.getMessage() != null && e.getMessage().matches("^Missing permission.*")) {
                     fixPermissions(action.getNeededPermissions(myContext.context));
                 }
             }, Notifier.vibrationPatternLength(action.getVibrationPattern()));
@@ -184,6 +184,9 @@ class ActionCommand {
         }
     }
 
+    /**
+     * Won't work in API >= 29.
+     */
     private void fixPermissions(String[] permissions) {
         Intent intent = new Intent(myContext.context, MainActivity.class);
         intent.putExtra(MainActivity.EXTRA_PERMISSION_REQUEST, permissions);
