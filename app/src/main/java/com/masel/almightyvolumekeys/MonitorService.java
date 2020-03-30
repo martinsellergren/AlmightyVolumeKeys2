@@ -5,8 +5,6 @@ import android.content.Context;
 import android.media.AudioManager;
 import android.service.notification.NotificationListenerService;
 
-import androidx.preference.PreferenceManager;
-
 import com.masel.rec_utils.AudioRecorder;
 import com.masel.rec_utils.KeyValueStore;
 import com.masel.rec_utils.RecUtils;
@@ -52,10 +50,13 @@ public class MonitorService extends NotificationListenerService {
         Utils.runOnMainThread(() -> {
             RecUtils.log("Monitor service stopped");
 
-            volumeKeyCaptureUsingMediaSession.destroy();
-            volumeKeyCaptureUsingPolling.destroy();
-            volumeKeyInputController.destroy();
-            myContext.destroy();
+            try {
+                volumeKeyCaptureUsingMediaSession.destroy();
+                volumeKeyCaptureUsingPolling.destroy();
+                volumeKeyInputController.destroy();
+                myContext.destroy();
+            }
+            catch (Exception e) {}
         });
     }
 
@@ -70,8 +71,6 @@ public class MonitorService extends NotificationListenerService {
     }
 
     // region Is enabled
-
-    private static final String MONITOR_SERVICE_IS_ENABLED_KEY = "MONITOR_SERVICE_IS_ENABLED_KEY";
 
     static boolean isEnabled(Context context) {
         return RecUtils.hasPermissionToSilenceDevice(context);

@@ -1053,6 +1053,108 @@ class Actions {
 
     // endregion
 
+    // region Brightness
+
+    static class Screen_brightness_0 extends Action {
+        @Override
+        String getName() {
+            return "Screen brightness: 0%";
+        }
+
+        @Override
+        void run(MyContext myContext) throws ExecutionException {
+            Settings.System.putInt(myContext.context.getContentResolver(), Settings.System.SCREEN_BRIGHTNESS_MODE, Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL);
+            Settings.System.putInt(myContext.context.getContentResolver(), Settings.System.SCREEN_BRIGHTNESS, 0);
+        }
+
+        @Override
+        String[] getNeededPermissions(Context context) {
+            return new String[]{Settings.ACTION_MANAGE_WRITE_SETTINGS};
+        }
+    }
+
+    static class Screen_brightness_100 extends Action {
+        @Override
+        String getName() {
+            return "Screen brightness: 100%";
+        }
+
+        @Override
+        void run(MyContext myContext) throws ExecutionException {
+            Settings.System.putInt(myContext.context.getContentResolver(), Settings.System.SCREEN_BRIGHTNESS_MODE, Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL);
+            Settings.System.putInt(myContext.context.getContentResolver(), Settings.System.SCREEN_BRIGHTNESS, 255);
+        }
+
+        @Override
+        String[] getNeededPermissions(Context context) {
+            return new String[]{Settings.ACTION_MANAGE_WRITE_SETTINGS};
+        }
+    }
+
+    static class Screen_brightness_0_100 extends MultiAction {
+        @Override
+        Action pickAction(MyContext myContext) {
+            int brightness = Settings.System.getInt(myContext.context.getContentResolver(), Settings.System.SCREEN_BRIGHTNESS, -1);
+            if (brightness == 0) return new Screen_brightness_100();
+            else return new Screen_brightness_0();
+        }
+
+        @Override
+        String[] getNeededPermissions(Context context) {
+            return new String[]{Settings.ACTION_MANAGE_WRITE_SETTINGS};
+        }
+    }
+
+    static class Screen_auto_brightness_On extends Action {
+        @Override
+        String getName() {
+            return "Screen auto-brightness: On";
+        }
+
+        @Override
+        void run(MyContext myContext) throws ExecutionException {
+            Settings.System.putInt(myContext.context.getContentResolver(), Settings.System.SCREEN_BRIGHTNESS_MODE, Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC);
+        }
+
+        @Override
+        String[] getNeededPermissions(Context context) {
+            return new String[]{Settings.ACTION_MANAGE_WRITE_SETTINGS};
+        }
+    }
+
+    static class Screen_auto_brightness_Off extends Action {
+        @Override
+        String getName() {
+            return "Screen auto-brightness: Off";
+        }
+
+        @Override
+        void run(MyContext myContext) throws ExecutionException {
+            Settings.System.putInt(myContext.context.getContentResolver(), Settings.System.SCREEN_BRIGHTNESS_MODE, Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL);
+        }
+
+        @Override
+        String[] getNeededPermissions(Context context) {
+            return new String[]{Settings.ACTION_MANAGE_WRITE_SETTINGS};
+        }
+    }
+
+    static class Screen_auto_brightness_On_Off extends MultiAction {
+        @Override
+        Action pickAction(MyContext myContext) {
+            int mode = Settings.System.getInt(myContext.context.getContentResolver(), Settings.System.SCREEN_BRIGHTNESS_MODE, -1);
+            if (mode == Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL) return new Screen_auto_brightness_On();
+            else return new Screen_auto_brightness_Off();
+        }
+
+        @Override
+        String[] getNeededPermissions(Context context) {
+            return new String[]{Settings.ACTION_MANAGE_WRITE_SETTINGS};
+        }
+    }
+
+    // endregion
+
     // region More
 
     static class Switch_keyboard extends Action {

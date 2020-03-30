@@ -3,6 +3,6 @@
     <string name="nav_app_bar_open_drawer_description">Open navigation drawer</string>
     <string name="accessibility_service_description">Necessary for capturing volume key presses.\nNo private data is accessed.\n\nI\'m an app developer trying to make useful apps, not a thief. You can find my full name and address on google play store.</string>
     <string name="when_idle_info">Actions when idle, meaning nothing really is going on (no media playing, not sound recording, not ringing or in call).\n\n<b>Pick actions below:</b></string>
-    <string name="when_music_info">Actions when currently playing music or other media.\n\n<b>Pick actions below:</b></string>
+    <string name="when_music_info">Actions when currently playing music or other media.\n\nTo go to max or min volume when media is playing, you need to triple-click volume key to go the last volume step (more info in Help.)\n\n<b>Pick actions below:</b></string>
     <string name="when_soundrec_info">Actions when currently recording sound using <a href="">The Sound Recorder</a>.\n\n<b>Pick actions below:</b></string>
 </resources>

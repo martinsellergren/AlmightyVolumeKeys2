@@ -2,20 +2,29 @@
 <resources>
     <string-array name="idle_actions">
         <item>No action</item>
-        <item>Media: Play</item>
-        <item>Sound recorder: Start</item>
+        <item>Bluetooth: On</item>
+        <item>Bluetooth: Off</item>
+        <item>Bluetooth: On/Off</item>
+        <item>Do not disturb: On</item>
+        <item>Do not disturb: Off</item>
+        <item>Do not disturb: On/Off</item>
         <item>Flashlight: On/Off</item>
-        <item>Switch keyboard</item>
+        <item>Media: Play</item>
+        <item>Media volume: 100%</item>
+        <item>Media volume: 0%</item>
+        <item>Screen auto-brightness: On</item>
+        <item>Screen auto-brightness: Off</item>
+        <item>Screen auto-brightness: On/Off</item>
+        <item>Screen auto-rotate: On</item>
+        <item>Screen auto-rotate: Off</item>
+        <item>Screen auto-rotate: On/Off</item>
+        <item>Screen brightness: 100%</item>
+        <item>Screen brightness: 0%</item>
+        <item>Screen brightness: 0%/100%</item>
         <item>Screen orientation: Portrait</item>
         <item>Screen orientation: Landscape 1</item>
         <item>Screen orientation: Landscape 2</item>
         <item>Screen orientation: Portrait/Landscape</item>
-        <item>Screen auto-rotate: On</item>
-        <item>Screen auto-rotate: Off</item>
-        <item>Screen auto-rotate: On/Off</item>
-        <item>Do not disturb: On</item>
-        <item>Do not disturb: Off</item>
-        <item>Do not disturb: On/Off</item>
         <item>Sound mode: Sound</item>
         <item>Sound mode: Sound (volume 100%)</item>
         <item>Sound mode: Vibrate</item>
@@ -23,36 +32,33 @@
         <item>Sound mode: Sound/Vibrate</item>
         <item>Sound mode: Sound/Silent</item>
         <item>Sound mode: Vibrate/Silent</item>
+        <item>Sound recorder: Start</item>
+        <item>Switch keyboard</item>
         <item>Voice: Tell time (volume 100%)</item>
         <item>Voice: Tell time (volume 75%)</item>
         <item>Voice: Tell time (volume 50%)</item>
         <item>Voice: Tell time and date (volume 100%)</item>
         <item>Voice: Tell time and date (volume 75%)</item>
         <item>Voice: Tell time and date (volume 50%)</item>
-        <item>Bluetooth: On</item>
-        <item>Bluetooth: Off</item>
-        <item>Bluetooth: On/Off</item>
-        <item>Media volume: 100%</item>
-        <item>Media volume: 0%</item>
     </string-array>
 
     <string-array name="music_actions">
         <item>No action</item>
-        <item>Media: Pause</item>
         <item>Media: Next</item>
+        <item>Media: Pause</item>
         <item>Media: Previous</item>
         <item>Media: Previous x2</item>
-        <item>Voice: Announce tune (title)</item>
-        <item>Voice: Announce tune (title and artist)</item>
-        <item>Voice: Announce tune (title, artist and album)</item>
-        <item>Voice: Tell time</item>
-        <item>Voice: Tell time and date</item>
         <item>Media volume: 100%</item>
         <item>Media volume: 0%</item>
         <item>Screen orientation: Portrait</item>
         <item>Screen orientation: Landscape 1</item>
         <item>Screen orientation: Landscape 2</item>
         <item>Screen orientation: Portrait/Landscape</item>
+        <item>Voice: Announce tune (title)</item>
+        <item>Voice: Announce tune (title and artist)</item>
+        <item>Voice: Announce tune (title, artist and album)</item>
+        <item>Voice: Tell time</item>
+        <item>Voice: Tell time and date</item>
     </string-array>
 
     <string-array name="soundrec_actions">

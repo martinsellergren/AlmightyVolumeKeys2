@@ -109,20 +109,20 @@ public class MappingListPreference extends ListPreference {
                 headsUps.add("To <b>stop recording</b>, see the <b>SOUND REC-tab</b> (or click the Recording... notification).");
             }
             if (actionName.equals(new Actions.Sound_mode_Sound_volume_100().getName())) {
-                headsUps.add("This action will set <b>ringtone</b> and <b>notification</b> volume to 100%.");
+                headsUps.add("This action will set <b>ringtone</b> and <b>notification</b> volume to 100%. (Never miss a call or sms!)");
             }
-            if (extractCommand(getKey()).matches(".*[23].*") && HelpSystem.isLongPressHeadsUpAppropriate(getContext())) {
+            if (extractCommand(getKey()).matches(".*[23].*") && HelpSystem.isLongPressHeadsUpActive(getContext())) {
                 headsUps.add("<b>Long press guide:</b>\n1. Press and hold.\n2. Short vibration after 0.5 seconds.\n3. Release to execute action.\n\nMore info in Help.");
                 endAction = () -> {
-                    HelpSystem.longPressHeadsUpShown(getContext());
+                    HelpSystem.setLongPressHeadsUpActive(getContext(), false);
                     requestNeededPermissions(action);
                 };
             }
-            if (actionName.matches("^Voice:.*") && HelpSystem.isVoiceHeadsUpAppropriate(getContext())) {
-                headsUps.add("Specify <b>voice language</b> and more in device Text-to-speech <b>settings</b>.");
+            if (actionName.matches("^Voice:.*") && HelpSystem.isVoiceHeadsUpActive(getContext())) {
+                headsUps.add("Specify <b>voice language</b> and more in the following screen.");
                 endAction = () -> {
                     Utils.gotoTtsSettings(getContext());
-                    HelpSystem.voiceHeadsUpShown(getContext());
+                    HelpSystem.setVoiceHeadsUpActive(getContext(), false);
                     requestNeededPermissions(action);
                 };
             }

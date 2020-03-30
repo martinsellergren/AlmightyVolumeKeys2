@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //Utils.validateActions(this); //todo
+        Utils.validateActions(this); //todo
 
         setContentView(R.layout.activity_main);
 
@@ -198,11 +198,6 @@ public class MainActivity extends AppCompatActivity {
             super.onBackPressed();
         }
     }
-
-//    private void openAccessibilitySettings() {
-//        Intent intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
-//        startActivity(intent);
-//    }
 
     private void openNotificationListenerSettings() {
         Intent intent = new Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS);

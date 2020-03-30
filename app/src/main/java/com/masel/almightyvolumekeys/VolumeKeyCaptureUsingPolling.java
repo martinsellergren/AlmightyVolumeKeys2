@@ -27,10 +27,7 @@ class VolumeKeyCaptureUsingPolling {
         this.minMusicVolume = myContext.volumeUtils.getMin(AudioManager.STREAM_MUSIC);
         this.maxMusicVolume = myContext.volumeUtils.getMax(AudioManager.STREAM_MUSIC);
 
-        myContext.deviceState.addMediaStartCallback(() -> {
-            preventVolumeExtremes(myContext.volumeUtils.getVolume(AudioManager.STREAM_MUSIC));
-            enableOrDisable();
-        });
+        myContext.deviceState.addMediaStartCallback(this::enableOrDisable);
         myContext.deviceState.addMediaStopCallback(this::enableOrDisable);
         myContext.deviceState.addOnAllowSleepCallback(this::stopPolling);
         myContext.deviceState.addScreenOnCallback(this::enableOrDisable);

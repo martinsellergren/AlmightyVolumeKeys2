@@ -148,8 +148,10 @@ class Utils {
         RecUtils.log(" ");
         RecUtils.log("Media sessions:");
         for (MediaController controller : controllers) {
-            //String info = String.format("%s:\n%s\n%s", controller.getPackageName(), controller.getPlaybackInfo(), controller.getPlaybackState());
-            String info = controller.getPackageName() + ": " + controller.getPlaybackState().getState();
+            String info = String.format("%s:\n%s\n%s", controller.getPackageName(), controller.getPlaybackInfo(), controller.getPlaybackState());
+//            String info = String.format("%s ... %s ... %s", controller.getPackageName(), controller.getMetadata(), controller.getExtras());
+//            if (controller.getPlaybackState() == null) info = null;
+//            else info = controller.getPackageName() + ": " + controller.getPlaybackState().getState();
             RecUtils.log(info);
         }
         RecUtils.log(" ");
