@@ -110,7 +110,7 @@ class VolumeKeyCaptureUsingPolling {
      */
     private int modifyVolume(int currentMusicVolume) {
         if (holdVolume != null) {
-            myContext.volumeUtils.setVolume(holdVolume.getStream(), holdVolume.getVolume(), true, false);
+            myContext.volumeUtils.setVolume(holdVolume.getStream(), holdVolume.getVolume(), false, false);
             return holdVolume.getVolume();
         }
 
@@ -130,11 +130,11 @@ class VolumeKeyCaptureUsingPolling {
 
     private int preventVolumeExtremes(int currentVolume) {
         if (currentVolume == maxMusicVolume) {
-            myContext.volumeUtils.setVolume(AudioManager.STREAM_MUSIC, maxMusicVolume - 1, true, false);
+            myContext.volumeUtils.setVolume(AudioManager.STREAM_MUSIC, maxMusicVolume - 1, false, false);
             return maxMusicVolume - 1;
         }
         else if (currentVolume == minMusicVolume) {
-            myContext.volumeUtils.setVolume(AudioManager.STREAM_MUSIC, minMusicVolume + 1, true, false);
+            myContext.volumeUtils.setVolume(AudioManager.STREAM_MUSIC, minMusicVolume + 1, false, false);
             return minMusicVolume + 1;
         }
 
@@ -152,12 +152,6 @@ class VolumeKeyCaptureUsingPolling {
     private List<Integer> prevVolumesLast3 = new LinkedList<>();
 
     private void volumeChange(boolean volumeUp, int prevMusicVolume) {
-
-//        if (holdVolume != null && volumeChangesLast3.get(2) != volumeUp) {
-//            waitDone();
-//            myContext.volumeUtils.setVolume(holdVolume.getStream(), holdVolume.getVolume(), true, false);
-//        }
-
         if (isWaitingForInactivity) {
             lastActivityTime = System.currentTimeMillis();
             return;

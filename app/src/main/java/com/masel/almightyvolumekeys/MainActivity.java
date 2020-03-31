@@ -1,6 +1,7 @@
 package com.masel.almightyvolumekeys;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -20,6 +21,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
+import com.codemybrainsout.ratingdialog.RatingDialog;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
 import com.masel.rec_utils.RecUtils;
@@ -37,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Utils.validateActions(this); //todo
+        //Utils.validateActions(this); //todo
 
         setContentView(R.layout.activity_main);
 
@@ -46,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
         setupTabs();
         setupSideMenu();
         setupProManager();
+        setupRatingDialog();
     }
 
     @Override
@@ -66,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
 
         Runnable proLocked = () -> {
             ProManager.saveIsLocked(this, true);
+            HelpSystem.setProUnlockedHeadsUpActive(this, true);
             unlockProButton.setTitle("Unlock pro");
             unlockProButton.setIcon(R.drawable.lock_locked_24dp);
             unlockProButton.setOnMenuItemClickListener(item -> {
@@ -76,6 +80,7 @@ public class MainActivity extends AppCompatActivity {
 
         Runnable proPending = () -> {
             ProManager.saveIsLocked(this, true);
+            HelpSystem.setProUnlockedHeadsUpActive(this, true);
             unlockProButton.setTitle("Unlock pro (pending)");
             unlockProButton.setIcon(R.drawable.lock_locked_24dp);
             unlockProButton.setOnMenuItemClickListener(item -> {
@@ -86,10 +91,11 @@ public class MainActivity extends AppCompatActivity {
 
         Runnable proUnlocked = () -> {
             ProManager.saveIsLocked(this, false);
+            HelpSystem.showProUnlockedHeadsUpIfAppropriate(this);
             unlockProButton.setTitle("Pro is unlocked");
             unlockProButton.setIcon(R.drawable.lock_open_24dp);
             unlockProButton.setOnMenuItemClickListener(item -> {
-                //RecUtils.showHeadsUpDialog(MainActivity.this, "Thanks for unlocking pro! Hope you like it!", () -> proManager.revertPro(this));
+                //RecUtils.showHeadsUpDialog(MainActivity.this, "Thanks for unlocking pro! Hope you like it!", () -> proManager.revertPro(this)); //todo
                 RecUtils.showHeadsUpDialog(MainActivity.this, "Thanks for unlocking pro! Hope you like it!", null);
                 return true;
             });
@@ -172,7 +178,7 @@ public class MainActivity extends AppCompatActivity {
                     // Handled elsewhere
                     break;
                 case R.id.item_rate_app:
-                    RecUtils.showRateAppDialog(MainActivity.this);
+                    showRatingDialog(0);
                     break;
                 default:
                     throw new RuntimeException("Dead end");
@@ -202,7 +208,12 @@ public class MainActivity extends AppCompatActivity {
     private void openNotificationListenerSettings() {
         Intent intent = new Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
-        startActivity(intent);
+        try {
+            startActivity(intent);
+        }
+        catch (Exception e) {
+            RecUtils.log("Enable this app in device settings->Notification access");
+        }
     }
 
     // endregion
@@ -276,6 +287,57 @@ public class MainActivity extends AppCompatActivity {
         }
 
         RecUtils.requestPermissions(this, neededPermissions);
+    }
+
+    // endregion
+
+    // region Rating dialog
+
+    private void setupRatingDialog() {
+        showRatingDialog(4);
+    }
+
+    /**
+     * @param session 0 if show now, else defines app-startup-count before show.
+     */
+    private void showRatingDialog(int session) {
+        final RatingDialog.Builder builder = new RatingDialog.Builder(this)
+                .threshold(4)
+                .title("How do you like it?")
+                .onThresholdCleared(new RatingDialog.Builder.RatingThresholdClearedListener() {
+                    @Override
+                    public void onThresholdCleared(RatingDialog ratingDialog, float rating, boolean thresholdCleared) {
+                        RecUtils.openAppOnPlayStore(MainActivity.this, MainActivity.this.getPackageName());
+                        ratingDialog.dismiss();
+                    }
+                })
+                .formHint("How can I make this 5 stars?")
+                .onRatingBarFormSumbit(new RatingDialog.Builder.RatingDialogFormListener() {
+                    @Override
+                    public void onFormSubmitted(String feedback) {
+                        emailMeFeedback(feedback);
+                        RecUtils.log("Feedback:" + feedback);
+                    }
+                });
+
+        if (session != 0) builder.session(session);
+        builder.build().show();
+    }
+
+    private void emailMeFeedback(String feedback) {
+        Intent intent = new Intent(Intent.ACTION_SENDTO);
+        intent.setData(Uri.parse("mailto:"));
+        //intent.setData(Uri.parse("mailto:masel7569@gmail.com"));
+        intent.putExtra(Intent.EXTRA_EMAIL, new String[]{"masel7569@gmail.com"});
+        intent.putExtra(Intent.EXTRA_SUBJECT, "AVK feedback");
+        intent.putExtra(Intent.EXTRA_TEXT, feedback);
+
+        try {
+            startActivity(Intent.createChooser(intent, "Send email..."));
+        }
+        catch (Exception e) {
+            RecUtils.log("Send feedback to masel7569@gmail.com");
+        }
     }
 
     // endregion

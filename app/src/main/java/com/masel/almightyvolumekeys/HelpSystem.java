@@ -41,7 +41,31 @@ public class HelpSystem {
         sharedPreferences.edit().putBoolean(VOICE_HEADS_UP_ACTIVE, active).apply();
     }
 
-    // endregion Voice heads-up
+    // endregion
+
+    // region Pro unlocked heads-up
+
+    private static final String PRO_UNLOCKED_HEADS_UP_ACTIVE = "PRO_UNLOCKED_HEADS_UP_ACTIVE";
+
+    private static boolean isProUnlockedHeadsUpActive(Context context) {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        return sharedPreferences.getBoolean(PRO_UNLOCKED_HEADS_UP_ACTIVE, true);
+    }
+
+    static void setProUnlockedHeadsUpActive(Context context, boolean active) {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        sharedPreferences.edit().putBoolean(PRO_UNLOCKED_HEADS_UP_ACTIVE, active).apply();
+    }
+
+    static void showProUnlockedHeadsUpIfAppropriate(AppCompatActivity activity) {
+        if (isProUnlockedHeadsUpActive(activity)) {
+            RecUtils.showHeadsUpDialog(activity,
+                    "Thanks for unlocking pro! \n\nYou have unlimited number of mapped actions.",
+                    () -> setProUnlockedHeadsUpActive(activity, false));
+        }
+    }
+
+    // endregion
 
 //    // region Media extreme volume heads-up
 //
