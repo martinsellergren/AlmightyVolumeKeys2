@@ -3,6 +3,7 @@ package com.masel.almightyvolumekeys;
 import android.content.Context;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
+import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
 
@@ -10,6 +11,8 @@ import androidx.annotation.Nullable;
 import androidx.media.AudioAttributesCompat;
 import androidx.media.AudioFocusRequestCompat;
 import androidx.media.AudioManagerCompat;
+
+import com.masel.rec_utils.RecUtils;
 
 class Voice {
 
@@ -103,7 +106,10 @@ class Voice {
         boolean ok = requestAudioFocus();
         if (!ok) return false;
 
-        int res = tts.speak(speech, TextToSpeech.QUEUE_FLUSH, null, speech);
+        Bundle params = new Bundle();
+        params.putInt(TextToSpeech.Engine.KEY_PARAM_STREAM, AudioManager.STREAM_MUSIC);
+        params.putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, 1);
+        int res = tts.speak(speech, TextToSpeech.QUEUE_FLUSH, params, speech);
         if (res == TextToSpeech.ERROR) {
             abandonAudioFocus();
             return false;

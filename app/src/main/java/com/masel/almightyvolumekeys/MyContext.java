@@ -11,6 +11,8 @@ import android.os.PowerManager.WakeLock;
 
 import androidx.preference.PreferenceManager;
 
+import com.masel.rec_utils.RecUtils;
+
 class MyContext {
     final Context context;
     final AudioManager audioManager;
@@ -41,7 +43,7 @@ class MyContext {
         vibrator = new MyVibrator(context);
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         flashlight = new MyFlashlight(context);
-        wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,"com.masel.almightyvolumekeys::WakeLock");
+        wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, RecUtils.isHuawei(context) ? "LocationManagerService" : "com.masel.almightyvolumekeys::WakeLock");
 
         deviceState = new DeviceState(this);
         volumeUtils = new VolumeUtils(this);

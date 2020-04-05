@@ -80,7 +80,7 @@
             app:key="SeekBarPreference_disableAppTimeout"
             app:title="Disable app time [minutes]"
             app:singleLineTitle="false"
-            app:summary="Disable app this long after screen and music off."
+            app:summary="Disable app this long after screen and music off. 0 means immediately disabled after screen and music off."
             app:defaultValue="60"/>
 
 <!--        <SwitchPreferenceCompat-->

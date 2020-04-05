@@ -24,7 +24,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
         SeekBarPreference disableAppTimeout = findPreference("SeekBarPreference_disableAppTimeout");
         disableAppTimeout.setMin(0);
-        disableAppTimeout.setMax(180);
+        disableAppTimeout.setMax(240);
         disableAppTimeout.setShowSeekBarValue(true);
 
 //        SeekBarPreference allowSleepStart = findPreference("SeekBarPreference_allowSleepStart");
