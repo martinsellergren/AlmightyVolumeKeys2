@@ -1157,23 +1157,23 @@ class Actions {
 
     // region More
 
-    static class Switch_keyboard extends Action {
-        @Override
-        String getName() {
-            return "Switch keyboard";
-        }
-
-        @Override
-        void run(MyContext myContext) throws ExecutionException {
-            InputMethodManager imeManager = (InputMethodManager) myContext.context.getSystemService(Context.INPUT_METHOD_SERVICE);
-            if (imeManager != null) {
-                imeManager.showInputMethodPicker();
-            }
-            else {
-                throw new ExecutionException("Failed to open keyboard picker");
-            }
-        }
-    }
+//    static class Switch_keyboard extends Action {
+//        @Override
+//        String getName() {
+//            return "Switch keyboard";
+//        }
+//
+//        @Override
+//        void run(MyContext myContext) throws ExecutionException {
+//            InputMethodManager imeManager = (InputMethodManager) myContext.context.getSystemService(Context.INPUT_METHOD_SERVICE);
+//            if (imeManager != null) {
+//                imeManager.showInputMethodPicker();
+//            }
+//            else {
+//                throw new ExecutionException("Failed to open keyboard picker");
+//            }
+//        }
+//    }
 
 //    static class Show_volume_panel extends Action {
 //        @Override
