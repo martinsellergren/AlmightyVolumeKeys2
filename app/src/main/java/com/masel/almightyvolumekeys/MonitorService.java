@@ -2,13 +2,8 @@ package com.masel.almightyvolumekeys;
 
 import android.app.ActivityManager;
 import android.content.Context;
-import android.graphics.PixelFormat;
 import android.media.AudioManager;
-import android.os.Build;
 import android.service.notification.NotificationListenerService;
-import android.view.Gravity;
-import android.view.View;
-import android.view.WindowManager;
 
 import com.masel.rec_utils.AudioRecorder;
 import com.masel.rec_utils.KeyValueStore;
@@ -42,25 +37,8 @@ public class MonitorService extends NotificationListenerService {
             });
 
             DisableAppOnInactiveDevice.init(myContext);
-
-            //setupOverlayWindow();
         });
     }
-
-//    private void setupOverlayWindow() {
-//        WindowManager wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
-//
-//        View topLeftView = new View(this);
-//        int type = Build.VERSION.SDK_INT >= 26 ? WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY : WindowManager.LayoutParams.TYPE_SYSTEM_ALERT;
-//        int flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
-//        WindowManager.LayoutParams topLeftParams = new WindowManager.LayoutParams(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT, type, flags, PixelFormat.TRANSLUCENT);
-//        topLeftParams.gravity = Gravity.LEFT | Gravity.TOP;
-//        topLeftParams.x = 0;
-//        topLeftParams.y = 0;
-//        topLeftParams.width = 0;
-//        topLeftParams.height = 0;
-//        wm.addView(topLeftView, topLeftParams);
-//    }
 
     private void cleanUpAfterCrashDuringRecording() {
         KeyValueStore.setAlmightyVolumeKeysIsRecording(this, false);

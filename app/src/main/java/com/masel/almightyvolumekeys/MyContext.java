@@ -28,6 +28,7 @@ class MyContext {
     final MyFlashlight flashlight;
     final VolumeUtils volumeUtils;
     final WakeLock wakeLock;
+    final ScreenOverlay screenOverlay;
 
     final DeviceState deviceState;
 
@@ -49,6 +50,7 @@ class MyContext {
         volumeUtils = new VolumeUtils(this);
         voice = new Voice(this, volumeUtils);
         tuneAnnouncer = new TuneAnnouncer(this);
+        screenOverlay = new ScreenOverlay(context);
     }
 
     void destroy() {
@@ -58,6 +60,7 @@ class MyContext {
         voice.destroy();
         flashlight.destroy();
         deviceState.destroy();
+        screenOverlay.destroy();
         if (wakeLock.isHeld()) wakeLock.release();
     }
 }

@@ -2,6 +2,7 @@ package com.masel.almightyvolumekeys;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.media.AudioManager;
 import android.media.ToneGenerator;
 import android.os.Build;
@@ -1157,44 +1158,51 @@ class Actions {
 
     // region More
 
-//    static class Switch_keyboard extends Action {
-//        @Override
-//        String getName() {
-//            return "Switch keyboard";
-//        }
-//
-//        @Override
-//        void run(MyContext myContext) throws ExecutionException {
-//            InputMethodManager imeManager = (InputMethodManager) myContext.context.getSystemService(Context.INPUT_METHOD_SERVICE);
-//            if (imeManager != null) {
-//                imeManager.showInputMethodPicker();
-//            }
-//            else {
-//                throw new ExecutionException("Failed to open keyboard picker");
-//            }
-//        }
-//    }
+    static class Switch_keyboard extends Action {
+        @Override
+        String getName() {
+            return "Switch keyboard";
+        }
 
-//    static class Show_volume_panel extends Action {
-//        @Override
-//        String getName() {
-//            return "Show volume panel";
-//        }
-//
-//        @Override
-//        void run(MyContext myContext) throws ExecutionException {
-//            if (Build.VERSION.SDK_INT >= 29) {
-//                Intent intent = new Intent(Settings.Panel.ACTION_VOLUME);
-//                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//                myContext.context.startActivity(intent);
-//            }
-//        }
-//
-//        @Override
-//        boolean isAvailable(Context context) {
-//            return Build.VERSION.SDK_INT >= 29;
-//        }
-//    }
+        @Override
+        void run(MyContext myContext) throws ExecutionException {
+            InputMethodManager imeManager = (InputMethodManager) myContext.context.getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (imeManager == null) throw new ExecutionException("Failed to open keyboard picker");
+
+            myContext.screenOverlay.runAction(myContext.context, imeManager::showInputMethodPicker);
+        }
+
+        @Override
+        String[] getNeededPermissions(Context context) {
+            return new String[]{Manifest.permission.SYSTEM_ALERT_WINDOW};
+        }
+    }
+
+    static class Show_volume_panel extends Action {
+        @Override
+        String getName() {
+            return "Show volume panel";
+        }
+
+        @Override
+        void run(MyContext myContext) throws ExecutionException {
+            if (Build.VERSION.SDK_INT >= 29) {
+                Intent intent = new Intent(Settings.Panel.ACTION_VOLUME);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                myContext.context.startActivity(intent);
+            }
+        }
+
+        @Override
+        boolean isAvailable(Context context) {
+            return Build.VERSION.SDK_INT >= 29;
+        }
+
+        @Override
+        String[] getNeededPermissions(Context context) {
+            return new String[]{Manifest.permission.SYSTEM_ALERT_WINDOW};
+        }
+    }
 
     // endregion
 
