@@ -1,0 +1,4 @@
+Huawei:
+1) MediaSession when screen off: down x, up no repeat
+2) MediaSession when lock-screen: only 0 on release
+3) Media, screen off: long-press no repeat
