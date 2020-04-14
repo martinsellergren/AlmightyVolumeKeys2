@@ -3,6 +3,7 @@ package com.masel.almightyvolumekeys;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.media.AudioManager;
+import android.os.Handler;
 import android.service.notification.NotificationListenerService;
 
 import com.masel.rec_utils.AudioRecorder;

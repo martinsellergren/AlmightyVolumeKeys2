@@ -1,8 +1,6 @@
 package com.masel.almightyvolumekeys;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.provider.Settings;
 
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
@@ -24,7 +22,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
         SeekBarPreference disableAppTimeout = findPreference("SeekBarPreference_disableAppTimeout");
         disableAppTimeout.setMin(0);
-        disableAppTimeout.setMax(240);
+        disableAppTimeout.setMax(180);
         disableAppTimeout.setShowSeekBarValue(true);
 
 //        SeekBarPreference allowSleepStart = findPreference("SeekBarPreference_allowSleepStart");

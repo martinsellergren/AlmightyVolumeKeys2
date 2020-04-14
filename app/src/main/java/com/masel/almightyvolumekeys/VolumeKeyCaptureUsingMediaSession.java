@@ -3,6 +3,7 @@ package com.masel.almightyvolumekeys;
 import android.content.ComponentName;
 import android.content.SharedPreferences;
 import android.media.AudioManager;
+import android.os.Handler;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 
@@ -35,7 +36,7 @@ class VolumeKeyCaptureUsingMediaSession {
 
         myContext.deviceState.addMediaStartCallback(this::enableOrDisable);
         myContext.deviceState.addMediaStopCallback(this::enableOrDisable);
-        myContext.deviceState.addOnAllowSleepCallback(() -> mediaSession.setActive(false));
+        myContext.deviceState.addOnAllowSleepCallback(() -> new Handler().postDelayed(() -> mediaSession.setActive(false), 1000));
         myContext.deviceState.addScreenOnCallback(this::enableOrDisable);
         myContext.deviceState.addOnSystemSettingsChangeCallback(this::enableOrDisable);
         myContext.deviceState.addOnSecureSettingsChangeCallback(this::enableOrDisable);

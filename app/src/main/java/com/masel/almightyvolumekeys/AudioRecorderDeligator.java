@@ -65,9 +65,10 @@ class AudioRecorderDeligator {
         stopAndSaveLocalRecorder();
         theSoundRecorder.stopAndSave();
         AudioRecorder.removeNotification(context);
+        if (onSoundRecStop != null) onSoundRecStop.run();
     }
 
-    void stopAndSaveLocalRecorder() {
+    private void stopAndSaveLocalRecorder() {
         if (localRecorder != null) {
             localRecorder.coldStopAndSave(context);
             localRecorder = null;
@@ -94,6 +95,7 @@ class AudioRecorderDeligator {
 
         theSoundRecorder.stopAndTrash();
         AudioRecorder.removeNotification(context);
+        if (onSoundRecStop != null) onSoundRecStop.run();
     }
 
     /**
@@ -112,6 +114,7 @@ class AudioRecorderDeligator {
             AudioRecorder.showNotification(context);
             KeyValueStore.setAlmightyVolumeKeysIsRecording(context, true);
             TheSoundRecorderConnection.broadcastLocalRecStart(context);
+            if (onSoundRecStart != null) onSoundRecStart.run();
         }
         catch (IOException e) {
             throw new Action.ExecutionException("Failed to start rec");
@@ -122,8 +125,16 @@ class AudioRecorderDeligator {
         if (isRecordingLocally()) {
             stopAndSaveLocalRecorder();
             RecUtils.toast(context, "Recording stopped unexpectedly");
+            if (onSoundRecStop != null) onSoundRecStop.run();
         }
 
         theSoundRecorder.disconnect();
+    }
+
+    private Runnable onSoundRecStart = null;
+    private Runnable onSoundRecStop = null;
+    void setStateCallbacks(Runnable onSoundRecStart, Runnable onSoundRecStop) {
+        this.onSoundRecStart = onSoundRecStart;
+        this.onSoundRecStop = onSoundRecStop;
     }
 }

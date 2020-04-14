@@ -50,6 +50,7 @@ class Utils {
         if (value.equals("Ringtone volume after 5 clicks")) return AudioManager.STREAM_RING;
         else return AudioManager.STREAM_MUSIC;
     }
+
 //
 //    static boolean loadPreventMaxAndMinVolume(SharedPreferences sharedPreferences) {
 //        return sharedPreferences.getBoolean("SwitchPreferenceCompat_preventMaxAndMinVolume", true);
@@ -106,11 +107,13 @@ class Utils {
         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(service, 0, notificationIntent, 0);
 
+
         Notification notification = new NotificationCompat.Builder(service, MONITOR_SERVICE_NOTIFICATION_CHANNEL_ID)
                 .setSmallIcon(R.drawable.avk_notification_icon)
                 .setContentTitle("Capturing volume key presses")
                 .setContentIntent(pendingIntent)
                 .setPriority(NotificationCompat.PRIORITY_LOW)
+                .setVisibility(NotificationCompat.VISIBILITY_SECRET)
                 .build();
 
         service.startForeground(NOTIFICATION_ID, notification);

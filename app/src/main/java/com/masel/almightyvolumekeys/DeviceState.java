@@ -50,6 +50,8 @@ class DeviceState {
         setupOnSystemSettingsChangeCallbacks();
         setupOnSecureSettingsChangeCallbacks();
         setupOnRingerModeChangeCallbacks();
+        setupFlashlightCallbacks();
+        setupSoundRecCallbacks();
     }
 
     /**
@@ -292,7 +294,7 @@ class DeviceState {
 
     // endregion
 
-    // region Allow sleep callback
+    // region On allow sleep callback
 
     private List<Runnable> onAllowSleepList = new ArrayList<>();
 
@@ -304,22 +306,33 @@ class DeviceState {
     }
 
     private void setupOnAllowSleepCallbacks() {
-        addScreenOffCallback(() -> {
-            if (!isMediaPlaying()) allowSleepAfterDelay();
-        });
-
-        addMediaStopCallback(() -> {
-            if (!isScreenOn()) allowSleepAfterDelay();
-        });
+        addScreenOffCallback(this::allowSleepAfterDelay_ifInactivity);
+        addMediaStopCallback(this::allowSleepAfterDelay_ifInactivity);
+        addOnFlashlightOffCallback(this::allowSleepAfterDelay_ifInactivity);
+        addOnSoundRecStopCallback(this::allowSleepAfterDelay_ifInactivity);
 
         addScreenOnCallback(() -> onAllowSleepHandler.removeCallbacksAndMessages(null));
         addMediaStartCallback(() -> onAllowSleepHandler.removeCallbacksAndMessages(null));
+        addOnFlashlightOnCallback(() -> onAllowSleepHandler.removeCallbacksAndMessages(null));
+        addOnSoundRecStartCallback(() -> onAllowSleepHandler.removeCallbacksAndMessages(null));
+    }
+
+    private void allowSleepAfterDelay_ifInactivity() {
+        RecUtils.log("... " + myContext.flashlight.isOn());
+
+        if (!isMediaPlaying() &&
+                !isScreenOn() &&
+                !myContext.flashlight.isOn() &&
+                !myContext.audioRecorder.isRecording()) {
+
+            allowSleepAfterDelay();
+        }
     }
 
     private Handler onAllowSleepHandler = new Handler();
 
     private void allowSleepAfterDelay() {
-        int disableAppMinutes = myContext.sharedPreferences.getInt("SeekBarPreference_disableAppTimeout", 60);
+        int disableAppMinutes = myContext.sharedPreferences.getInt("SeekBarPreference_disableAppTimeout", 15);
 //        boolean allowSleepSwitch = myContext.sharedPreferences.getBoolean("SwitchPreferenceCompat_allowSleep", false);
 //        int allowSleepStartHour = myContext.sharedPreferences.getInt("SeekBarPreference_allowSleepStart", 0);
 //        int allowSleepEndHour = myContext.sharedPreferences.getInt("SeekBarPreference_allowSleepEnd", 0);
@@ -331,18 +344,17 @@ class DeviceState {
         onAllowSleepHandler.removeCallbacksAndMessages(null);
         onAllowSleepHandler.postDelayed(() -> {
             for (Runnable onAllowSleep : onAllowSleepList) onAllowSleep.run();
-
         }, timeout);
     }
 
-    private static boolean currentlyAllowSleep(int allowStartHour, int allowStopHour) {
-        int currentHour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
-        return hourInterval(allowStartHour, allowStopHour) > hourInterval(allowStartHour, currentHour);
-    }
-
-    private static int hourInterval(int from, int to) {
-        return from <= to ? to - from : (to + 24) - from;
-    }
+//    private static boolean currentlyAllowSleep(int allowStartHour, int allowStopHour) {
+//        int currentHour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
+//        return hourInterval(allowStartHour, allowStopHour) > hourInterval(allowStartHour, currentHour);
+//    }
+//
+//    private static int hourInterval(int from, int to) {
+//        return from <= to ? to - from : (to + 24) - from;
+//    }
 
     // endregion
 
@@ -439,6 +451,56 @@ class DeviceState {
     }
 
     // endregion
+
+    // region Flashlight
+
+    private List<Runnable> onFlashlightOnList = new ArrayList<>();
+    private List<Runnable> onFlashlightOffList = new ArrayList<>();
+
+    private void addOnFlashlightOnCallback(Runnable onFlashlightOn) {
+        onFlashlightOnList.add(onFlashlightOn);
+    }
+
+    private void addOnFlashlightOffCallback(Runnable onFlashlightOff) {
+        onFlashlightOffList.add(onFlashlightOff);
+    }
+
+    private void setupFlashlightCallbacks() {
+        myContext.flashlight.setStateCallbacks(
+                () -> {
+                    for (Runnable onFlashlightOn : onFlashlightOnList) onFlashlightOn.run();
+                },
+                () -> {
+                    for (Runnable onFlashlightOff : onFlashlightOffList) onFlashlightOff.run();
+                });
+    }
+
+    // endregion
+
+    // region Sound rec
+
+    private List<Runnable> onSoundRecStartList = new ArrayList<>();
+    private List<Runnable> onSoundRecStopList = new ArrayList<>();
+
+    private void addOnSoundRecStartCallback(Runnable onSoundRecStart) {
+        onSoundRecStartList.add(onSoundRecStart);
+    }
+
+    private void addOnSoundRecStopCallback(Runnable onSoundRecStop) {
+        onSoundRecStopList.add(onSoundRecStop);
+    }
+
+    private void setupSoundRecCallbacks() {
+        myContext.audioRecorder.setStateCallbacks(
+                () -> {
+                    for (Runnable onSoundRecStart : onSoundRecStartList) onSoundRecStart.run();
+                },
+                () -> {
+                    for (Runnable onSoundRecStop : onSoundRecStopList) onSoundRecStop.run();
+                });
+    }
+
+    //
 
     void destroy() {
         if (cameraCallback != null) cameraManager.unregisterAvailabilityCallback(cameraCallback);

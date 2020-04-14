@@ -116,6 +116,7 @@ class Notifier {
                 .setVibrate(getVibrationPatternArray(vibrationPattern))
                 .setSound(null)
                 .setAutoCancel(true)
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .build();
 
         try {

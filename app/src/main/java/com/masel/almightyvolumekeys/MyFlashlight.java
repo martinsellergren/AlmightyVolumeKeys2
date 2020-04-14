@@ -31,6 +31,9 @@ class MyFlashlight {
                     public void onTorchModeChanged(@NonNull String cameraId, boolean enabled) {
                         super.onTorchModeChanged(cameraId, enabled);
                         isOn = enabled;
+
+                        if (enabled && onFlashlightOn != null) onFlashlightOn.run();
+                        else if (!enabled && onFlashlightOff != null) onFlashlightOff.run();
                     }
                 };
 
@@ -83,5 +86,12 @@ class MyFlashlight {
         if (isAvailable && Build.VERSION.SDK_INT >= 23) {
             cameraManager.unregisterTorchCallback(torchCallback);
         }
+    }
+
+    private Runnable onFlashlightOn = null;
+    private Runnable onFlashlightOff = null;
+    void setStateCallbacks(Runnable onFlashlightOn, Runnable onFlashlightOff) {
+        this.onFlashlightOn = onFlashlightOn;
+        this.onFlashlightOff = onFlashlightOff;
     }
 }
