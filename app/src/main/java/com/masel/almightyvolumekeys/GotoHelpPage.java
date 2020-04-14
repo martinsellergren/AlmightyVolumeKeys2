@@ -1,5 +1,6 @@
 package com.masel.almightyvolumekeys;
 
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 
@@ -34,16 +35,25 @@ class GotoHelpPage {
         translatedIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
 
         if (lang.equals("en")) {
-            activity.startActivity(engIntent);
+            tryOpenWebPage(activity, engIntent);
         }
         else {
             RecUtils.showDialog(activity,
                     null,
                     String.format("Auto-translate to: <b>%s</b>?", Locale.getDefault().getDisplayLanguage()),
                     Locale.getDefault().getDisplayLanguage(),
-                    () -> activity.startActivity(translatedIntent),
+                    () -> tryOpenWebPage(activity, translatedIntent),
                     "English",
-                    () -> activity.startActivity(engIntent));
+                    () -> tryOpenWebPage(activity, engIntent));
+        }
+    }
+
+    private static void tryOpenWebPage(Context context, Intent webIntent) {
+        try {
+            context.startActivity(webIntent);
+        }
+        catch (Exception e) {
+            RecUtils.toast(context, "You need a web browser");
         }
     }
 

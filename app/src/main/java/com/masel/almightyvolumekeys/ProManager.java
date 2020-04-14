@@ -61,12 +61,12 @@ class ProManager implements PurchasesUpdatedListener {
         else if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.USER_CANCELED) {
             // Handle an error caused by a user cancelling the purchase flow.
             RecUtils.log("Billing ended by user");
-            onLocked.run();
+            if (onLocked != null) onLocked.run();
         }
         else {
             // Handle any other error codes.
             RecUtils.log("Billing ended, unknown reason: " + billingResult);
-            onLocked.run();
+            if (onLocked != null) onLocked.run();
         }
     }
 
@@ -76,16 +76,16 @@ class ProManager implements PurchasesUpdatedListener {
     private void handlePurchase(Purchase purchase) {
         if (purchase.getPurchaseState() == Purchase.PurchaseState.PURCHASED) {
             RecUtils.log("Successful purchase");
-            onUnlocked.run();
+            if (onUnlocked != null) onUnlocked.run();
             acknowledgePurchase(purchase);
         }
         else if (purchase.getPurchaseState() == Purchase.PurchaseState.PENDING) {
             RecUtils.log("Pending purchase");
-            onPending.run();
+            if (onPending != null) onPending.run();
         }
         else {
             RecUtils.log("Canceled purchase?");
-            onLocked.run();
+            if (onLocked != null) onLocked.run();
         }
     }
 
@@ -116,7 +116,7 @@ class ProManager implements PurchasesUpdatedListener {
     void runStateAction() {
         Runnable onConnected = () -> {
             List<Purchase> purchases = billingClient.queryPurchases(BillingClient.SkuType.INAPP).getPurchasesList();
-            if (purchases.size() == 0) onLocked.run();
+            if (onLocked != null && purchases.size() == 0) onLocked.run();
             else handlePurchase(purchases.get(0));
         };
 
