@@ -22,7 +22,7 @@ class VolumeUtils {
             myContext.audioManager.setStreamVolume(stream, volume, volumeChangeFlag);
         }
         catch (SecurityException e) {
-            RecUtils.requestPermissionToSilenceDevice(myContext.context);
+            RecUtils.requestSilenceDevicePermission(myContext.context);
         }
 
         if (executeCallbacks) {

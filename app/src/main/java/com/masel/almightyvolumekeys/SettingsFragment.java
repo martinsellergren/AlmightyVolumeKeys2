@@ -58,7 +58,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         listPreference.setOnPreferenceChangeListener((preference, newValue) -> {
             String value = (String)newValue;
             if (value.equals("Ringtone volume")) {
-                RecUtils.requestPermissionToSilenceDevice(getContext());
+                RecUtils.requestSilenceDevicePermission(getContext());
             }
             return true;
         });

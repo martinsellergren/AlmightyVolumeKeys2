@@ -24,7 +24,7 @@ import java.util.List;
 class ProManager implements PurchasesUpdatedListener {
 
     static final int numberOfFreeIdleActions = 2;
-    static final int numberOfFreeMediaActions = 3;
+    static final int numberOfFreeMediaActions = 2;
 
     private interface RunnableWithProductDetails {
         void run(SkuDetails skuDetails);

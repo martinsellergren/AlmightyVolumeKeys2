@@ -36,8 +36,10 @@ class VolumeKeyCaptureUsingMediaSession {
 
         myContext.deviceState.addMediaStartCallback(this::enableOrDisable);
         myContext.deviceState.addMediaStopCallback(this::enableOrDisable);
-        myContext.deviceState.addOnAllowSleepCallback(() -> new Handler().postDelayed(() -> mediaSession.setActive(false), 1000));
-        myContext.deviceState.addScreenOnCallback(this::enableOrDisable);
+//        myContext.deviceState.addOnAllowSleepCallback(() -> new Handler().postDelayed(() -> mediaSession.setActive(false), 1000));
+//        myContext.deviceState.addScreenOnCallback(this::enableOrDisable);
+        myContext.deviceState.appLifecycle.addDisableAppCallback(() -> mediaSession.setActive(false));
+        myContext.deviceState.appLifecycle.addEnableAppCallback(this::enableOrDisable);
         myContext.deviceState.addOnSystemSettingsChangeCallback(this::enableOrDisable);
         myContext.deviceState.addOnSecureSettingsChangeCallback(this::enableOrDisable);
         myContext.deviceState.addCameraStateCallbacks(this::enableOrDisable, this::enableOrDisable);

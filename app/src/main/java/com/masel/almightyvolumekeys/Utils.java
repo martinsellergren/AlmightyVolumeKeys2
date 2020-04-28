@@ -51,6 +51,11 @@ class Utils {
         else return AudioManager.STREAM_MUSIC;
     }
 
+    static long loadDisableAppTime(SharedPreferences sharedPreferences) {
+        int disableAppMinutes = sharedPreferences.getInt("SeekBarPreference_disableAppTimeout", 30);
+        return disableAppMinutes * 60000;
+    }
+
 //
 //    static boolean loadPreventMaxAndMinVolume(SharedPreferences sharedPreferences) {
 //        return sharedPreferences.getBoolean("SwitchPreferenceCompat_preventMaxAndMinVolume", true);

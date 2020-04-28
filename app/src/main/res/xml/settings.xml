@@ -71,7 +71,7 @@
         app:singleLineTitle="false">
 
         <Preference
-            app:summary="Automatically disable this app when device has been inactive for a while (inactive = screen off, music off, no sound rec, no flashlight..). This is good to save battery. When device becomes active, the app is automatically enabled again. If you leave this at around 15, battery usage is low. See Help for more info about battery usage."/>
+            app:summary="Automatically disable this app when device has been inactive for a while (inactive = screen off, music off, no sound rec, no flashlight..). This is good to save battery. When device becomes active, the app is automatically enabled again. If you leave this at around 30, battery usage is low. See Help for more info about battery usage."/>
 <!--            app:summary="When this app is running your device is prevented from falling asleep. When sleeping, almost no battery is used. See Help for more info."-->
 
         <SeekBarPreference
@@ -79,7 +79,7 @@
             app:title="Disable app timeout [minutes]"
             app:singleLineTitle="false"
             app:summary="Disable app this long after device becomes inactive. 0 means disable immediately."
-            app:defaultValue="15"/>
+            app:defaultValue="30"/>
 
 <!--        <SwitchPreferenceCompat-->
 <!--            app:key="SwitchPreferenceCompat_allowSleep"-->

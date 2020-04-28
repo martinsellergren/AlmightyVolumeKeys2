@@ -37,7 +37,7 @@ public class MonitorService extends NotificationListenerService {
                 if (stream == AudioManager.STREAM_MUSIC && volumeKeyCaptureUsingPolling.isActive()) volumeKeyCaptureUsingPolling.getResetAction().run();
             });
 
-            DisableAppOnInactiveDevice.init(myContext);
+            //DisableAppOnInactiveDevice.init(myContext);
         });
     }
 
@@ -74,7 +74,7 @@ public class MonitorService extends NotificationListenerService {
     // region Is enabled
 
     static boolean isEnabled(Context context) {
-        return RecUtils.hasPermissionToSilenceDevice(context);
+        return RecUtils.hasSilenceDevicePermission(context);
     }
 
     // endregion

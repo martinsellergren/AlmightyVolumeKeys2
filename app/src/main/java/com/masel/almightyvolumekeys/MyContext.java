@@ -27,7 +27,7 @@ class MyContext {
     final SharedPreferences sharedPreferences;
     final MyFlashlight flashlight;
     final VolumeUtils volumeUtils;
-    final WakeLock wakeLock;
+    //final WakeLock wakeLock;
     final ScreenOverlay screenOverlay;
 
     final DeviceState deviceState;
@@ -44,7 +44,7 @@ class MyContext {
         vibrator = new MyVibrator(context);
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         flashlight = new MyFlashlight(context);
-        wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, RecUtils.isHuawei(context) ? "LocationManagerService" : "com.masel.almightyvolumekeys::WakeLock");
+        //wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, RecUtils.isHuawei(context) ? "LocationManagerService" : "com.masel.almightyvolumekeys::WakeLock");
 
         deviceState = new DeviceState(this);
         volumeUtils = new VolumeUtils(this);
@@ -61,6 +61,6 @@ class MyContext {
         flashlight.destroy();
         deviceState.destroy();
         screenOverlay.destroy();
-        if (wakeLock.isHeld()) wakeLock.release();
+        //if (wakeLock.isHeld()) wakeLock.release();
     }
 }

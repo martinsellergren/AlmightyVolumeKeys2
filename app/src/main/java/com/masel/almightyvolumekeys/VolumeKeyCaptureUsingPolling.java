@@ -29,8 +29,10 @@ class VolumeKeyCaptureUsingPolling {
 
         myContext.deviceState.addMediaStartCallback(this::enableOrDisable);
         myContext.deviceState.addMediaStopCallback(this::enableOrDisable);
-        myContext.deviceState.addOnAllowSleepCallback(this::stopPolling);
-        myContext.deviceState.addScreenOnCallback(this::enableOrDisable);
+//        myContext.deviceState.addOnAllowSleepCallback(this::stopPolling);
+//        myContext.deviceState.addScreenOnCallback(this::enableOrDisable);
+        myContext.deviceState.appLifecycle.addDisableAppCallback(this::stopPolling);
+        myContext.deviceState.appLifecycle.addEnableAppCallback(this::enableOrDisable);
 
         if (deviceStateOkForCapture()) startPolling();
     }
