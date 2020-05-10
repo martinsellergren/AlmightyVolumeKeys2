@@ -15,6 +15,7 @@ import androidx.annotation.Nullable;
 
 import com.masel.rec_utils.RecUtils;
 
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -721,7 +722,14 @@ class Actions {
     }
 
     private static void tellTime(MyContext myContext, int volumePercentage, boolean alsoDate) throws Action.ExecutionException {
-        String currentTime = new SimpleDateFormat("HH:mm" + (alsoDate ? ", MM/dd/yyyy" : ""), Locale.getDefault()).format(new Date());
+        String currentTime;
+        if (!alsoDate) {
+            currentTime = DateFormat.getTimeInstance(DateFormat.SHORT, myContext.voice.getLocale()).format(new Date());
+        }
+        else {
+            currentTime = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, myContext.voice.getLocale()).format(new Date());
+        }
+
         boolean ok = myContext.voice.speak(currentTime, volumePercentage);
         if (!ok) throw new Action.ExecutionException("Text-to-speech error");
     }

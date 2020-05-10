@@ -1,7 +1,6 @@
 package com.masel.almightyvolumekeys;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.PowerManager;
 
@@ -18,8 +17,6 @@ class AppLifecycle {
     private PowerManager.WakeLock wakeLock;
     private DeviceState deviceState;
 
-    private boolean isEnabled = true;
-
     AppLifecycle(Context context, DeviceState deviceState) {
         this.context = context;
         this.deviceState = deviceState;
@@ -33,9 +30,6 @@ class AppLifecycle {
             return;
         }
 
-        deviceState.addScreenOffCallback(this::acquireWakeLock);
-        deviceState.addScreenOnCallback(this::releaseWakeLock);
-
         deviceState.addScreenOnCallback(this::evaluate);
         deviceState.addScreenOffCallback(this::evaluate);
         deviceState.addMediaStartCallback(this::evaluate);
@@ -48,13 +42,16 @@ class AppLifecycle {
 
     void destroy() {
         releaseWakeLock();
+        evaluationHandler.removeCallbacksAndMessages(null);
+        disableAppHandler.removeCallbacksAndMessages(null);
     }
 
     private void acquireWakeLock() {
         try {
             if (!wakeLock.isHeld()) {
+                long disableAppTime = Utils.loadDisableAppTime(PreferenceManager.getDefaultSharedPreferences(context));
+                wakeLock.acquire(disableAppTime);
                 RecUtils.log("Wakelock acquired");
-                wakeLock.acquire(12 * 60 * 60 * 1000);
             }
         }
         catch (Exception e) {
@@ -65,8 +62,8 @@ class AppLifecycle {
     private void releaseWakeLock() {
         try {
             if (wakeLock.isHeld()) {
-                RecUtils.log("Wakelock released");
                 wakeLock.release();
+                RecUtils.log("Wakelock released");
             }
         }
         catch (Exception e) {
@@ -82,14 +79,21 @@ class AppLifecycle {
         evaluationHandler.postDelayed(this::evaluate_, EVALUATION_DELAY);
     }
 
-    private void evaluate_() {
-        boolean shouldBeEnabled = shouldBeEnabled();
+    private Handler disableAppHandler = new Handler();
 
-        if (isEnabled && !shouldBeEnabled) {
-            onDisable();
+    private void evaluate_() {
+        if (!isDeviceActive()) {
+            acquireWakeLock();
+            long disableAppTime = Utils.loadDisableAppTime(PreferenceManager.getDefaultSharedPreferences(context));
+            disableAppHandler.postDelayed(() -> {
+                releaseWakeLock();
+                onDisable();
+            }, disableAppTime);
         }
-        else if (!isEnabled && shouldBeEnabled) {
+        else {
+            releaseWakeLock();
             onEnable();
+            disableAppHandler.removeCallbacksAndMessages(null);
         }
     }
 
@@ -104,32 +108,28 @@ class AppLifecycle {
         onDisableList.add(onDisableApp);
     }
 
+    private boolean isEnabled = true;
+
     private void onDisable() {
-        isEnabled = false;
-        for (Runnable onDisable : onDisableList) onDisable.run();
-        releaseWakeLock();
-        RecUtils.log("App disabled");
+        if (isEnabled) {
+            RecUtils.log("App disabled");
+            isEnabled = false;
+            for (Runnable onDisable : onDisableList) onDisable.run();
+        }
     }
 
     private void onEnable() {
-        isEnabled = true;
-        if (!deviceState.isScreenOn()) acquireWakeLock();
-        for (Runnable onEnable : onEnableList) onEnable.run();
-        RecUtils.log("App enabled");
+        if (!isEnabled) {
+            RecUtils.log("App enabled");
+            isEnabled = true;
+            for (Runnable onEnable : onEnableList) onEnable.run();
+        }
     }
 
-    private long previousActivityTime = System.currentTimeMillis();
-
-    private boolean shouldBeEnabled() {
-        if (deviceState.isScreenOn() ||
+    private boolean isDeviceActive() {
+        return deviceState.isScreenOn() ||
                 deviceState.isMediaPlaying() ||
                 deviceState.isFlashlightOn() ||
-                deviceState.isSoundRecOn()) {
-            previousActivityTime = System.currentTimeMillis();
-            return true;
-        }
-
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-        return System.currentTimeMillis() < previousActivityTime + Utils.loadDisableAppTime(sharedPreferences);
+                deviceState.isSoundRecOn();
     }
 }

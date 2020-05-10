@@ -14,6 +14,8 @@ import androidx.media.AudioManagerCompat;
 
 import com.masel.rec_utils.RecUtils;
 
+import java.util.Locale;
+
 class Voice {
 
     private AudioManager audioManager;
@@ -93,6 +95,7 @@ class Voice {
     }
 
     boolean speak(String speech, int volumePercentage) {
+        RecUtils.log("Voice: " + speech);
         if (tts == null || volumeUtils == null) return false;
 
         if (volumePercentage != -1) {
@@ -124,6 +127,11 @@ class Voice {
 
     private boolean isAvailable() {
         return tts != null;
+    }
+
+    Locale getLocale() {
+        if (tts == null) return Locale.getDefault();
+        return tts.getVoice().getLocale();
     }
 
     void destroy() {
