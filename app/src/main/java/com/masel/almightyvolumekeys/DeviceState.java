@@ -8,6 +8,7 @@ import android.database.ContentObserver;
 import android.hardware.camera2.CameraManager;
 import android.media.AudioManager;
 import android.media.AudioPlaybackConfiguration;
+import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Handler;
 
@@ -30,6 +31,7 @@ class DeviceState {
 
     private MyContext myContext;
     private CameraManager cameraManager;
+    private BatteryManager batteryManager;
 
     private boolean isCameraActive;
     private boolean isMediaPlaying;
@@ -40,6 +42,8 @@ class DeviceState {
         this.myContext = myContext;
 
         cameraManager = (CameraManager) myContext.context.getSystemService(Context.CAMERA_SERVICE);
+        batteryManager = (BatteryManager) myContext.context.getSystemService(Context.BATTERY_SERVICE);
+
         isCameraActive = false;
         isMediaPlaying = myContext.audioManager.isMusicActive();
         appLifecycle = new AppLifecycle(myContext.context, this);
@@ -99,6 +103,10 @@ class DeviceState {
 
     boolean isDeviceUnlocked() {
         return !myContext.keyguardManager.isKeyguardLocked();
+    }
+
+    boolean isCharging() {
+        return batteryManager.isCharging();
     }
 
     // endregion

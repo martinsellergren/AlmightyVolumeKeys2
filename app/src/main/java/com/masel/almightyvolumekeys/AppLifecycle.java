@@ -38,6 +38,8 @@ class AppLifecycle {
         deviceState.addFlashlightOffCallback(this::evaluate);
         deviceState.addSoundRecStartCallback(this::evaluate);
         deviceState.addSoundRecStopCallback(this::evaluate);
+
+        acquireWakeLock();
     }
 
     void destroy() {
@@ -49,8 +51,7 @@ class AppLifecycle {
     private void acquireWakeLock() {
         try {
             if (!wakeLock.isHeld()) {
-                long disableAppTime = Utils.loadDisableAppTime(PreferenceManager.getDefaultSharedPreferences(context));
-                wakeLock.acquire(disableAppTime);
+                wakeLock.acquire(12 * 3600 * 1000);
                 RecUtils.log("Wakelock acquired");
             }
         }
@@ -83,17 +84,13 @@ class AppLifecycle {
 
     private void evaluate_() {
         if (!isDeviceActive()) {
-            acquireWakeLock();
             long disableAppTime = Utils.loadDisableAppTime(PreferenceManager.getDefaultSharedPreferences(context));
-            disableAppHandler.postDelayed(() -> {
-                releaseWakeLock();
-                onDisable();
-            }, disableAppTime);
+            disableAppHandler.removeCallbacksAndMessages(null);
+            disableAppHandler.postDelayed(this::disableApp, disableAppTime);
         }
         else {
-            releaseWakeLock();
-            onEnable();
             disableAppHandler.removeCallbacksAndMessages(null);
+            enableApp();
         }
     }
 
@@ -110,7 +107,9 @@ class AppLifecycle {
 
     private boolean isEnabled = true;
 
-    private void onDisable() {
+    private void disableApp() {
+        releaseWakeLock();
+
         if (isEnabled) {
             RecUtils.log("App disabled");
             isEnabled = false;
@@ -118,7 +117,9 @@ class AppLifecycle {
         }
     }
 
-    private void onEnable() {
+    private void enableApp() {
+        acquireWakeLock();
+
         if (!isEnabled) {
             RecUtils.log("App enabled");
             isEnabled = true;
@@ -130,6 +131,7 @@ class AppLifecycle {
         return deviceState.isScreenOn() ||
                 deviceState.isMediaPlaying() ||
                 deviceState.isFlashlightOn() ||
-                deviceState.isSoundRecOn();
+                deviceState.isSoundRecOn() ||
+                deviceState.isCharging();
     }
 }

@@ -945,6 +945,11 @@ class Actions {
         String[] getNeededPermissions(Context context) {
             return new String[]{Settings.ACTION_MANAGE_WRITE_SETTINGS};
         }
+
+        @Override
+        NotifyOrder getNotifyOrder() {
+            return NotifyOrder.NEVER;
+        }
     }
 
     static class Screen_orientation_Landscape_1 extends Action {
@@ -963,6 +968,11 @@ class Actions {
         String[] getNeededPermissions(Context context) {
             return new String[]{Settings.ACTION_MANAGE_WRITE_SETTINGS};
         }
+
+        @Override
+        NotifyOrder getNotifyOrder() {
+            return NotifyOrder.NEVER;
+        }
     }
 
     static class Screen_orientation_Landscape_2 extends Action {
@@ -980,6 +990,11 @@ class Actions {
         @Override
         String[] getNeededPermissions(Context context) {
             return new String[]{Settings.ACTION_MANAGE_WRITE_SETTINGS};
+        }
+
+        @Override
+        NotifyOrder getNotifyOrder() {
+            return NotifyOrder.NEVER;
         }
     }
 
