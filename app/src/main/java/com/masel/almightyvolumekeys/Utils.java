@@ -93,6 +93,7 @@ class Utils {
     /**
      * Good for stability of a service.
      */
+    static final int FOREGROUND_NOTIFICATION_ID = 6664867;
     static void requestForeground(Service service) {
         final String MONITOR_SERVICE_NOTIFICATION_CHANNEL_ID = "MONITOR_SERVICE_NOTIFICATION_CHANNEL_ID";
         final int NOTIFICATION_ID = 6664867;
@@ -111,7 +112,6 @@ class Utils {
         notificationIntent.setComponent(new ComponentName("com.masel.almightyvolumekeys", "com.masel.almightyvolumekeys.MainActivity"));
         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(service, 0, notificationIntent, 0);
-
 
         Notification notification = new NotificationCompat.Builder(service, MONITOR_SERVICE_NOTIFICATION_CHANNEL_ID)
                 .setSmallIcon(R.drawable.avk_notification_icon)

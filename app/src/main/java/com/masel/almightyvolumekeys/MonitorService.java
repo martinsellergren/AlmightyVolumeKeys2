@@ -3,8 +3,10 @@ package com.masel.almightyvolumekeys;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.media.AudioManager;
+import android.os.Build;
 import android.os.Handler;
 import android.service.notification.NotificationListenerService;
+import android.service.notification.StatusBarNotification;
 
 import com.masel.rec_utils.AudioRecorder;
 import com.masel.rec_utils.KeyValueStore;
@@ -38,7 +40,23 @@ public class MonitorService extends NotificationListenerService {
             });
 
             //DisableAppOnInactiveDevice.init(myContext);
+            hideForegroundNotification();
         });
+    }
+
+    private void hideForegroundNotification() {
+        String key = getForegroundNotificationKey();
+        if (Build.VERSION.SDK_INT >= 26) {
+            snoozeNotification(key, 365*24*3600*1000L);
+            //new Handler().postDelayed(() -> snoozeNotification(key, 20*24*3600*1000), 5000);
+        }
+    }
+
+    private String getForegroundNotificationKey() {
+        for (StatusBarNotification notification : getActiveNotifications()) {
+            if (notification.getId() == Utils.FOREGROUND_NOTIFICATION_ID) return notification.getKey();
+        }
+        return null;
     }
 
     private void cleanUpAfterCrashDuringRecording() {

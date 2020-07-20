@@ -198,7 +198,12 @@ public class MappingListPreference extends ListPreference {
             entries.addAll(taskerEntries);
             return entries.toArray(new String[]{});
         }
-        else if (state.equals("music")) return getContext().getResources().getStringArray(R.array.music_actions);
+        else if (state.equals("music")) {
+            List<String> entries = new ArrayList<>(Arrays.asList(getContext().getResources().getStringArray(R.array.music_actions)));
+            List<String> taskerEntries = taskerEntries();
+            entries.addAll(taskerEntries);
+            return entries.toArray(new String[]{});
+        }
         else if (state.equals("soundrec")) return getContext().getResources().getStringArray(R.array.soundrec_actions);
         else throw new RuntimeException("Dead end");
     }
