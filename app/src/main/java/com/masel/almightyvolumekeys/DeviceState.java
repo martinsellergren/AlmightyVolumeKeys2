@@ -110,9 +110,6 @@ class DeviceState {
         if (intent == null) return false;
         int plugged = intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1);
         return plugged == BatteryManager.BATTERY_PLUGGED_AC || plugged == BatteryManager.BATTERY_PLUGGED_USB || plugged == BatteryManager.BATTERY_PLUGGED_WIRELESS;
-//
-//        RecUtils.log("Is charging::::::::: " + batteryManager.isCharging());
-//        return batteryManager.isCharging();
     }
 
     // endregion

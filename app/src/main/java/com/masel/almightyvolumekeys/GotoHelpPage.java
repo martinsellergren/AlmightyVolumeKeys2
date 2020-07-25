@@ -38,7 +38,7 @@ class GotoHelpPage {
             tryOpenWebPage(activity, engIntent);
         }
         else {
-            RecUtils.showDialog(activity,
+            RecUtils.showInfoDialog(activity,
                     null,
                     String.format("Auto-translate to: <b>%s</b>?", Locale.getDefault().getDisplayLanguage()),
                     Locale.getDefault().getDisplayLanguage(),

@@ -236,7 +236,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void showEnableServicePopupIfNotEnabled() {
         if (!MonitorService.isEnabled(this)) {
-            RecUtils.showDialog(this,
+            RecUtils.showInfoDialog(this,
                     null,
                     "Activate <b>Almighty Volume Keys</b> in the following screen.",
                     "Got it!",
